@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - FitMeals</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center">
+            <h1 class="text-2xl font-bold text-gray-900">FitMeals Admin</h1>
+          </div>
+          <div class="flex items-center space-x-4">
+            <span id="adminName" class="text-gray-700"></span>
+            <button 
+              id="logoutBtn"
+              class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-200"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Statistik Pengguna -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Total Pengguna</h3>
+          <div class="flex items-center">
+            <div class="text-3xl font-bold text-blue-600" id="totalUsers">-</div>
+            <div class="ml-4">
+              <button 
+                id="viewUsersBtn"
+                class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              >
+                Lihat Semua →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statistik Pesanan -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Total Pesanan</h3>
+          <div class="flex items-center">
+            <div class="text-3xl font-bold text-green-600" id="totalOrders">-</div>
+            <div class="ml-4">
+              <button 
+                id="viewOrdersBtn"
+                class="text-green-600 hover:text-green-800 text-sm font-medium"
+              >
+                Lihat Semua →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statistik Pendapatan -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Total Pendapatan</h3>
+          <div class="flex items-center">
+            <div class="text-3xl font-bold text-purple-600" id="totalRevenue">-</div>
+            <div class="ml-4">
+              <span class="text-sm text-gray-500">IDR</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabel Data -->
+      <div class="mt-8 bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">Data Terbaru</h3>
+        </div>
+        <div class="p-6">
+          <div id="dataTable">
+            <!-- Data akan dimuat di sini -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 🛡️ Proteksi Admin -->
+    <script>
+      // Cek autentikasi admin
+      const admin = JSON.parse(localStorage.getItem("admin"));
+      const adminToken = localStorage.getItem("adminToken");
+      
+      if (!admin || !adminToken || admin.role !== "admin") {
+        alert("Akses ditolak. Silakan login sebagai admin.");
+        window.location.href = "login.html";
+      }
+
+      // Tampilkan nama admin
+      document.getElementById('adminName').textContent = `Admin: ${admin.namaLengkap}`;
+
+      // Load data dashboard
+      loadDashboardData();
+
+      // Event listener untuk logout
+      document.getElementById('logoutBtn').addEventListener('click', async () => {
+        try {
+          const response = await fetch('/api/admin/logout', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${adminToken}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          // Clear localStorage
+          localStorage.removeItem('admin');
+          localStorage.removeItem('adminToken');
+          
+          // Redirect ke login
+          window.location.href = 'login.html';
+        } catch (error) {
+          console.error('Logout error:', error);
+          // Tetap logout meski ada error
+          localStorage.removeItem('admin');
+          localStorage.removeItem('adminToken');
+          window.location.href = 'login.html';
+        }
+      });
+
+      // Event listener untuk view users
+      document.getElementById('viewUsersBtn').addEventListener('click', () => {
+        // Implementasi untuk melihat semua user
+        alert('Fitur melihat semua user akan diimplementasikan');
+      });
+
+      // Event listener untuk view orders
+      document.getElementById('viewOrdersBtn').addEventListener('click', () => {
+        // Implementasi untuk melihat semua pesanan
+        alert('Fitur melihat semua pesanan akan diimplementasikan');
+      });
+
+      // Fungsi untuk load data dashboard
+      async function loadDashboardData() {
+        try {
+          // Load total users
+          const usersResponse = await fetch('/api/admin/getUsers', {
+            headers: {
+              'Authorization': `Bearer ${adminToken}`,
+            },
+          });
+          
+          if (usersResponse.ok) {
+            const usersData = await usersResponse.json();
+            document.getElementById('totalUsers').textContent = usersData.users.length;
+          }
+
+          // Load total orders
+          const ordersResponse = await fetch('/api/admin/getOrders', {
+            headers: {
+              'Authorization': `Bearer ${adminToken}`,
+            },
+          });
+          
+          if (ordersResponse.ok) {
+            const ordersData = await ordersResponse.json();
+            document.getElementById('totalOrders').textContent = ordersData.orders.length;
+            
+            // Hitung total pendapatan
+            const totalRevenue = ordersData.orders.reduce((sum, order) => {
+              return sum + (order.totalHarga || 0);
+            }, 0);
+            
+            document.getElementById('totalRevenue').textContent = 
+              new Intl.NumberFormat('id-ID').format(totalRevenue);
+          }
+
+        } catch (error) {
+          console.error('Error loading dashboard data:', error);
+          // Tampilkan data dummy jika API belum tersedia
+          document.getElementById('totalUsers').textContent = '0';
+          document.getElementById('totalOrders').textContent = '0';
+          document.getElementById('totalRevenue').textContent = '0';
+        }
+      }
+    </script>
+  </body>
+</html> 
