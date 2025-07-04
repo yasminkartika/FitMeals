@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard</title>
+    <!-- Favicon: Hapus jika file tidak ada -->
+    <!-- <link rel="icon" href="/img/favicon-32x32.png" sizes="32x32" type="image/png" /> -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <style>
+      .bg-right-half {
+        background-position: right;
+        background-repeat: no-repeat;
+        background-size: contain;
+      }
+      /* Custom select option color for review-rating */
+      #review-rating option:checked,
+      #review-rating option:focus,
+      #review-rating option:hover {
+        background: #63a365 !important;
+        color: #fff !important;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <nav
+      class="bg-white w-full border-b border-gray-200 fixed top-0 left-0 z-50"
+    >
+      <div
+        class="max-w-screen-xl mx-auto flex flex-wrap items-center justify-between p-4"
+      >
+        <!-- Logo -->
+        <a href="#" class="flex items-center space-x-3">
+          <img src="/img/Logo FitMeals.png" class="h-8" alt="Logo" />
+        </a>
+        <!-- Hamburger (mobile) -->
+        <button
+          id="navbar-btn"
+          class="md:hidden inline-flex items-center p-2 text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+        <!-- Menu + Button -->
+        <div
+          id="navbar"
+          class="hidden w-full md:flex md:w-auto items-center space-y-4 md:space-y-0 md:space-x-8 mt-4 md:mt-0"
+        >
+          <ul
+            class="flex flex-col md:flex-row md:items-center md:space-x-8 text-sm font-medium"
+          >
+            <li>
+              <a href="#Home" class="text-gray-900 hover:text-[#63A365]"
+                >Home</a
+              >
+            </li>
+            <li>
+              <a href="#Menu" class="text-gray-900 hover:text-[#63A365]"
+                >Menu</a
+              >
+            </li>
+            <li>
+              <a href="#Paket" class="text-gray-900 hover:text-[#63A365]"
+                >Paket Catering</a
+              >
+            </li>
+            <li>
+              <a href="#Pesanan" class="text-gray-900 hover:text-[#63A365]"
+                >Pesanan</a
+              >
+            </li>
+          </ul>
+          <div class="flex items-center space-x-8 ml-4 relative">
+            <a href="#" class="text-gray-900 hover:text-[#63A365] text-xl">
+              <i class="fa-regular fa-bell"></i>
+            </a>
+            <!-- User Dropdown -->
+            <div class="relative">
+              <button id="user-dropdown-btn" class="text-gray-900 hover:text-[#63A365] text-xl focus:outline-none">
+                <i class="fa-regular fa-user"></i>
+                <span id="user-name" class="ml-2 text-base font-semibold hidden md:inline"></span>
+              </button>
+              <div id="user-dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-100">
+                <a href="profile.html" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+                  <i class="fa-solid fa-gear mr-2"></i>
+                  <span>Pengaturan</span>
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+                  <i class="fa-solid fa-right-from-bracket mr-2"></i>
+                  <span>Keluar</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <script>
+      const btn = document.getElementById("navbar-btn");
+      const menu = document.getElementById("navbar");
+      btn.addEventListener("click", () => {
+        menu.classList.toggle("hidden");
+      });
+      // User dropdown logic
+      const userDropdownBtn = document.getElementById("user-dropdown-btn");
+      const userDropdownMenu = document.getElementById("user-dropdown-menu");
+      userDropdownBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        userDropdownMenu.classList.toggle("hidden");
+      });
+      document.addEventListener("click", function (e) {
+        if (!userDropdownMenu.classList.contains("hidden")) {
+          userDropdownMenu.classList.add("hidden");
+        }
+      });
+
+      // Integrasi user login
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('Dashboard loaded, checking authentication...');
+        
+        // Fungsi untuk redirect ke login
+        function redirectToLogin() {
+          console.log('Redirecting to login...');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = 'login.html';
+        }
+        
+        // Fungsi untuk update UI dengan data user
+        function updateUserUI(user) {
+          console.log('Updating UI with user data:', user);
+          const userName = document.getElementById('user-name');
+          if (userName) {
+            userName.textContent = user.namaLengkap || user.username || user.email;
+            userName.classList.remove('hidden');
+          }
+          // Simpan data user ke localStorage untuk backup
+          localStorage.setItem('user', JSON.stringify(user));
+        }
+        
+        // Cek session terlebih dahulu
+        fetch('/api/user/me', {
+          method: 'GET',
+          credentials: 'include'
+        })
+        .then(res => {
+          if (!res.ok) {
+            // Jika session tidak valid, cek token dari localStorage
+            const token = localStorage.getItem('token');
+            if (!token) {
+              console.log('No token found, redirecting to login');
+              redirectToLogin();
+              return null;
+            }
+            console.log('Using token from localStorage');
+            // Coba dengan token
+            return fetch('/api/user/me', {
+              headers: { 'Authorization': 'Bearer ' + token },
+              credentials: 'include'
+            });
+          }
+          return res;
+        })
+        .then(res => {
+          if (!res) return null; // Already handled redirect
+          
+          if (!res.ok) {
+            console.log('Authentication failed, clearing storage and redirecting');
+            redirectToLogin();
+            return null;
+          }
+          return res.json();
+        })
+        .then(user => {
+          if (user) {
+            console.log('User authenticated:', user);
+            updateUserUI(user);
+            
+            // Set up periodic session refresh (every 5 minutes)
+            setInterval(() => {
+              fetch('/api/refresh-session', {
+                method: 'POST',
+                credentials: 'include'
+              }).catch(err => {
+                console.error('Session refresh failed:', err);
+              });
+            }, 5 * 60 * 1000);
+          }
+        })
+        .catch((error) => {
+          console.error('Authentication error:', error);
+          redirectToLogin();
+        });
+      });
+
+      // Logout functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const logoutLink = document.querySelector('#user-dropdown-menu a:last-child');
+        if (logoutLink) {
+          logoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Hapus data dari localStorage
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            
+            // Panggil API logout
+            fetch('/api/logout', {
+              method: 'POST',
+              credentials: 'include'
+            })
+            .then(() => {
+              window.location.href = 'login.html';
+            })
+            .catch(() => {
+              // Jika API gagal, tetap redirect ke login
+              window.location.href = 'login.html';
+            });
+          });
+        }
+      });
+    </script>
+
+    <!-- Headline -->
+    <section
+      id="Home"
+      class="pt-24 bg-[#f8f6f2] relative text-gray-600 body-font overflow-hidden"
+    >
+      <div
+        class="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center relative z-10"
+      >
+        <!-- Konten Kiri -->
+        <div
+          class="lg:w-1/2 w-full lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center"
+        >
+          <h1
+            class="title-font text-4xl sm:text-5xl mb-6 font-extrabold text-[#63A365] leading-tight"
+          >
+            Santapan Lezat,<br class="hidden lg:inline-block" />
+            Nutrisi Tepat,<br class="hidden lg:inline-block" />
+            Hidup Sehat<br class="hidden lg:inline-block" />
+            <span>Bareng FitMeals!</span>
+          </h1>
+          <p class="mb-8 leading-relaxed text-gray-700 text-lg max-w-xl">
+            Nikmati hidup lebih sehat tanpa stres! Dengan catering sehat kami,
+            Anda bisa tetap menikmati makanan lezat sambil menjaga berat badan,
+            meningkatkan energi, dan merasa lebih bugar setiap hari.
+          </p>
+        </div>
+      </div>
+      <!-- Gambar Background Kanan (besar & agak kiri) -->
+      <div class="hidden md:block absolute top-0 right-[-5%] w-[65%] h-full">
+        <img
+          src="./img/filmeals_hd.png"
+          alt="FitMeals"
+          class="w-full h-full object-cover"
+        />
+      </div>
+    </section>
+
+    <section id="menu" class="pt-18 text-gray-600 body-font bg-[#ffffff]">
+      <div class="container px-8 sm:px-12 lg:px-20 mx-auto py-8">
+        <div class="flex flex-col text-center w-full mb-8">
+          <h1 class="text-base text-gray-700">FitMeals Menu</h1>
+          <p
+            id="week-title"
+            class="text-3xl md:text-4xl font-bold text-green-700 text-center mb-2"
+          >
+            Menu Minggu
+          </p>
+          <p id="week-dates" class="text-[#63a365] font-medium mb-2">
+            (13 - 19 April 2025)
+          </p>
+          <p id="week-ket" class="text-base text-gray-700">
+            *Ketuk gambar untuk melihat detail menu
+          </p>
+        </div>
+
+        <div class="relative">
+          <!-- Tombol kiri -->
+          <button
+            onclick="changeWeek(-1)"
+            class="absolute left-[-2rem] top-1/2 -translate-y-1/2 bg-[#63A365] text-white p-2 rounded-full shadow-lg z-10 hover:bg-[#57925B]"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+
+          <!-- Tombol kanan -->
+          <button
+            onclick="changeWeek(1)"
+            class="absolute right-[-2rem] top-1/2 -translate-y-1/2 bg-[#63A365] text-white p-2 rounded-full shadow-lg z-10 hover:bg-[#57925B]"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+
+          <!-- Grid gambar -->
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
+            id="menu-cards"
+          >
+            <!-- JS akan render card di sini -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Menu -->
+    <script>
+      const menuData = [
+        {
+          week: "Menu Minggu 1",
+          dates: "(30 Juni - 4 Juli 2025)",
+          items: [
+            {
+              img: "img/chicken tikka masala.jpeg",
+              title: "CHICKEN TIKKA MASALA DELIGHT",
+              desc: "Disajikan dengan Basmati Rice dan Garlic Butter Naan",
+              kcal: "470 KKAL",
+              ket: "Fat : 14g, Saturated Fat : 3g, Carbohydrates : 45mg, Fiber : 5g, Protein : 39g, Sodium : 550mg",
+            },
+            {
+              img: "img/veggie taco platter.jpg",
+              title: "VEGGIE TACO PLATTER",
+              desc: "Disajikan dengan Avocado Slice, Sweet Corn, Red Bean Salsa, Lemon Wedges, dan Saus Creamy & Salsa Pedas",
+              kcal: "520 KKAL",
+              ket: "Fat: 21g, Saturated Fat: 5g, Cholesterol: 0mg, Sodium: 350mg",
+            },
+            {
+              img: "img/chicken.jpeg",
+              title: "GRILLED CHICKEN POWER BOWL",
+              desc: "Dengan Brokoli Kukus, Paprika Bakar, Tomat Cherry Panggang",
+              kcal: "470 KKAL",
+              ket: "Fat : 18g, Saturated Fat : 3g, Cholesterol : 85mg, Sodium : 210mg",
+            },
+            {
+              img: "img/beef.jpeg",
+              title: "BEEF TENDER SKEWER PLATE",
+              desc: "Disajikan dengan Baby Spinach, Grilled Zucchini, Spinach, Blueberry, Mozzarella, BBQ sauce",
+              kcal: "560 KKAL",
+              ket: "Fat : 27g, Saturated Fat : 10g, Cholesterol : 115mg, Sodium : 430mg",
+            },
+            {
+              img: "img/Nasi Sate Lilit.jpeg",
+              title: "NASI BUNGA TELANG & SATE LILIT AYAM",
+              desc: "Disajikan dengan Urap Kelapa Pedas & Sambal Matah Bali",
+              kcal: "590 KKAL",
+              ket: "Fat : 24g, Saturated Fat : 8g, Cholesterol : 90mg, Sodium : 400mg",
+            },
+            {
+              img: "img/avocado egg plate.jpg",
+              title: "AVOCADO EGG PLATE",
+              desc: "Disajikan dengan Poached Egg, Grilled Avocado, Broccoli, Crispy Beef Bacon, dan Dark Rye Bread",
+              kcal: "470 KKAL",
+              ket: "Fat: 23g, Saturated Fat: 6g, Cholesterol: 190mg, Sodium: 410mg",
+            },
+            {
+              img: "img/Creamy Chicken and Mushroom Soup.jpeg",
+              title: "CREAMY CHICKEN & MUSHROOM SOUP",
+              desc: "Sup krim ayam dengan jamur, wortel, nasi, krim, parsley",
+              kcal: "430 KKAL",
+              ket: "Fat : 22g, Saturated Fat : 9g, Protein : 30g, Carbohydrates : 28g, Fiber : 3g, Sodium : 580mg",
+            },
+            {
+              img: "img/Salmon Sweet Potato Roasted Vegetables.jpeg",
+              title: "SAVORY SALMON MEDLEY",
+              desc: "Disajikan dengan roasted sweet potatoes dan sayuran panggang",
+              kcal: "530 KKAL",
+              ket: "Fat : 26g, Saturated Fat : 5g, Protein : 35g, Cholesterol : 40mg, Fiber : 9g, Sodium : 420mg",
+            },
+          ],
+        },
+        {
+          week: "Menu Minggu 2",
+          dates: "(7 - 11 Juli 2025)",
+          items: [
+            {
+              img: "img/Salmon Sweet Potato Roasted Vegetables.jpeg",
+              title: "SAVORY SALMON MEDLEY",
+              desc: "Disajikan dengan roasted sweet potatoes dan sayuran panggang",
+              kcal: "530 KKAL",
+              ket: "Fat : 26g, Saturated Fat : 5g, Protein : 35g, Cholesterol : 40mg, Fiber : 9g, Sodium : 420mg",
+            },
+            {
+              img: "img/chicken.jpeg",
+              title: "GRILLED CHICKEN POWER BOWL",
+              desc: "Dengan Brokoli Kukus, Paprika Bakar, Tomat Cherry Panggang",
+              kcal: "470 KKAL",
+              ket: "Fat : 18g, Saturated Fat : 3g, Cholesterol : 85mg, Sodium : 210mg",
+            },
+            {
+              img: "img/avocado egg plate.jpg",
+              title: "AVOCADO EGG PLATE",
+              desc: "Disajikan dengan Poached Egg, Grilled Avocado, Broccoli, Crispy Beef Bacon, dan Dark Rye Bread",
+              kcal: "470 KKAL",
+              ket: "Fat: 23g, Saturated Fat: 6g, Cholesterol: 190mg, Sodium: 410mg",
+            },
+            {
+              img: "img/veggie taco platter.jpg",
+              title: "VEGGIE TACO PLATTER",
+              desc: "Disajikan dengan Avocado Slice, Sweet Corn, Red Bean Salsa, Lemon Wedges, dan Saus Creamy & Salsa Pedas",
+              kcal: "520 KKAL",
+              ket: "Fat: 21g, Saturated Fat: 5g, Cholesterol: 0mg, Sodium: 350mg",
+            },
+            {
+              img: "img/Nasi Sate Lilit.jpeg",
+              title: "NASI BUNGA TELANG & SATE LILIT AYAM",
+              desc: "Disajikan dengan Urap Kelapa Pedas & Sambal Matah Bali",
+              kcal: "590 KKAL",
+              ket: "Fat : 24g, Saturated Fat : 8g, Cholesterol : 90mg, Sodium : 400mg",
+            },
+            {
+              img: "img/beef.jpeg",
+              title: "BEEF TENDER SKEWER PLATE",
+              desc: "Disajikan dengan Baby Spinach, Grilled Zucchini, Spinach, Blueberry, Mozzarella, BBQ sauce",
+              kcal: "560 KKAL",
+              ket: "Fat : 27g, Saturated Fat : 10g, Cholesterol : 115mg, Sodium : 430mg",
+            },
+            {
+              img: "img/chicken tikka masala.jpeg",
+              title: "CHICKEN TIKKA MASALA DELIGHT",
+              desc: "Disajikan dengan Basmati Rice dan Garlic Butter Naan",
+              kcal: "470 KKAL",
+              ket: "Fat : 14g, Saturated Fat : 3g, Carbohydrates : 45mg, Fiber : 5g, Protein : 39g, Sodium : 550mg",
+            },
+            {
+              img: "img/Creamy Chicken and Mushroom Soup.jpeg",
+              title: "CREAMY CHICKEN & MUSHROOM SOUP",
+              desc: "Sup krim ayam dengan jamur, wortel, nasi, krim, parsley",
+              kcal: "430 KKAL",
+              ket: "Fat : 22g, Saturated Fat : 9g, Protein : 30g, Carbohydrates : 28g, Fiber : 3g, Sodium : 580mg",
+            },
+          ],
+        },
+      ];
+
+      let currentIndex = 0;
+
+      function renderMenu() {
+        const data = menuData[currentIndex];
+        document.getElementById("week-title").textContent = data.week;
+        document.getElementById("week-dates").textContent = data.dates;
+
+        const container = document.getElementById("menu-cards");
+        container.innerHTML = "";
+
+        data.items.forEach((item, idx) => {
+          const card = document.createElement("div");
+          card.className = "relative cursor-pointer group";
+
+          card.innerHTML = `
+          <img src="${item.img}" class="object-cover w-full aspect-[4/3] max-w-md min-h-40 rounded-xl shadow-lg mb-4 transition-transform group-hover:scale-105 mx-auto" onclick="toggleInfo(${idx})">
+            <div id="info-${idx}" class="hidden bg-white p-3 rounded-lg mt-2 shadow">
+              <h2 class="text-sm font-semibold text-[#63A365] uppercase">${item.title}</h2>
+              <p class="text-gray-900 font-medium mb-1">${item.desc}</p>
+              <p class="text-[#63A365] font-semibold mt-1">${item.kcal}</p>
+              <p class="text-gray-900 font-medium">${item.ket}</p>
+
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      function toggleInfo(index) {
+        const info = document.getElementById(`info-${index}`);
+        if (info) {
+          info.classList.toggle("hidden");
+        }
+      }
+
+      function changeWeek(dir) {
+        currentIndex = (currentIndex + dir + menuData.length) % menuData.length;
+        renderMenu();
+      }
+
+      window.onload = renderMenu;
+    </script>
+
+    <!-- Paket Catering -->
+    <section id="Paket" class="bg-[#f8f6f2]">
+      <div class="max-w-5xl mx-auto py-10 px-4 pt-18">
+        <h2
+          class="text-3xl md:text-4xl font-bold text-green-700 text-center mb-2"
+        >
+          Paket Catering
+        </h2>
+        <p class="text-center text-lg text-gray-700 mb-8">
+          Pilih paket harian, mingguan, atau bulanan yang sehat, praktis,<br />
+          dan hemat setiap hari.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Paket Harian -->
+          <div
+            class="bg-white rounded-xl shadow p-5 flex flex-col items-center"
+          >
+            <img
+              src="img/sarapan.jpg"
+              alt="Paket Harian"
+              class="rounded-lg w-full h-40 object-cover mb-4"
+            />
+            <h3 class="text-xl font-bold text-[#63a365] mb-2 text-center">
+              Paket Harian
+            </h3>
+            <p class="text-gray-700 mb-2 text-sm">
+              Kamu akan mendapatkan 3 kali makan lengkap (sarapan, makan siang,
+              dan makan malam) dengan menu bergizi seimbang, praktis, dan lezat
+              <span id="more-harian" class="hidden">
+                <br />✨ Fasilitas Paket <br />✅ Sarapan sehat & mengenyangkan
+                <br />✅ Makan siang bergizi <br />✅ Makan malam praktis &
+                nikmat <br />✅ Menu bervariasi setiap hari
+              </span>
+              <button
+                id="toggle-harian"
+                class="text-green-500 hover:text-green-600 underline font-semibold ml-1 focus:outline-none"
+                type="button"
+              >
+                selengkapnya
+              </button>
+            </p>
+            <p class="text-[#63a365] font-bold mb-4">Rp. 75.000</p>
+            <button
+              class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition"
+            >
+              Pesan Sekarang
+            </button>
+          </div>
+          <!-- Paket Mingguan -->
+          <div
+            class="bg-white rounded-xl shadow p-5 flex flex-col items-center"
+          >
+            <img
+              src="img/lunch.jpg"
+              alt="Paket Mingguan"
+              class="rounded-lg w-full h-40 object-cover mb-4"
+            />
+            <h3 class="text-xl font-bold text-[#63a365] mb-2 text-center">
+              Paket Mingguan
+            </h3>
+            <p class="text-gray-700 mb-2 text-sm">
+              Kamu akan mendapatkan 3 kali makan lengkap setiap hari selama
+              Senin sampai Sabtu, dengan menu berganti setiap hari agar nggak
+              bosan.
+              <span id="more-mingguan" class="hidden">
+                <br />✨ Fasilitas Paket <br />✅ Sarapan sehat <br />✅ Makan
+                siang bergizi <br />✅ Makan malam nikmat & praktis <br />✅
+                Menu berbeda setiap hari <br />✅ Total 18 kali makan selama 6
+                hari
+              </span>
+              <button
+                id="toggle-mingguan"
+                class="text-green-500 hover:text-green-600 underline font-semibold ml-1 focus:outline-none"
+                type="button"
+              >
+                selengkapnya
+              </button>
+            </p>
+            <p class="text-[#63a365] font-bold mb-4">Rp. 450.000/minggu~</p>
+            <button
+              class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition"
+            >
+              Pesan Sekarang
+            </button>
+          </div>
+          <!-- Paket Bulanan -->
+          <div
+            class="bg-white rounded-xl shadow p-5 flex flex-col items-center"
+          >
+            <img
+              src="img/dinner.png"
+              alt="Paket Bulanan"
+              class="rounded-lg w-full h-40 object-cover mb-4"
+            />
+            <h3 class="text-xl font-bold text-[#63a365] mb-2 text-center">
+              Paket Bulanan
+            </h3>
+            <p class="text-gray-700 mb-2 text-sm">
+              Kamu akan mendapatkan 3 kali makan lengkap setiap hari selama 24
+              hari aktif.<br />
+              <span class="text-green-600">✨ Fasilitas Paket</span>
+              <span id="more-bulanan" class="hidden">
+                <br />✅ Sarapan, makan siang, makan malam selama 24 hari aktif
+                <br />✅ Total 72 kali makan sehat sebulan <br />✅ Menu selalu
+                bervariasi setiap harinya <br />✅ Lebih hemat dibanding beli
+                harian <br />✅ Badan lebih sehat, waktu lebih efisien
+              </span>
+              <br />
+              <button
+                id="toggle-bulanan"
+                class="text-green-500 hover:text-green-600 underline font-semibold ml-1 focus:outline-none"
+                type="button"
+              >
+                selengkapnya
+              </button>
+            </p>
+            <p class="text-[#63a365] font-bold mb-4">Rp. 1.800.000/bulan~</p>
+            <button
+              class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition"
+            >
+              Pesan Sekarang
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pesanan -->
+    <section id="Pesanan" class="bg-[#FFFFFF] min-h-screen">
+      <div class="max-w-6xl mx-auto py-8 pt-18">
+        <h1 class="text-4xl font-bold mb-10 text-center">Pesanan</h1>
+        <div id="orders-list" class="space-y-6 px-2 sm:px-4">
+          <!-- Pesanan akan dirender di sini oleh JS -->
+        </div>
+      </div>
+
+      <!-- Modal Ulasan -->
+      <div
+        id="review-modal"
+        class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden"
+      >
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+          <h2 class="text-lg font-semibold mb-4">Beri Ulasan</h2>
+          <form id="review-form">
+            <input type="hidden" id="review-order-id" />
+            <div class="mb-3">
+              <label class="block mb-1 font-medium">Nilai:</label>
+              <div class="relative" id="custom-select-wrapper">
+                <button
+                  type="button"
+                  id="custom-select-btn"
+                  class="w-full border rounded px-2 py-1 flex justify-between items-center bg-white focus:outline-none"
+                >
+                  <span id="custom-select-value" class="text-gray-700"
+                    >Pilih Nilai</span
+                  >
+                  <svg
+                    class="w-4 h-4 ml-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <ul
+                  id="custom-select-list"
+                  class="absolute left-0 right-0 bg-white text-gray-800 rounded shadow-lg mt-1 z-20 hidden"
+                >
+                  <li
+                    data-value=""
+                    class="px-4 py-2 cursor-pointer hover:bg-[#63a365] hover:text-white"
+                  >
+                    Pilih Nilai
+                  </li>
+                  <li
+                    data-value="5"
+                    class="px-4 py-2 cursor-pointer hover:bg-[#63a365] hover:text-white"
+                  >
+                    5 - Sangat Puas
+                  </li>
+                  <li
+                    data-value="4"
+                    class="px-4 py-2 cursor-pointer hover:bg-[#63a365] hover:text-white"
+                  >
+                    4 - Puas
+                  </li>
+                  <li
+                    data-value="3"
+                    class="px-4 py-2 cursor-pointer hover:bg-[#63a365] hover:text-white"
+                  >
+                    3 - Cukup
+                  </li>
+                  <li
+                    data-value="2"
+                    class="px-4 py-2 cursor-pointer hover:bg-[#63a365] hover:text-white"
+                  >
+                    2 - Kurang
+                  </li>
+                  <li
+                    data-value="1"
+                    class="px-4 py-2 cursor-pointer hover:bg-[#63a365] hover:text-white"
+                  >
+                    1 - Sangat Buruk
+                  </li>
+                </ul>
+                <input type="hidden" id="review-rating" value="" />
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="block mb-1 font-medium">Ulasan:</label>
+              <textarea
+                id="review-text"
+                class="w-full border rounded px-2 py-1"
+                rows="3"
+                placeholder="Tulis ulasan Anda..."
+              ></textarea>
+            </div>
+            <div class="flex justify-end gap-2">
+              <button
+                type="button"
+                id="close-modal"
+                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                class="px-4 py-2 bg-[#63a365] text-white rounded hover:bg-[#57925B]"
+              >
+                Kirim
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // Paket Harian
+      const btnHarian = document.getElementById("toggle-harian");
+      const moreHarian = document.getElementById("more-harian");
+      let openHarian = false;
+      btnHarian.onclick = function () {
+        openHarian = !openHarian;
+        if (openHarian) {
+          moreHarian.classList.remove("hidden");
+          btnHarian.textContent = "lebih singkat";
+        } else {
+          moreHarian.classList.add("hidden");
+          btnHarian.textContent = "selengkapnya";
+        }
+      };
+      // Paket Mingguan
+      const btnMingguan = document.getElementById("toggle-mingguan");
+      const moreMingguan = document.getElementById("more-mingguan");
+      let openMingguan = false;
+      btnMingguan.onclick = function () {
+        openMingguan = !openMingguan;
+        if (openMingguan) {
+          moreMingguan.classList.remove("hidden");
+          btnMingguan.textContent = "lebih singkat";
+        } else {
+          moreMingguan.classList.add("hidden");
+          btnMingguan.textContent = "selengkapnya";
+        }
+      };
+      // Paket Bulanan
+      const btnBulanan = document.getElementById("toggle-bulanan");
+      const moreBulanan = document.getElementById("more-bulanan");
+      let openBulanan = false;
+      btnBulanan.onclick = function () {
+        openBulanan = !openBulanan;
+        if (openBulanan) {
+          moreBulanan.classList.remove("hidden");
+          btnBulanan.textContent = "lebih singkat";
+        } else {
+          moreBulanan.classList.add("hidden");
+          btnBulanan.textContent = "selengkapnya";
+        }
+      };
+
+      // Dummy data pesanan
+      const orders = [
+        {
+          id: 1,
+          menu: "Paket Mingguan",
+          image: "img/lunch.jpg",
+          tanggal: "2025-06-01",
+          status: "Selesai",
+          reviewed: false,
+        },
+        {
+          id: 2,
+          menu: "Paket Harian",
+          image: "img/sarapan.jpg",
+          tanggal: "2025-06-03",
+          status: "Diproses",
+          reviewed: false,
+        },
+        {
+          id: 3,
+          menu: "Paket Harian",
+          image: "img/sarapan.jpg",
+          tanggal: "2025-05-28",
+          status: "Selesai",
+          reviewed: true,
+          rating: 5,
+          review: "Enak dan sehat!",
+        },
+        {
+          id: 4,
+          menu: "Paket Bulanan",
+          image: "img/dinner.png",
+          tanggal: "2025-05-25",
+          status: "Dibatalkan",
+          reviewed: false,
+        },
+      ];
+
+      // Cek localStorage untuk review yang sudah dikirim
+      function getLocalReviews() {
+        return JSON.parse(localStorage.getItem("orderReviews") || "{}");
+      }
+      function setLocalReview(orderId, rating, review) {
+        const reviews = getLocalReviews();
+        reviews[orderId] = { rating, review };
+        localStorage.setItem("orderReviews", JSON.stringify(reviews));
+      }
+
+      function renderOrders() {
+        const reviews = getLocalReviews();
+        const list = document.getElementById("orders-list");
+        list.innerHTML = "";
+        orders.forEach((order) => {
+          let reviewed = order.reviewed;
+          let rating = order.rating;
+          let review = order.review;
+          if (reviews[order.id]) {
+            reviewed = true;
+            rating = reviews[order.id].rating;
+            review = reviews[order.id].review;
+          }
+          const card = document.createElement("div");
+          card.className =
+            "rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center justify-between mx-auto my-0 w-full";
+          card.style.boxSizing = "border-box";
+          card.style.maxWidth = "800px";
+          card.style.marginBottom = "1.5rem";
+          card.style.width = "100%";
+          card.style.backgroundColor = "#63A365";
+          card.style.color = "white";
+          card.innerHTML = `
+          <div class="flex items-center gap-4">
+            <img src="${order.image}" alt="${
+            order.menu
+          }" class="w-20 h-20 object-cover rounded-lg">
+            <div>
+              <div class="font-semibold text-lg">${order.menu}</div>
+              <div class="text-sm text-gray-300">Tanggal: ${order.tanggal}</div>
+              <div class="text-sm mt-1">Status: <span class="font-semibold ${
+                order.status === "Selesai"
+                  ? "text-yellow-300"
+                  : order.status === "Dibatalkan"
+                  ? "text-red-700"
+                  : "text-blue-800"
+              }">${order.status}</span></div>
+            </div>
+          </div>
+          <div class="mt-3 md:mt-0 flex flex-col items-end gap-2">
+            ${
+              order.status === "Selesai" && !reviewed
+                ? `<button class="bg-yellow-400 text-white px-4 py-1 rounded hover:bg-yellow-500 font-semibold" onclick="openReviewModal(${order.id})">Beri Ulasan</button>`
+                : ""
+            }
+            ${
+              order.status === "Selesai" && reviewed
+                ? `<div class="text-sm text-white">Nilai: <span class="font-bold">${rating}⭐</span><br>"${review}"</div>`
+                : ""
+            }
+          </div>
+        `;
+          list.appendChild(card);
+        });
+      }
+
+      // Modal logic
+      function openReviewModal(orderId) {
+        document.getElementById("review-modal").classList.remove("hidden");
+        document.getElementById("review-order-id").value = orderId;
+        document.getElementById("review-rating").value = "";
+        document.getElementById("custom-select-value").textContent =
+          "Pilih Nilai";
+        document.getElementById("review-text").value = "";
+      }
+      window.openReviewModal = openReviewModal;
+
+      document.getElementById("close-modal").onclick = function () {
+        document.getElementById("review-modal").classList.add("hidden");
+      };
+
+      document.getElementById("review-form").onsubmit = function (e) {
+        e.preventDefault();
+        const orderId = document.getElementById("review-order-id").value;
+        const rating = document.getElementById("review-rating").value;
+        const review = document.getElementById("review-text").value.trim();
+        if (!rating || !review) {
+          alert("Mohon isi rating dan ulasan.");
+          return;
+        }
+        setLocalReview(orderId, rating, review);
+        document.getElementById("review-modal").classList.add("hidden");
+        renderOrders();
+      };
+
+      // Custom select logic for review-rating
+      const customSelectBtn = document.getElementById("custom-select-btn");
+      const customSelectList = document.getElementById("custom-select-list");
+      const customSelectValue = document.getElementById("custom-select-value");
+      const reviewRatingInput = document.getElementById("review-rating");
+
+      customSelectBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        customSelectList.classList.toggle("hidden");
+      });
+
+      customSelectList.querySelectorAll("li").forEach(function (item) {
+        item.addEventListener("click", function (e) {
+          const value = this.getAttribute("data-value");
+          customSelectValue.textContent = this.textContent;
+          reviewRatingInput.value = value;
+          customSelectList.classList.add("hidden");
+        });
+      });
+
+      document.addEventListener("click", function (e) {
+        customSelectList.classList.add("hidden");
+      });
+
+      // Inisialisasi
+    renderOrders();
+      // Jalankan ketika halaman sudah dimuat
+      window.addEventListener("DOMContentLoaded", function () {
+        fetch("/dashboard", {
+          method: "GET",
+          credentials: "include"
+        })
+          .then(res => {
+            if (!res.ok) throw new Error("Gagal mengambil data dashboard");
+            return res.json();
+          })
+          .then(data => {
+            console.log("DASHBOARD DATA:", data);
+            // Kalau kamu mau render ke halaman, bisa proses di sini
+            // Misalnya: document.getElementById("nama-user").textContent = data.fullName;
+          })
+          .catch(err => {
+            console.error("Error saat ambil data dashboard:", err);
+          });
+      });
+
+    </script>
+
+    <!-- Overlay WhatsApp Button -->
+    <a
+      href="https://wa.me/6281234567890"
+      target="_blank"
+      aria-label="Konsultasi di WhatsApp"
+      class="fixed z-50 bottom-6 right-6 flex items-center px-5 py-2 rounded-full bg-green-600 shadow-lg hover:bg-green-700 transition-colors duration-200 cursor-pointer group"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="white"
+        viewBox="0 0 24 24"
+        width="24"
+        height="24"
+        class="mr-2"
+      >
+        <path
+          d="M20.52 3.48A12.07 12.07 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.16 1.6 5.97L0 24l6.19-1.62A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.19-3.48-8.52zM12 22c-1.77 0-3.5-.46-5.01-1.33l-.36-.21-3.68.96.98-3.59-.23-.37A9.94 9.94 0 0 1 2 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.2-7.8c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.41-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.13-.13.28-.34.42-.51.14-.17.18-.29.28-.48.09-.19.05-.36-.02-.5-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.61-.47-.16-.01-.35-.01-.54-.01-.19 0-.5.07-.76.34-.26.27-1 1-.99 2.43.01 1.43 1.02 2.81 1.16 3 .14.19 2.01 3.07 4.88 4.19.68.29 1.21.46 1.62.59.68.22 1.3.19 1.79.12.55-.08 1.65-.67 1.88-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33z"
+        />
+      </svg>
+      <span class="font-bold text-white text-lg">Konsultasi</span>
+    </a>
+
+    <!-- FOOTER -->
+    <footer
+      id="Contact"
+      class="bg-[#f8f6f2] border-t border-gray-200 text-black py-12 px-6"
+    >
+      <div class="max-w-6xl mx-auto flex flex-wrap justify-between">
+        <!-- Kolom 1: Brand dan Hubungi Kami -->
+        <div class="w-full md:w-1/3 mb-6 md:mb-0">
+          <a class="flex items-center text-green-500 font-bold text-xl mb-2">
+            <i class="fas fa-leaf mr-2"></i> FitMeals
+          </a>
+          <p class="text-sm text-gray-600 mb-6">
+            Solusi makanan sehat, lezat, dan transparan untuk gaya hidupmu.
+          </p>
+
+          <!-- Hubungi Kami -->
+          <div>
+            <h2 class="font-semibold text-black mb-2">Hubungi Kami</h2>
+            <div class="flex space-x-12 text-2xl">
+              <a href="#"><i class="fab fa-instagram text-pink-600"></i></a>
+              <a href="#"><i class="fab fa-facebook text-blue-600"></i></a>
+              <a href="#"><i class="fab fa-x-twitter text-black"></i></a>
+              <a href="#"><i class="fas fa-envelope text-red-500"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kolom 2: Navigasi -->
+        <div
+          class="w-full md:w-1/3 grid grid-cols-2 gap-0 text-sm text-gray-600 mb-6 md:mb-0"
+        >
+          <div>
+            <h2 class="font-semibold text-black mb-3">Layanan</h2>
+            <ul class="space-y-2">
+              <li><a href="#">Menu Harian</a></li>
+              <li><a href="#">Paket Diet</a></li>
+              <li><a href="#">Custom Meal</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2 class="font-semibold text-black mb-3">Perusahaan</h2>
+            <ul class="space-y-2">
+              <li><a href="#">Tentang Kami</a></li>
+              <li><a href="#">Kontak</a></li>
+              <li><a href="#">Kebijakan</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Kolom 3: Alamat -->
+        <div class="w-full md:w-1/3">
+          <h2 class="font-semibold text-black mb-2">Alamat Kami</h2>
+          <div class="rounded-lg overflow-hidden shadow">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d612.6496985829579!2d110.4066031977294!3d-7.757962510629552!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sid!2sid!4v1747282532242!5m2!1sid!2sid"
+              width="100%"
+              height="250"
+              style="border: 0"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            >
+            </iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- Copyright -->
+      <div class="mt-10 w-full text-center text-sm text-gray-500">
+        <p>&copy; 2025 FitMeals.<br />All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>

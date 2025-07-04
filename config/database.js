@@ -2,6 +2,12 @@
 const mongoose = require("mongoose");
 require("dotenv").config({ path: ".env.local" });
 
+mongoose.connect(process.env.MONGODB_URI, {
+  dbName: "fitmeals",
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/fitmeals";
 
 let isConnected = false;

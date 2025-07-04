@@ -1,1 +1,10 @@
 .vercel
+# Jangan upload file konfigurasi rahasia
+.env
+.env.local
+
+# Folder dependensi
+node_modules
+
+# File sistem (MacOS)
+.DS_Store

@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .step-active {
+            background-color: #63A365;
+            color: white;
+        }
+        .step-completed {
+            background-color: #4ade80;
+            color: white;
+        }
+        .step-pending {
+            background-color: #e5e7eb;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="bg-white w-full border-b border-gray-200 fixed top-0 left-0 z-50">
+        <div class="max-w-screen-xl mx-auto flex flex-wrap items-center justify-between p-4">
+            <a href="index.html" class="flex items-center space-x-3">
+                <img src="/img/Logo FitMeals.png" class="h-8" alt="Logo" />
+            </a>
+            <div class="flex items-center space-x-4">
+                <a href="index.html" class="text-gray-900 hover:text-[#63A365]">
+                    <i class="fas fa-arrow-left mr-2"></i>Kembali ke Beranda
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-20 pb-8">
+        <div class="max-w-6xl mx-auto px-4">
+            <!-- Progress Steps -->
+            <div class="mb-8">
+                <div class="flex items-center justify-center space-x-4">
+                    <div class="flex items-center">
+                        <div id="step1" class="step-active w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                            1
+                        </div>
+                        <span class="ml-2 text-sm font-medium text-gray-900">Paket & Data Pengantaran</span>
+                    </div>
+                    <div class="w-16 h-0.5 bg-gray-300"></div>
+                    <div class="flex items-center">
+                        <div id="step2" class="step-pending w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                            2
+                        </div>
+                        <span class="ml-2 text-sm font-medium text-gray-500">Konfirmasi Pesanan</span>
+                    </div>
+                    <div class="w-16 h-0.5 bg-gray-300"></div>
+                    <div class="flex items-center">
+                        <div id="step3" class="step-pending w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                            3
+                        </div>
+                        <span class="ml-2 text-sm font-medium text-gray-500">Pembayaran</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 1: Paket & Data Pengantaran -->
+            <div id="step1-content" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Paket yang Dipilih -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-shopping-cart text-[#63A365] mr-2"></i>
+                            Paket yang Dipilih
+                        </h2>
+                        
+                        <div id="selected-packages" class="space-y-4">
+                            <!-- Paket akan diisi melalui JavaScript -->
+                        </div>
+                        
+                        <!-- Tombol Tambah Paket -->
+                        <div id="add-package-section" class="mt-6 pt-4 border-t border-gray-200">
+                            <button id="add-package-btn" 
+                                class="w-full bg-gray-100 text-[#63A365] border-2 border-dashed border-[#63A365] py-4 px-4 rounded-lg font-semibold hover:bg-[#63A365] hover:text-white transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:ring-offset-2">
+                                <i class="fas fa-plus mr-2"></i>Tambah Paket Lain
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Form Data Pengantaran -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-truck text-[#63A365] mr-2"></i>
+                            Data Pengantaran
+                        </h2>
+                        
+                        <form id="delivery-form" class="space-y-6">
+                            <!-- Data Pribadi -->
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Data Pribadi</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="nama" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap *</label>
+                                        <input type="text" id="nama" name="nama" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label for="telepon" class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon *</label>
+                                        <input type="tel" id="telepon" name="telepon" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                                        <input type="email" id="email" name="email" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Alamat Pengantaran -->
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Alamat Pengantaran</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="alamat" class="block text-sm font-medium text-gray-700 mb-2">Alamat Lengkap *</label>
+                                        <textarea id="alamat" name="alamat" rows="3" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent"
+                                            placeholder="Masukkan alamat lengkap pengantaran"></textarea>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label for="kota" class="block text-sm font-medium text-gray-700 mb-2">Kota *</label>
+                                            <input type="text" id="kota" name="kota" required
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                        </div>
+                                        <div>
+                                            <label for="kode_pos" class="block text-sm font-medium text-gray-700 mb-2">Kode Pos *</label>
+                                            <input type="text" id="kode_pos" name="kode_pos" required
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                        </div>
+                                        <div>
+                                            <label for="provinsi" class="block text-sm font-medium text-gray-700 mb-2">Provinsi *</label>
+                                            <input type="text" id="provinsi" name="provinsi" required
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Jadwal Pengantaran -->
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Jadwal Pengantaran</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="tanggal_mulai" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai *</label>
+                                        <input type="date" id="tanggal_mulai" name="tanggal_mulai" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label for="waktu_pengantaran" class="block text-sm font-medium text-gray-700 mb-2">Waktu Pengantaran *</label>
+                                        <select id="waktu_pengantaran" name="waktu_pengantaran" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                            <option value="">Pilih waktu</option>
+                                            <option value="06:00-08:00">06:00 - 08:00</option>
+                                            <option value="08:00-10:00">08:00 - 10:00</option>
+                                            <option value="10:00-12:00">10:00 - 12:00</option>
+                                            <option value="12:00-14:00">12:00 - 14:00</option>
+                                            <option value="14:00-16:00">14:00 - 16:00</option>
+                                            <option value="16:00-18:00">16:00 - 18:00</option>
+                                            <option value="18:00-20:00">18:00 - 20:00</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Catatan Khusus -->
+                            <div>
+                                <label for="catatan" class="block text-sm font-medium text-gray-700 mb-2">Catatan Khusus</label>
+                                <textarea id="catatan" name="catatan" rows="3"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent"
+                                    placeholder="Contoh: Alergi makanan, instruksi khusus, dll."></textarea>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Ringkasan Pesanan -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-receipt text-[#63A365] mr-2"></i>
+                            Ringkasan Pesanan
+                        </h2>
+                        
+                        <div id="order-summary" class="space-y-4">
+                            <!-- Ringkasan akan diisi melalui JavaScript -->
+                        </div>
+                        
+                        <div class="border-t pt-4 mt-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm text-gray-600">Subtotal</span>
+                                <span id="subtotal" class="text-sm font-medium">Rp 0</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm text-gray-600">Biaya Pengantaran</span>
+                                <span id="delivery-fee" class="text-sm font-medium">Rp 0</span>
+                            </div>
+                            <div class="flex justify-between items-center text-lg font-semibold text-[#63A365]">
+                                <span>Total</span>
+                                <span id="total" class="text-xl">Rp 0</span>
+                            </div>
+                        </div>
+                        
+                        <button id="next-step-btn" 
+                            class="w-full mt-6 bg-[#63A365] text-white py-3 px-4 rounded-lg font-semibold hover:bg-[#4f8a51] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:ring-offset-2">
+                            Lanjut ke Konfirmasi Pesanan
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Review Pesanan (Hidden) -->
+            <div id="step2-content" class="hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Review Pesanan -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                                <i class="fas fa-eye text-[#63A365] mr-2"></i>
+                                Konfirmasi Pesanan
+                            </h2>
+                            
+                            <!-- Paket yang Dipilih -->
+                            <div class="mb-6">
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Paket yang Dipilih</h3>
+                                <div id="review-packages" class="space-y-4">
+                                    <!-- Paket akan diisi melalui JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Data Pengantaran -->
+                            <div class="mb-6">
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Data Pengantaran</h3>
+                                <div id="review-delivery-data" class="bg-gray-50 rounded-lg p-4">
+                                    <!-- Data akan diisi melalui JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Jadwal Pengantaran -->
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Jadwal Pengantaran</h3>
+                                <div id="review-schedule" class="bg-gray-50 rounded-lg p-4">
+                                    <!-- Jadwal akan diisi melalui JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tombol Navigasi -->
+                        <div class="flex justify-between">
+                            <button id="back-to-step1" 
+                                class="bg-gray-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                                <i class="fas fa-arrow-left mr-2"></i>Kembali
+                            </button>
+                            <button id="proceed-to-payment" 
+                                class="bg-[#63A365] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#4f8a51] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:ring-offset-2">
+                                Lanjut ke Pembayaran<i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ringkasan Pesanan -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                                <i class="fas fa-receipt text-[#63A365] mr-2"></i>
+                                Ringkasan Pesanan
+                            </h2>
+                            
+                            <div id="review-order-summary" class="space-y-4">
+                                <!-- Ringkasan akan diisi melalui JavaScript -->
+                            </div>
+                            
+                            <div class="border-t pt-4 mt-6">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-600">Subtotal</span>
+                                    <span id="review-subtotal" class="text-sm font-medium">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-600">Biaya Pengantaran</span>
+                                    <span id="review-delivery-fee" class="text-sm font-medium">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between items-center text-lg font-semibold text-[#63A365]">
+                                    <span>Total</span>
+                                    <span id="review-total" class="text-xl">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Pembayaran (Hidden) -->
+            <div id="step3-content" class="hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Metode Pembayaran -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                                <i class="fas fa-credit-card text-[#63A365] mr-2"></i>
+                                Pilih Metode Pembayaran
+                            </h2>
+                            
+                            <div class="space-y-4">
+                                <!-- Transfer Bank -->
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <input type="radio" id="transfer" name="payment_method" value="transfer" class="text-[#63A365] focus:ring-[#63A365]">
+                                            <label for="transfer" class="font-medium text-gray-900">Transfer Bank</label>
+                                        </div>
+                                        <i class="fas fa-university text-gray-400"></i>
+                                    </div>
+                                    <div id="transfer-details" class="mt-4 ml-6 hidden">
+                                        <div class="bg-gray-50 rounded-lg p-4">
+                                            <h4 class="font-medium text-gray-900 mb-2">Rekening Tujuan:</h4>
+                                            <div class="space-y-2 text-sm">
+                                                <div class="flex justify-between">
+                                                    <span>Bank BCA:</span>
+                                                    <span class="font-mono">1234567890</span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <span>Atas Nama:</span>
+                                                    <span>PT FitMeals Indonesia</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- E-Wallet -->
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <input type="radio" id="ewallet" name="payment_method" value="ewallet" class="text-[#63A365] focus:ring-[#63A365]">
+                                            <label for="ewallet" class="font-medium text-gray-900">E-Wallet</label>
+                                        </div>
+                                        <i class="fas fa-mobile-alt text-gray-400"></i>
+                                    </div>
+                                    <div id="ewallet-details" class="mt-4 ml-6 hidden">
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div class="flex items-center space-x-2">
+                                                <input type="radio" id="gopay" name="ewallet_type" value="gopay" class="text-[#63A365] focus:ring-[#63A365]">
+                                                <label for="gopay" class="text-sm">GoPay</label>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="radio" id="ovo" name="ewallet_type" value="ovo" class="text-[#63A365] focus:ring-[#63A365]">
+                                                <label for="ovo" class="text-sm">OVO</label>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="radio" id="dana" name="ewallet_type" value="dana" class="text-[#63A365] focus:ring-[#63A365]">
+                                                <label for="dana" class="text-sm">DANA</label>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="radio" id="shopeepay" name="ewallet_type" value="shopeepay" class="text-[#63A365] focus:ring-[#63A365]">
+                                                <label for="shopeepay" class="text-sm">ShopeePay</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- COD (Cash on Delivery) -->
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <input type="radio" id="cod" name="payment_method" value="cod" class="text-[#63A365] focus:ring-[#63A365]">
+                                            <label for="cod" class="font-medium text-gray-900">Bayar di Tempat (COD)</label>
+                                        </div>
+                                        <i class="fas fa-money-bill-wave text-gray-400"></i>
+                                    </div>
+                                    <div id="cod-details" class="mt-4 ml-6 hidden">
+                                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                            <p class="text-sm text-yellow-800">
+                                                <i class="fas fa-info-circle mr-2"></i>
+                                                Pembayaran dilakukan saat makanan diantar. Biaya tambahan Rp 5.000 untuk layanan COD.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tombol Navigasi -->
+                        <div class="flex justify-between">
+                            <button id="back-to-step2" 
+                                class="bg-gray-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                                <i class="fas fa-arrow-left mr-2"></i>Kembali
+                            </button>
+                            <button id="process-payment" 
+                                class="bg-[#63A365] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#4f8a51] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:ring-offset-2">
+                                Proses Pembayaran<i class="fas fa-lock ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ringkasan Final -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                                <i class="fas fa-receipt text-[#63A365] mr-2"></i>
+                                Total Pembayaran
+                            </h2>
+                            
+                            <div id="final-order-summary" class="space-y-4">
+                                <!-- Ringkasan akan diisi melalui JavaScript -->
+                            </div>
+                            
+                            <div class="border-t pt-4 mt-6">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-600">Subtotal</span>
+                                    <span id="final-subtotal" class="text-sm font-medium">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-600">Biaya Pengantaran</span>
+                                    <span id="final-delivery-fee" class="text-sm font-medium">Rp 0</span>
+                                </div>
+                                <div id="cod-fee-container" class="flex justify-between items-center mb-2 hidden">
+                                    <span class="text-sm text-gray-600">Biaya COD</span>
+                                    <span id="cod-fee" class="text-sm font-medium">Rp 5.000</span>
+                                </div>
+                                <div class="flex justify-between items-center text-lg font-semibold text-[#63A365]">
+                                    <span>Total</span>
+                                    <span id="final-total" class="text-xl">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pilih Paket -->
+    <div id="package-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-semibold text-gray-900">
+                            <i class="fas fa-utensils text-[#63A365] mr-2"></i>
+                            Pilih Paket Catering
+                        </h2>
+                        <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="package-grid">
+                        <!-- Paket akan diisi melalui JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data paket contoh (bisa diambil dari localStorage atau API)
+        const samplePackages = [
+            {
+                id: 1,
+                name: "Paket Sarapan",
+                price: 390000,
+                duration: "30 hari",
+                image: "/img/sarapan.jpg",
+                description: "Sarapan sehat rendah kalori, bergizi, dan mengenyangkan"
+            },
+            {
+                id: 2,
+                name: "Paket Makan Siang",
+                price: 590000,
+                duration: "30 hari",
+                image: "/img/lunch.jpg",
+                description: "Makan siang sehat dengan protein dan sayuran segar"
+            }
+        ];
+
+        // Inisialisasi halaman
+        document.addEventListener('DOMContentLoaded', function() {
+            displaySelectedPackages();
+            updateOrderSummary();
+            setupEventListeners();
+        });
+
+        function displaySelectedPackages() {
+            const container = document.getElementById('selected-packages');
+            container.innerHTML = '';
+
+            samplePackages.forEach(package => {
+                const packageElement = document.createElement('div');
+                packageElement.className = 'flex items-center space-x-4 p-4 border border-gray-200 rounded-lg';
+                packageElement.innerHTML = `
+                    <img src="${package.image}" alt="${package.name}" class="w-16 h-16 object-cover rounded-lg">
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-gray-900">${package.name}</h3>
+                        <p class="text-sm text-gray-600">${package.description}</p>
+                        <p class="text-sm text-gray-500">Durasi: ${package.duration}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold text-[#63A365]">Rp ${package.price.toLocaleString()}</p>
+                        <button onclick="removePackage(${package.id})" class="text-red-500 text-sm hover:text-red-700">
+                            <i class="fas fa-trash"></i> Hapus
+                        </button>
+                    </div>
+                `;
+                container.appendChild(packageElement);
+            });
+        }
+
+        function updateOrderSummary() {
+            const subtotal = samplePackages.reduce((sum, pkg) => sum + pkg.price, 0);
+            const deliveryFee = 15000; // Biaya pengantaran tetap
+            const total = subtotal + deliveryFee;
+
+            document.getElementById('subtotal').textContent = `Rp ${subtotal.toLocaleString()}`;
+            document.getElementById('delivery-fee').textContent = `Rp ${deliveryFee.toLocaleString()}`;
+            document.getElementById('total').textContent = `Rp ${total.toLocaleString()}`;
+        }
+
+        function removePackage(packageId) {
+            const index = samplePackages.findIndex(pkg => pkg.id === packageId);
+            if (index > -1) {
+                samplePackages.splice(index, 1);
+                displaySelectedPackages();
+                updateOrderSummary();
+            }
+        }
+
+        function setupEventListeners() {
+            document.getElementById('next-step-btn').addEventListener('click', function() {
+                if (validateStep1()) {
+                    goToStep2();
+                }
+            });
+        }
+
+        function validateStep1() {
+            const requiredFields = ['nama', 'telepon', 'email', 'alamat', 'kota', 'kode_pos', 'provinsi', 'tanggal_mulai', 'waktu_pengantaran'];
+            let isValid = true;
+
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.classList.add('border-red-500');
+                    isValid = false;
+                } else {
+                    field.classList.remove('border-red-500');
+                }
+            });
+
+            if (!isValid) {
+                alert('Mohon lengkapi semua field yang wajib diisi');
+            }
+
+            return isValid;
+        }
+
+        function goToStep2() {
+            document.getElementById('step1-content').classList.add('hidden');
+            document.getElementById('step2-content').classList.remove('hidden');
+            
+            // Update progress steps
+            document.getElementById('step1').className = 'step-completed w-10 h-10 rounded-full flex items-center justify-center font-semibold';
+            document.getElementById('step2').className = 'step-active w-10 h-10 rounded-full flex items-center justify-center font-semibold';
+        }
+    </script>
+</body>
+</html>

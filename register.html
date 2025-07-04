@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | FitMeals</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="flex w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
+    <!-- Form Section -->
+    <div class="w-full md:w-1/2 p-8 flex flex-col justify-center">
+      <h2 class="text-2xl font-bold mb-2">FitMeals</h2>
+      <p class="mb-6 text-gray-700">Buat Akun<br><span class="text-sm text-gray-500">Daftar gratis untuk mulai kelola pesanan Anda.</span></p>
+      <form id="registerForm" class="space-y-4">
+        <div>
+          <label class="block text-gray-700">Nama Lengkap</label>
+          <input type="text" name="namaLengkap" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400" required />
+        </div>
+        <div>
+          <label class="block text-gray-700">Email</label>
+          <input type="email" name="email" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400" required />
+        </div>
+        <div>
+          <label class="block text-gray-700">No. Handphone</label>
+          <input type="text" name="nomorHP" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400" required />
+        </div>
+        <div>
+          <label class="block text-gray-700">Username</label>
+          <input type="text" name="username" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400" required />
+        </div>
+        <div class="relative">
+          <label class="block text-gray-700">Kata Sandi</label>
+          <input type="password" name="password" id="password" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400 pr-10" required />
+          <button type="button" tabindex="-1" class="absolute right-2 top-9 transform -translate-y-1/2" onclick="togglePassword('password', this)">
+            <svg id="eye-password" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+          </button>
+        </div>
+        <div class="relative">
+          <label class="block text-gray-700">Konfirmasi Password</label>
+          <input type="password" name="confirmPassword" id="confirmPassword" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400 pr-10" required />
+          <button type="button" tabindex="-1" class="absolute right-2 top-9 transform -translate-y-1/2" onclick="togglePassword('confirmPassword', this)">
+            <svg id="eye-confirmPassword" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+          </button>
+        </div>
+        <div class="flex items-center justify-between">
+            <label class="flex items-center text-sm text-gray-600">
+              <input type="checkbox" class="mr-2"> Ingatkan aku
+            </label>
+            <a href="#" class="text-sm text-green-600 hover:underline" id="forgotLink">Lupa kata sandi?</a>
+          </div>
+        <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition">
+          Daftar
+        </button>
+        <!-- Separator -->
+        <div class="flex items-center my-6">
+          <hr class="flex-grow border-t border-gray-300" />
+          <span class="px-3 text-sm text-gray-500">atau daftar menggunakan</span>
+          <hr class="flex-grow border-t border-gray-300" />
+        </div>
+        <!-- Social Login Icons -->
+        <div class="flex items-center justify-center gap-4">
+          <button type="button" class="p-3 border rounded-full hover:bg-gray-100 transition">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5" />
+          </button>
+          <button type="button" class="p-3 border rounded-full hover:bg-gray-100 transition">
+            <img src="https://www.svgrepo.com/show/448224/facebook.svg" alt="Facebook" class="w-5 h-5" />
+          </button>
+          <button type="button" onclick="loginWith('apple')" class="p-3 border rounded-full hover:bg-gray-100 transition">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple" class="w-5 h-5" />
+          </button>
+        </div>
+      </form>
+      <div id="notif" class="mt-4"></div>
+      <p class="mt-4 text-sm text-gray-600">Sudah punya akun? <a href="login.html" class="text-green-600 hover:underline">Login</a></p>
+    </div>
+    <!-- Ilustrasi Section -->
+    <div class="hidden md:flex md:w-1/2 bg-green-200 flex-col items-center justify-center p-8">
+      <h3 class="text-lg font-semibold text-center mb-4 text-green-900">Sehat Itu Mudah –<br>Kami Siapkan, Anda Nikmati!</h3>
+      <img src="img/7717236.jpg" alt="Ilustrasi" class="rounded-lg w-64 h-48 object-cover" />
+    </div>
+    
+  </div>
+  <script>
+    const form = document.getElementById('registerForm');
+    const notif = document.getElementById('notif');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      notif.innerHTML = '';
+      const data = Object.fromEntries(new FormData(form));
+      if (data.password !== data.confirmPassword) {
+        notif.innerHTML = `<div class='bg-red-100 text-red-800 px-4 py-2 rounded mb-2'>Konfirmasi password tidak sama!</div>`;
+        return;
+      }
+      delete data.confirmPassword;
+      try {
+        const res = await fetch('http://localhost:3000/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (res.ok) {
+          notif.innerHTML = `<div class='bg-green-100 text-green-800 px-4 py-2 rounded mb-2'>${result.message}</div>`;
+          setTimeout(() => { window.location.href = 'login.html'; }, 1200);
+        } else {
+          notif.innerHTML = `<div class='bg-red-100 text-red-800 px-4 py-2 rounded mb-2'>${result.message}</div>`;
+        }
+      } catch (err) {
+        notif.innerHTML = `<div class='bg-red-100 text-red-800 px-4 py-2 rounded mb-2'>Terjadi kesalahan. Coba lagi.</div>`;
+      }
+    });
+
+    function togglePassword(id, btn) {
+      const input = document.getElementById(id);
+      const svg = btn.querySelector('svg');
+      if (input.type === 'password') {
+        input.type = 'text';
+        svg.innerHTML = `<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.042-3.292m3.087-2.938A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.956 9.956 0 01-4.421 5.568M15 12a3 3 0 11-6 0 3 3 0 016 0z' /><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M3 3l18 18' />`;
+      } else {
+        input.type = 'password';
+        svg.innerHTML = `<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 12a3 3 0 11-6 0 3 3 0 016 0z' /><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z' />`;
+      }
+    }
+  </script>
+</body>
+</html>

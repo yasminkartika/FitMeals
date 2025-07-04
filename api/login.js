@@ -1,6 +1,7 @@
 const dbConnect = require("../lib/db.js");
-const User = require("../../models/User.js");
+const User = require("../models/User.js");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 async function handler(req, res) {
   if (req.method !== "POST") {
@@ -11,7 +12,9 @@ async function handler(req, res) {
 
   // Validasi input dasar
   if (!username || !password) {
-    return res.status(400).json({ message: "Username dan password wajib diisi" });
+    return res
+      .status(400)
+      .json({ message: "Username dan password wajib diisi" });
   }
 
   try {
@@ -29,11 +32,37 @@ async function handler(req, res) {
 
     // Kalau berhasil, kirim data user (tanpa password)
     const { password: _, ...userData } = user._doc;
+    
+    // Simpan ke session dengan data yang lebih lengkap
+    req.session.user = {
+      id: user._id,
+      username: user.username,
+      namaLengkap: user.namaLengkap,
+      email: user.email,
+      role: user.role || 'user',
+      loginTime: new Date().toISOString()
+    };
 
-    return res.status(200).json({
-      message: "Login berhasil",
-      user: userData,
+    // Regenerate session ID untuk keamanan
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error("Session regeneration error:", err);
+        return res.status(500).json({ message: "Terjadi kesalahan server" });
+      }
+      
+      // Generate token yang lebih aman
+      const token = crypto.randomBytes(32).toString('hex');
+      
+      // Simpan token di session juga
+      req.session.token = token;
+      
+      return res.status(200).json({
+        message: "Login berhasil",
+        user: userData,
+        token: token,
+      });
     });
+    
   } catch (error) {
     console.error("Login error:", error);
     return res.status(500).json({ message: "Terjadi kesalahan server" });

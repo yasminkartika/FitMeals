@@ -19,18 +19,18 @@
       <form id="adminLoginForm" class="space-y-4">
         <div>
           <label
-            for="email"
+            for="username"
             class="block text-sm font-medium text-gray-700 mb-1"
           >
-            Email
+            Username
           </label>
           <input
-            type="email"
-            id="email"
-            name="email"
+            type="text"
+            id="username"
+            name="username"
             required
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="admin@fitmeals.com"
+            placeholder="Masukkan username admin"
           />
         </div>
 
@@ -77,7 +77,7 @@
         .addEventListener("submit", async (e) => {
           e.preventDefault();
 
-          const email = document.getElementById("email").value;
+          const username = document.getElementById("username").value;
           const password = document.getElementById("password").value;
           const messageDiv = document.getElementById("message");
 
@@ -89,7 +89,7 @@
                 headers: {
                   "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ username, password }),
               }
             );
 

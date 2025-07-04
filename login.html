@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | FitMeals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div
+      class="flex w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden"
+    >
+      <!-- Form Section -->
+      <div class="w-full md:w-1/2 p-8 flex flex-col justify-center">
+        <h2 class="text-2xl font-bold mb-2">FitMeals</h2>
+        <p class="mb-6 text-gray-700">
+          Selamat Datang Kembali<br /><span class="text-sm text-gray-500"
+            >Masuk pakai akun Anda untuk kelola pesanan.</span
+          >
+        </p>
+        <form id="loginForm" class="space-y-4">
+          <div>
+            <label class="block text-gray-700">Username</label>
+            <input
+              type="text"
+              name="username"
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+              required
+            />
+          </div>
+          <div>
+            <label class="block text-gray-700">Kata Sandi</label>
+            <input
+              type="password"
+              name="password"
+              class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+              required
+            />
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <input id="ingat" type="checkbox" class="mr-2" />
+              <label for="ingat" class="text-sm text-gray-600"
+                >Ingatkan aku</label
+              >
+            </div>
+            <a href="#" class="text-sm text-green-600 hover:underline"
+              >Lupa kata sandi?</a
+            >
+          </div>
+          <button
+            type="submit"
+            class="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition"
+          >
+            Masuk
+          </button>
+          <!-- Separator -->
+          <div class="flex items-center my-6">
+            <hr class="flex-grow border-t border-gray-300" />
+            <span class="px-3 text-sm text-gray-500"
+              >atau masuk menggunakan</span
+            >
+            <hr class="flex-grow border-t border-gray-300" />
+          </div>
+          <!-- Social Login Icons -->
+          <div class="flex items-center justify-center gap-4">
+            <button
+              type="button"
+              class="p-3 border rounded-full hover:bg-gray-100 transition"
+            >
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                alt="Google"
+                class="w-5 h-5"
+              />
+            </button>
+            <button
+              type="button"
+              class="p-3 border rounded-full hover:bg-gray-100 transition"
+            >
+              <img
+                src="https://www.svgrepo.com/show/448224/facebook.svg"
+                alt="Facebook"
+                class="w-5 h-5"
+              />
+            </button>
+            <button
+              type="button"
+              onclick="loginWith('apple')"
+              class="p-3 border rounded-full hover:bg-gray-100 transition"
+            >
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg"
+                alt="Apple"
+                class="w-5 h-5"
+              />
+            </button>
+          </div>
+        </form>
+        <div id="notif" class="mt-4"></div>
+        <p class="mt-4 text-sm text-gray-600">
+          Belum punya akun?
+          <a href="register.html" class="text-green-600 hover:underline"
+            >Daftar</a
+          >
+        </p>
+      </div>
+      <!-- Ilustrasi Section -->
+      <div
+        class="hidden md:flex md:w-1/2 bg-green-200 flex-col items-center justify-center p-8"
+      >
+        <h3 class="text-lg font-semibold text-center mb-4 text-green-900">
+          Sehat Itu Mudah –<br />Kami Siapkan, Anda Nikmati!
+        </h3>
+        <img
+          src="img/7717236.jpg"
+          alt="Ilustrasi"
+          class="rounded-lg w-64 h-48 object-cover"
+        />
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById("loginForm");
+      const notif = document.getElementById("notif");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        notif.innerHTML = "";
+        const data = Object.fromEntries(new FormData(form));
+        try {
+          const res = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(data),
+          });
+
+          const result = await res.json();
+
+          if (res.ok) {
+            // Simpan token dan data user ke localStorage
+            localStorage.setItem("token", result.token);
+            localStorage.setItem("user", JSON.stringify(result.user));
+
+            notif.innerHTML = `<div class='bg-green-100 text-green-800 px-4 py-2 rounded mb-2'>${result.message}</div>`;
+            setTimeout(() => {
+              window.location.href = "dashboard.html";
+            }, 1200);
+          } else {
+            notif.innerHTML = `<div class='bg-red-100 text-red-800 px-4 py-2 rounded mb-2'>${result.message}</div>`;
+          }
+        } catch (err) {
+          notif.innerHTML = `<div class='bg-red-100 text-red-800 px-4 py-2 rounded mb-2'>Terjadi kesalahan. Coba lagi.</div>`;
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -2,51 +2,46 @@ const dbConnect = require("../lib/db.js");
 const User = require("../models/User.js");
 const bcrypt = require("bcryptjs");
 
-async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).end();
-
-  const { fullName, username, email, phone, password, confirmPassword } =
-    req.body;
-
-  if (password !== confirmPassword) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Password tidak sama" });
+module.exports = async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed" });
   }
 
-  if (!fullName || !username || !email || !phone || !password) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Semua field wajib diisi!" });
+  const { namaLengkap, email, nomorHP, username, password } = req.body;
+
+  // Validasi input
+  if (!namaLengkap || !email || !nomorHP || !username || !password) {
+    return res.status(400).json({ message: "Semua field wajib diisi" });
   }
 
-  await dbConnect();
+  try {
+    await dbConnect();
 
-  const existingEmail = await User.findOne({ email });
-  if (existingEmail)
-    return res
-      .status(409)
-      .json({ success: false, message: "Email sudah terdaftar" });
+    // Cek email/username sudah terdaftar
+    const existingUser = await User.findOne({ $or: [ { email: email.toLowerCase() }, { username } ] });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email atau username sudah terdaftar" });
+    }
 
-  const existingUsername = await User.findOne({ username });
-  if (existingUsername)
-    return res
-      .status(409)
-      .json({ success: false, message: "Username sudah terdaftar" });
+    // Hash password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+    // Simpan user baru
+    const user = new User({
+      namaLengkap,
+      email: email.toLowerCase(),
+      nomorHP,
+      username,
+      password: hashedPassword,
+      role: "user",
+    });
+    await user.save();
 
-  const newUser = new User({
-    namaLengkap: fullName,
-    username,
-    email,
-    nomorHP: phone,
-    password: hashedPassword,
-    role: "user",
-  });
-
-  await newUser.save();
-  res.status(201).json({ success: true, message: "Berhasil daftar!" });
-}
-
-module.exports = handler;
+    // Response sukses
+    return res.status(201).json({ message: "Akun berhasil dibuat, silakan login." });
+  } catch (error) {
+    console.error("Register error:", error);
+    return res.status(500).json({ message: "Terjadi kesalahan server" });
+  }
+};
