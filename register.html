@@ -23,7 +23,7 @@
         </div>
         <div>
           <label class="block text-gray-700">No. Handphone</label>
-          <input type="text" name="nomorHP" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400" required />
+          <input id="phone" type="text" name="nomorHP" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-400" required />
         </div>
         <div>
           <label class="block text-gray-700">Username</label>
@@ -84,10 +84,23 @@
   <script>
     const form = document.getElementById('registerForm');
     const notif = document.getElementById('notif');
+    const phoneInput = document.getElementById('phone');
+    const passwordInput = document.getElementById('password');
+    
+    phoneInput.addEventListener('input', () => {
+      phoneInput.value = phoneInput.value.replace(/[^0-9]/g, '');
+    });
+    
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       notif.innerHTML = '';
       const data = Object.fromEntries(new FormData(form));
+      
+      if (data.password.length < 8) {
+        notif.innerHTML = `<div class='bg-red-100 text-red-800 px-4 py-2 rounded mb-2'>Password harus minimal 8 karakter!</div>`;
+        return;
+      }
+      
       if (data.password !== data.confirmPassword) {
         notif.innerHTML = `<div class='bg-red-100 text-red-800 px-4 py-2 rounded mb-2'>Konfirmasi password tidak sama!</div>`;
         return;

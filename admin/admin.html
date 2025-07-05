@@ -40,6 +40,8 @@
           <button id="sidebarOrders" class="relative text-left px-4 py-2 rounded hover:bg-green-100 font-medium text-gray-700">Manajemen Pesanan
             <span id="orderNotifBadge" class="absolute top-2 right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">3</span>
           </button>
+          <button id="sidebarMenu" class="text-left px-4 py-2 rounded hover:bg-blue-100 font-medium text-gray-700">Manajemen Menu</button>
+          <button id="sidebarPaket" class="text-left px-4 py-2 rounded hover:bg-blue-100 font-medium text-gray-700">Manajemen Paket</button>
           <button id="sidebarNotif" class="text-left px-4 py-2 rounded hover:bg-purple-100 font-medium text-gray-700">Notifikasi Promo</button>
         </nav>
       </aside>
@@ -115,6 +117,111 @@
             <div id="ordersTable">Daftar pesanan akan ditampilkan di sini.</div>
           </div>
         </div>
+        <!-- Konten Manajemen Menu -->
+<div id="menuContent" class="hidden">
+  <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-bold">Manajemen Menu</h2>
+              <button 
+                onclick="showMenuForm()" 
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-200"
+              >
+                + Tambah Menu
+              </button>
+            </div>
+            
+            <!-- Form Menu -->
+            <div id="menuForm" class="hidden mb-6 bg-gray-50 p-4 rounded-lg">
+              <h3 class="text-lg font-semibold mb-4" id="menuFormTitle">Tambah Menu Baru</h3>
+              <form id="menuFormElement" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload Gambar Menu *</label>
+                    <input type="file" id="menuGambarFile" class="w-full border rounded px-3 py-2" accept="image/*" required />
+                    <img id="menuGambarPreview" src="" alt="Preview Gambar" class="mt-2 w-32 h-32 object-cover rounded hidden" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Menu *</label>
+                    <input type="text" id="menuNama" class="w-full border rounded px-3 py-2" required />
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi *</label>
+                  <textarea id="menuDeskripsi" class="w-full border rounded px-3 py-2" rows="2" required></textarea>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Kalori (kcal) *</label>
+                    <input type="number" id="menuKalori" class="w-full border rounded px-3 py-2" min="0" required />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Fat (g)</label>
+                    <input type="number" id="menuLemak" class="w-full border rounded px-3 py-2" min="0" value="0" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Saturated Fat (g)</label>
+                    <input type="number" id="menuSaturatedFat" class="w-full border rounded px-3 py-2" min="0" value="0" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Cholesterol (mg)</label>
+                    <input type="number" id="menuCholesterol" class="w-full border rounded px-3 py-2" min="0" value="0" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Protein (g)</label>
+                    <input type="number" id="menuProtein" class="w-full border rounded px-3 py-2" min="0" value="0" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Carbohydrates (g)</label>
+                    <input type="number" id="menuKarbohidrat" class="w-full border rounded px-3 py-2" min="0" value="0" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Fiber (g)</label>
+                    <input type="number" id="menuSerat" class="w-full border rounded px-3 py-2" min="0" value="0" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Gula (g)</label>
+                    <input type="number" id="menuGula" class="w-full border rounded px-3 py-2" min="0" value="0" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sodium (mg)</label>
+                    <input type="number" id="menuSodium" class="w-full border rounded px-3 py-2" min="0" value="0" />
+                  </div>
+                </div>
+                
+                <div class="flex gap-2">
+                  <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Simpan Menu
+                  </button>
+                  <button type="button" onclick="hideMenuForm()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                    Batal
+                  </button>
+                </div>
+              </form>
+            </div>
+            
+            <!-- Tabel Menu -->
+            <div id="menuTable" class="overflow-x-auto">
+              <div class="text-center text-gray-500">Memuat data menu...</div>
+    </div>
+  </div>
+</div>
+<!-- Konten Manajemen Paket -->
+<div id="paketContent" class="hidden">
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-bold mb-4">Manajemen Paket</h2>
+    <button onclick="showPaketForm()">Tambah Paket</button>
+    <div id="paketTable"></div>
+    <div id="paketForm" style="display:none;">
+      <!-- Form tambah/edit paket -->
+      <input id="paketNama" placeholder="Nama Paket">
+      <input id="paketDeskripsi" placeholder="Deskripsi">
+      <input id="paketHarga" type="number" placeholder="Harga">
+      <input id="paketMenu" placeholder="ID Menu (pisahkan koma)">
+      <button onclick="submitPaket()">Simpan</button>
+      <button onclick="hidePaketForm()">Batal</button>
+    </div>
+  </div>
+</div>
         <!-- Konten Notifikasi Promo -->
         <div id="notifContent" class="hidden">
           <div class="bg-white rounded-lg shadow p-6">
@@ -181,8 +288,12 @@
 
       // Event listener untuk view users
       document.getElementById('viewUsersBtn').addEventListener('click', () => {
-        // Implementasi untuk melihat semua user
-        alert('Fitur melihat semua user akan diimplementasikan');
+        // Pindah ke tab Manajemen Pengguna dan load data user
+        dashboardContent.classList.add('hidden');
+        usersContent.classList.remove('hidden');
+        ordersContent.classList.add('hidden');
+        notifContent.classList.add('hidden');
+        loadUsers();
       });
 
       // Event listener untuk view orders
@@ -195,7 +306,7 @@
       async function loadDashboardData() {
         try {
           // Load total users
-          const usersResponse = await fetch('/api/admin/getUsers', {
+          const usersResponse = await fetch('http://localhost:3000/api/admin/getUsers', {
             headers: {
               'Authorization': `Bearer ${adminToken}`,
             },
@@ -207,7 +318,7 @@
           }
 
           // Load total orders
-          const ordersResponse = await fetch('/api/admin/getOrders', {
+          const ordersResponse = await fetch('http://localhost:3000/api/admin/getOrders', {
             headers: {
               'Authorization': `Bearer ${adminToken}`,
             },
@@ -252,6 +363,7 @@
         usersContent.classList.remove('hidden');
         ordersContent.classList.add('hidden');
         notifContent.classList.add('hidden');
+        loadUsers();
       });
       document.getElementById('sidebarOrders').addEventListener('click', () => {
         dashboardContent.classList.add('hidden');
@@ -275,6 +387,404 @@
         document.getElementById('promoStatus').textContent = `Promo "${title}" berhasil dikirim ke pelanggan!`;
         this.reset();
       });
+
+      const menuContent = document.getElementById('menuContent');
+const paketContent = document.getElementById('paketContent');
+// ...tambahkan pada logic sidebar...
+document.getElementById('sidebarMenu').addEventListener('click', () => {
+  dashboardContent.classList.add('hidden');
+  usersContent.classList.add('hidden');
+  ordersContent.classList.add('hidden');
+  notifContent.classList.add('hidden');
+  menuContent.classList.remove('hidden');
+  paketContent.classList.add('hidden');
+});
+document.getElementById('sidebarPaket').addEventListener('click', () => {
+  dashboardContent.classList.add('hidden');
+  usersContent.classList.add('hidden');
+  ordersContent.classList.add('hidden');
+  notifContent.classList.add('hidden');
+  menuContent.classList.add('hidden');
+  paketContent.classList.remove('hidden');
+});
+
+// MENU
+async function loadMenu() {
+        const menuTable = document.getElementById('menuTable');
+        menuTable.innerHTML = 'Memuat data...';
+        try {
+          const res = await fetch('http://localhost:3000/api/admin/menu', { 
+            headers: { 'Authorization': `Bearer ${adminToken}` } 
+          });
+          if (!res.ok) throw new Error('Gagal mengambil data menu');
+  const data = await res.json();
+          
+          if (!data.menus || data.menus.length === 0) {
+            menuTable.innerHTML = '<div class="text-gray-500 text-center">Belum ada menu terdaftar.</div>';
+            return;
+          }
+          
+          // Urutkan menu berdasarkan tanggal pembuatan (terlama dulu)
+          const sortedMenus = data.menus.sort((a, b) => {
+            const dateA = new Date(a.createdAt || a._id);
+            const dateB = new Date(b.createdAt || b._id);
+            return dateA - dateB; // Ascending order (oldest first)
+          });
+          
+          // Render tabel menu
+          let html = `<div class="overflow-x-auto">
+            <table class="min-w-full border text-sm">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th class="border px-3 py-2">No</th>
+                  <th class="border px-3 py-2">Gambar</th>
+                  <th class="border px-3 py-2">Nama Menu</th>
+                  <th class="border px-3 py-2">Kategori</th>
+                  <th class="border px-3 py-2">Harga</th>
+                  <th class="border px-3 py-2">Minggu</th>
+                  <th class="border px-3 py-2">Tanggal</th>
+                  <th class="border px-3 py-2">Status</th>
+                  <th class="border px-3 py-2">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>`;
+          
+          sortedMenus.forEach((menu, idx) => {
+            const statusBadge = menu.status === 'aktif' 
+              ? '<span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Aktif</span>'
+              : '<span class="bg-red-600 text-white px-2 py-1 rounded text-xs">Nonaktif</span>';
+            
+            // Format tanggal
+            const tanggalMulai = menu.tanggalMulai ? new Date(menu.tanggalMulai).toLocaleDateString('id-ID') : '-';
+            const tanggalSelesai = menu.tanggalSelesai ? new Date(menu.tanggalSelesai).toLocaleDateString('id-ID') : '-';
+            const tanggalText = `${tanggalMulai} - ${tanggalSelesai}`;
+            
+            html += `<tr>
+              <td class="border px-3 py-2 text-center">${idx + 1}</td>
+              <td class="border px-3 py-2 text-center">
+                <img src="${menu.gambar}" alt="${menu.nama}" class="w-16 h-16 object-cover rounded mx-auto">
+              </td>
+              <td class="border px-3 py-2">
+                <div class="font-medium">${menu.nama}</div>
+                <div class="text-xs text-gray-500">${menu.deskripsi.substring(0, 50)}...</div>
+              </td>
+              <td class="border px-3 py-2 text-center">
+                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">${menu.kategori.replace('_', ' ')}</span>
+              </td>
+              <td class="border px-3 py-2 text-center">Rp ${new Intl.NumberFormat('id-ID').format(menu.harga)}</td>
+              <td class="border px-3 py-2 text-center">
+                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">Minggu ${menu.minggu || 1}</span>
+              </td>
+              <td class="border px-3 py-2 text-center text-xs">${tanggalText}</td>
+              <td class="border px-3 py-2 text-center">${statusBadge}</td>
+              <td class="border px-3 py-2 text-center">
+                <button onclick="editMenu('${menu._id}')" class="bg-blue-600 text-white px-2 py-1 rounded text-xs mr-1">Edit</button>
+                <button onclick="deleteMenu('${menu._id}')" class="bg-red-600 text-white px-2 py-1 rounded text-xs">Hapus</button>
+              </td>
+            </tr>`;
+          });
+          
+          html += '</tbody></table></div>';
+          menuTable.innerHTML = html;
+        } catch (error) {
+          menuTable.innerHTML = `<div class="text-red-600">Gagal memuat data menu: ${error.message}</div>`;
+        }
+      }
+
+async function submitMenu() {
+  const form = document.getElementById('menuFormElement');
+  const fileInput = document.getElementById('menuGambarFile');
+  let gambarPath = '';
+
+  // 1. Upload gambar jika ada file
+  if (fileInput.files && fileInput.files[0]) {
+    const formData = new FormData();
+    formData.append('photo', fileInput.files[0]);
+    try {
+      const uploadRes = await fetch('http://localhost:3000/api/admin/uploadPhoto', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: formData
+      });
+      const uploadData = await uploadRes.json();
+      if (uploadRes.ok && uploadData.path) {
+        gambarPath = uploadData.path;
+      } else {
+        alert('Gagal upload gambar: ' + (uploadData.message || 'Unknown error'));
+        return;
+      }
+    } catch (err) {
+      alert('Gagal upload gambar: ' + err.message);
+      return;
+    }
+  } else {
+    alert('Pilih file gambar terlebih dahulu!');
+    return;
+  }
+
+  // 2. Siapkan data menu
+  const menuData = {
+    nama: document.getElementById('menuNama').value,
+    deskripsi: document.getElementById('menuDeskripsi').value,
+    gambar: gambarPath,
+    harga: 0, // default
+    kategori: 'makan_siang', // default
+    status: 'aktif', // default
+    urutan: 0, // default
+    minggu: 1, // default
+    tanggalMulai: new Date().toISOString().split('T')[0], // default hari ini
+    tanggalSelesai: new Date().toISOString().split('T')[0], // default hari ini
+    nutrisi: {
+      kalori: Number(document.getElementById('menuKalori').value) || 0,
+      lemak: Number(document.getElementById('menuLemak').value) || 0,
+      saturatedFat: Number(document.getElementById('menuSaturatedFat').value) || 0,
+      cholesterol: Number(document.getElementById('menuCholesterol').value) || 0,
+      protein: Number(document.getElementById('menuProtein').value) || 0,
+      karbohidrat: Number(document.getElementById('menuKarbohidrat').value) || 0,
+      serat: Number(document.getElementById('menuSerat').value) || 0,
+      gula: Number(document.getElementById('menuGula').value) || 0,
+      sodium: Number(document.getElementById('menuSodium').value) || 0,
+    }
+  };
+
+  try {
+    const method = form.dataset.menuId ? 'PUT' : 'POST';
+    const url = form.dataset.menuId 
+      ? `http://localhost:3000/api/admin/menu?id=${form.dataset.menuId}`
+      : 'http://localhost:3000/api/admin/menu';
+
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Authorization': `Bearer ${adminToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(menuData),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert(result.message);
+      hideMenuForm();
+      loadMenu();
+    } else {
+      alert(`Error: ${result.message}`);
+    }
+  } catch (error) {
+    alert(`Error: ${error.message}`);
+  }
+}
+
+      async function editMenu(menuId) {
+        try {
+          const response = await fetch(`http://localhost:3000/api/admin/menu?id=${menuId}`, {
+            headers: { 'Authorization': `Bearer ${adminToken}` },
+          });
+          
+          if (!response.ok) throw new Error('Gagal mengambil data menu');
+          const data = await response.json();
+          const menu = data.menu;
+          
+          // Isi form dengan data menu
+          document.getElementById('menuNama').value = menu.nama;
+          document.getElementById('menuDeskripsi').value = menu.deskripsi;
+          document.getElementById('menuHarga').value = menu.harga;
+          document.getElementById('menuGambar').value = menu.gambar;
+          document.getElementById('menuKategori').value = menu.kategori;
+          document.getElementById('menuStatus').value = menu.status;
+          document.getElementById('menuUrutan').value = menu.urutan;
+          document.getElementById('menuMinggu').value = menu.minggu || 1;
+          
+          // Format tanggal untuk input date
+          if (menu.tanggalMulai) {
+            document.getElementById('menuTanggalMulai').value = new Date(menu.tanggalMulai).toISOString().split('T')[0];
+          }
+          if (menu.tanggalSelesai) {
+            document.getElementById('menuTanggalSelesai').value = new Date(menu.tanggalSelesai).toISOString().split('T')[0];
+          }
+          
+          document.getElementById('menuKalori').value = menu.nutrisi?.kalori || 0;
+          document.getElementById('menuProtein').value = menu.nutrisi?.protein || 0;
+          document.getElementById('menuKarbohidrat').value = menu.nutrisi?.karbohidrat || 0;
+          document.getElementById('menuLemak').value = menu.nutrisi?.lemak || 0;
+          document.getElementById('menuSerat').value = menu.nutrisi?.serat || 0;
+          document.getElementById('menuGula').value = menu.nutrisi?.gula || 0;
+          
+          // Set menu ID untuk update
+          document.getElementById('menuFormElement').dataset.menuId = menuId;
+          document.getElementById('menuFormTitle').textContent = 'Edit Menu';
+          
+          showMenuForm();
+        } catch (error) {
+          alert(`Error: ${error.message}`);
+        }
+      }
+
+      async function deleteMenu(menuId) {
+        if (!confirm('Apakah Anda yakin ingin menghapus menu ini?')) return;
+        
+        try {
+          const response = await fetch(`http://localhost:3000/api/admin/menu?id=${menuId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${adminToken}` },
+          });
+          
+          const result = await response.json();
+          
+          if (response.ok) {
+            alert(result.message);
+            loadMenu();
+          } else {
+            alert(`Error: ${result.message}`);
+          }
+        } catch (error) {
+          alert(`Error: ${error.message}`);
+        }
+      }
+
+      function showMenuForm() { 
+        document.getElementById('menuForm').classList.remove('hidden'); 
+      }
+
+      function hideMenuForm() { 
+        document.getElementById('menuForm').classList.add('hidden');
+        document.getElementById('menuFormElement').reset();
+        document.getElementById('menuFormElement').dataset.menuId = '';
+        document.getElementById('menuFormTitle').textContent = 'Tambah Menu Baru';
+      }
+
+      // Event listener untuk form menu
+      document.getElementById('menuFormElement').addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitMenu();
+      });
+
+      // Load menu saat tab dibuka
+      document.getElementById('sidebarMenu').addEventListener('click', () => {
+        dashboardContent.classList.add('hidden');
+        usersContent.classList.add('hidden');
+        ordersContent.classList.add('hidden');
+        notifContent.classList.add('hidden');
+        menuContent.classList.remove('hidden');
+        paketContent.classList.add('hidden');
+        loadMenu(); // Load menu data
+      });
+
+// PAKET
+async function loadPaket() {
+  const res = await fetch('/api/admin/paket', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+  const data = await res.json();
+  // Render data.paket ke #paketTable
+}
+async function submitPaket() {
+  // Ambil data dari input, POST/PUT ke /api/admin/paket
+  // Setelah sukses, panggil loadPaket()
+}
+function showPaketForm() { document.getElementById('paketForm').style.display = 'block'; }
+function hidePaketForm() { document.getElementById('paketForm').style.display = 'none'; }
+
+      // Fungsi untuk load dan render data user ke tabel
+      async function loadUsers() {
+        const usersTable = document.getElementById('usersTable');
+        usersTable.innerHTML = 'Memuat data...';
+        try {
+          const response = await fetch('http://localhost:3000/api/admin/getUsers', {
+            headers: { 'Authorization': `Bearer ${adminToken}` },
+          });
+          if (!response.ok) throw new Error('Gagal mengambil data user');
+          const data = await response.json();
+          if (!data.users || data.users.length === 0) {
+            usersTable.innerHTML = '<div class="text-gray-500">Belum ada pengguna terdaftar.</div>';
+            return;
+          }
+
+          // Pisahkan admin dan user
+          const admins = data.users.filter(user => user.role === 'admin');
+          const users = data.users.filter(user => user.role === 'user');
+
+          let html = '';
+
+          // Tabel Admin
+          if (admins.length > 0) {
+            html += `<div class="mb-8">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Data Admin (${admins.length})</h3>
+              <div class="overflow-x-auto">
+                <table class="min-w-full border text-sm">
+                  <thead class="bg-red-100">
+                    <tr>
+                      <th class="border px-3 py-2">No</th>
+                      <th class="border px-3 py-2">Nama Lengkap</th>
+                      <th class="border px-3 py-2">Email</th>
+                      <th class="border px-3 py-2">Username</th>
+                      <th class="border px-3 py-2">Nomor HP</th>
+                      <th class="border px-3 py-2">Role</th>
+                      <th class="border px-3 py-2">Tanggal Daftar</th>
+                    </tr>
+                  </thead>
+                  <tbody>`;
+            admins.forEach((admin, idx) => {
+              html += `<tr class="bg-red-50">
+                <td class="border px-3 py-2 text-center">${idx + 1}</td>
+                <td class="border px-3 py-2 font-medium">${admin.namaLengkap || '-'}</td>
+                <td class="border px-3 py-2">${admin.email || '-'}</td>
+                <td class="border px-3 py-2">${admin.username || '-'}</td>
+                <td class="border px-3 py-2">${admin.nomorHP || '-'}</td>
+                <td class="border px-3 py-2 text-center">
+                  <span class="bg-red-600 text-white px-2 py-1 rounded text-xs">${admin.role || '-'}</span>
+                </td>
+                <td class="border px-3 py-2 text-center">${admin.createdAt ? (new Date(admin.createdAt)).toLocaleDateString('id-ID') : '-'}</td>
+              </tr>`;
+            });
+            html += '</tbody></table></div></div>';
+          }
+
+          // Tabel User/Pelanggan
+          if (users.length > 0) {
+            html += `<div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">Data Pelanggan (${users.length})</h3>
+              <div class="overflow-x-auto">
+                <table class="min-w-full border text-sm">
+                  <thead class="bg-blue-100">
+                    <tr>
+                      <th class="border px-3 py-2">No</th>
+                      <th class="border px-3 py-2">Nama Lengkap</th>
+                      <th class="border px-3 py-2">Email</th>
+                      <th class="border px-3 py-2">Username</th>
+                      <th class="border px-3 py-2">Nomor HP</th>
+                      <th class="border px-3 py-2">Role</th>
+                      <th class="border px-3 py-2">Tanggal Daftar</th>
+                    </tr>
+                  </thead>
+                  <tbody>`;
+            users.forEach((user, idx) => {
+              html += `<tr class="bg-blue-50">
+                <td class="border px-3 py-2 text-center">${idx + 1}</td>
+                <td class="border px-3 py-2">${user.namaLengkap || '-'}</td>
+                <td class="border px-3 py-2">${user.email || '-'}</td>
+                <td class="border px-3 py-2">${user.username || '-'}</td>
+                <td class="border px-3 py-2">${user.nomorHP || '-'}</td>
+                <td class="border px-3 py-2 text-center">
+                  <span class="bg-blue-600 text-white px-2 py-1 rounded text-xs">${user.role || '-'}</span>
+                </td>
+                <td class="border px-3 py-2 text-center">${user.createdAt ? (new Date(user.createdAt)).toLocaleDateString('id-ID') : '-'}</td>
+              </tr>`;
+            });
+            html += '</tbody></table></div></div>';
+          }
+
+          // Jika tidak ada data sama sekali
+          if (admins.length === 0 && users.length === 0) {
+            html = '<div class="text-gray-500">Belum ada pengguna terdaftar.</div>';
+          }
+
+          usersTable.innerHTML = html;
+        } catch (err) {
+          usersTable.innerHTML = `<div class="text-red-600">Gagal memuat data pengguna: ${err.message}</div>`;
+        }
+      }
     </script>
   </body>
 </html> 

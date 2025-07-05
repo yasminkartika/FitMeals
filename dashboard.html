@@ -27,6 +27,11 @@
     </style>
   </head>
   <body>
+    <!-- Pesan error autentikasi -->
+    <div id="auth-error" style="display:none;" class="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center z-50 mt-20">
+      <span id="auth-error-msg">Sesi Anda telah berakhir. Silakan login ulang.</span>
+      <button id="auth-error-login-btn" class="ml-4 bg-[#63A365] text-white px-3 py-1 rounded">Login Ulang</button>
+    </div>
     <!-- NAVBAR -->
     <nav
       class="bg-white w-full border-b border-gray-200 fixed top-0 left-0 z-50"
@@ -71,7 +76,7 @@
               >
             </li>
             <li>
-              <a href="#Menu" class="text-gray-900 hover:text-[#63A365]"
+              <a href="#menu" class="text-gray-900 hover:text-[#63A365]"
                 >Menu</a
               >
             </li>
@@ -117,6 +122,7 @@
       btn.addEventListener("click", () => {
         menu.classList.toggle("hidden");
       });
+    
       // User dropdown logic
       const userDropdownBtn = document.getElementById("user-dropdown-btn");
       const userDropdownMenu = document.getElementById("user-dropdown-menu");
@@ -129,113 +135,125 @@
           userDropdownMenu.classList.add("hidden");
         }
       });
-
+    
       // Integrasi user login
-      document.addEventListener('DOMContentLoaded', function() {
-        console.log('Dashboard loaded, checking authentication...');
-        
-        // Fungsi untuk redirect ke login
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("Dashboard loaded, checking authentication...");
+    
+        // Fungsi untuk redirect ke login atau tampilkan pesan error
         function redirectToLogin() {
-          console.log('Redirecting to login...');
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          window.location.href = 'login.html';
+          console.log("Redirecting to login...");
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          // Tampilkan pesan error dan tombol login ulang
+          const errDiv = document.getElementById("auth-error");
+          if (errDiv) {
+            errDiv.style.display = "block";
+            window.scrollTo(0, 0);
+            document.getElementById("auth-error-login-btn").onclick = function() {
+              window.location.href = "login.html";
+            };
+          } else {
+            // fallback: redirect langsung
+            window.location.href = "login.html";
+          }
         }
-        
+    
         // Fungsi untuk update UI dengan data user
         function updateUserUI(user) {
-          console.log('Updating UI with user data:', user);
-          const userName = document.getElementById('user-name');
+          console.log("Updating UI with user data:", user);
+          const userName = document.getElementById("user-name");
           if (userName) {
-            userName.textContent = user.namaLengkap || user.username || user.email;
-            userName.classList.remove('hidden');
+            userName.textContent =
+              user.namaLengkap || user.username || user.email || "Pengguna";
+            userName.classList.remove("hidden");
           }
-          // Simpan data user ke localStorage untuk backup
-          localStorage.setItem('user', JSON.stringify(user));
+          // Simpan user ke localStorage
+          localStorage.setItem("user", JSON.stringify(user));
         }
-        
-        // Cek session terlebih dahulu
-        fetch('/api/user/me', {
-          method: 'GET',
-          credentials: 'include'
+    
+        // Cek session / token
+        const token = localStorage.getItem("token");
+        if (!token || token === "undefined" || token === "null" || token.trim() === "") {
+          console.error("❌ Token tidak valid di localStorage, redirecting to login.");
+          redirectToLogin();
+          return;
+        }
+        console.log("📦 Token yang dikirim:", token); // Log token yang dikirim
+
+
+        fetch("http://localhost:3000/api/user/me", {
+          method: "GET",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token },
+          // credentials: "include",
         })
-        .then(res => {
-          if (!res.ok) {
-            // Jika session tidak valid, cek token dari localStorage
-            const token = localStorage.getItem('token');
-            if (!token) {
-              console.log('No token found, redirecting to login');
+          .then((res) => {
+            if (!res.ok) {
+              console.error("❌ Token invalid/expired, redirecting to login.");
               redirectToLogin();
               return null;
             }
-            console.log('Using token from localStorage');
-            // Coba dengan token
-            return fetch('/api/user/me', {
-              headers: { 'Authorization': 'Bearer ' + token },
-              credentials: 'include'
-            });
-          }
-          return res;
-        })
-        .then(res => {
-          if (!res) return null; // Already handled redirect
-          
-          if (!res.ok) {
-            console.log('Authentication failed, clearing storage and redirecting');
+            return res.json();
+          })
+          .then((user) => {
+            if (user) {
+              console.log("✅ User authenticated:", user);
+              updateUserUI(user);
+    
+              // Refresh session tiap 5 menit
+              setInterval(() => {
+                fetch("http://localhost:3000/api/refresh-session", {
+                  method: "POST",
+                  credentials: "include",
+                }).catch((err) => {
+                  console.error("Session refresh failed:", err);
+                });
+              }, 5 * 60 * 1000);
+            }
+          })
+          .catch((error) => {
+            console.error("❌ Authentication error:", error);
             redirectToLogin();
-            return null;
-          }
-          return res.json();
-        })
-        .then(user => {
-          if (user) {
-            console.log('User authenticated:', user);
-            updateUserUI(user);
-            
-            // Set up periodic session refresh (every 5 minutes)
-            setInterval(() => {
-              fetch('/api/refresh-session', {
-                method: 'POST',
-                credentials: 'include'
-              }).catch(err => {
-                console.error('Session refresh failed:', err);
-              });
-            }, 5 * 60 * 1000);
-          }
-        })
-        .catch((error) => {
-          console.error('Authentication error:', error);
-          redirectToLogin();
-        });
+          });
       });
-
-      // Logout functionality
-      document.addEventListener('DOMContentLoaded', function() {
-        const logoutLink = document.querySelector('#user-dropdown-menu a:last-child');
+    
+      // Logout handler
+      document.addEventListener("DOMContentLoaded", function () {
+        const logoutLink = document.querySelector("#user-dropdown-menu a:last-child");
         if (logoutLink) {
-          logoutLink.addEventListener('click', function(e) {
+          logoutLink.addEventListener("click", function (e) {
             e.preventDefault();
-            
-            // Hapus data dari localStorage
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            
-            // Panggil API logout
-            fetch('/api/logout', {
-              method: 'POST',
-              credentials: 'include'
+    
+            // Clear localStorage
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+    
+            // Call logout API
+            fetch("http://localhost:3000/api/logout", {
+              method: "POST",
+              credentials: "include",
             })
-            .then(() => {
-              window.location.href = 'login.html';
-            })
-            .catch(() => {
-              // Jika API gagal, tetap redirect ke login
-              window.location.href = 'login.html';
-            });
+              .then(() => {
+                window.location.href = "login.html";
+              })
+              .catch(() => {
+                window.location.href = "login.html";
+              });
           });
         }
       });
     </script>
+    <script type="module">
+      import { getUser, logout } from "./js/auth.js";
+    
+      const user = getUser(); // Kalau belum login, otomatis redirect
+    
+      // Tampilkan nama user di UI
+      document.getElementById("user-name").textContent = user.namaLengkap;
+    </script>
+    
 
     <!-- Headline -->
     <section
@@ -348,174 +366,84 @@
 
     <!-- Menu -->
     <script>
-      const menuData = [
-        {
-          week: "Menu Minggu 1",
-          dates: "(30 Juni - 4 Juli 2025)",
-          items: [
-            {
-              img: "img/chicken tikka masala.jpeg",
-              title: "CHICKEN TIKKA MASALA DELIGHT",
-              desc: "Disajikan dengan Basmati Rice dan Garlic Butter Naan",
-              kcal: "470 KKAL",
-              ket: "Fat : 14g, Saturated Fat : 3g, Carbohydrates : 45mg, Fiber : 5g, Protein : 39g, Sodium : 550mg",
-            },
-            {
-              img: "img/veggie taco platter.jpg",
-              title: "VEGGIE TACO PLATTER",
-              desc: "Disajikan dengan Avocado Slice, Sweet Corn, Red Bean Salsa, Lemon Wedges, dan Saus Creamy & Salsa Pedas",
-              kcal: "520 KKAL",
-              ket: "Fat: 21g, Saturated Fat: 5g, Cholesterol: 0mg, Sodium: 350mg",
-            },
-            {
-              img: "img/chicken.jpeg",
-              title: "GRILLED CHICKEN POWER BOWL",
-              desc: "Dengan Brokoli Kukus, Paprika Bakar, Tomat Cherry Panggang",
-              kcal: "470 KKAL",
-              ket: "Fat : 18g, Saturated Fat : 3g, Cholesterol : 85mg, Sodium : 210mg",
-            },
-            {
-              img: "img/beef.jpeg",
-              title: "BEEF TENDER SKEWER PLATE",
-              desc: "Disajikan dengan Baby Spinach, Grilled Zucchini, Spinach, Blueberry, Mozzarella, BBQ sauce",
-              kcal: "560 KKAL",
-              ket: "Fat : 27g, Saturated Fat : 10g, Cholesterol : 115mg, Sodium : 430mg",
-            },
-            {
-              img: "img/Nasi Sate Lilit.jpeg",
-              title: "NASI BUNGA TELANG & SATE LILIT AYAM",
-              desc: "Disajikan dengan Urap Kelapa Pedas & Sambal Matah Bali",
-              kcal: "590 KKAL",
-              ket: "Fat : 24g, Saturated Fat : 8g, Cholesterol : 90mg, Sodium : 400mg",
-            },
-            {
-              img: "img/avocado egg plate.jpg",
-              title: "AVOCADO EGG PLATE",
-              desc: "Disajikan dengan Poached Egg, Grilled Avocado, Broccoli, Crispy Beef Bacon, dan Dark Rye Bread",
-              kcal: "470 KKAL",
-              ket: "Fat: 23g, Saturated Fat: 6g, Cholesterol: 190mg, Sodium: 410mg",
-            },
-            {
-              img: "img/Creamy Chicken and Mushroom Soup.jpeg",
-              title: "CREAMY CHICKEN & MUSHROOM SOUP",
-              desc: "Sup krim ayam dengan jamur, wortel, nasi, krim, parsley",
-              kcal: "430 KKAL",
-              ket: "Fat : 22g, Saturated Fat : 9g, Protein : 30g, Carbohydrates : 28g, Fiber : 3g, Sodium : 580mg",
-            },
-            {
-              img: "img/Salmon Sweet Potato Roasted Vegetables.jpeg",
-              title: "SAVORY SALMON MEDLEY",
-              desc: "Disajikan dengan roasted sweet potatoes dan sayuran panggang",
-              kcal: "530 KKAL",
-              ket: "Fat : 26g, Saturated Fat : 5g, Protein : 35g, Cholesterol : 40mg, Fiber : 9g, Sodium : 420mg",
-            },
-          ],
-        },
-        {
-          week: "Menu Minggu 2",
-          dates: "(7 - 11 Juli 2025)",
-          items: [
-            {
-              img: "img/Salmon Sweet Potato Roasted Vegetables.jpeg",
-              title: "SAVORY SALMON MEDLEY",
-              desc: "Disajikan dengan roasted sweet potatoes dan sayuran panggang",
-              kcal: "530 KKAL",
-              ket: "Fat : 26g, Saturated Fat : 5g, Protein : 35g, Cholesterol : 40mg, Fiber : 9g, Sodium : 420mg",
-            },
-            {
-              img: "img/chicken.jpeg",
-              title: "GRILLED CHICKEN POWER BOWL",
-              desc: "Dengan Brokoli Kukus, Paprika Bakar, Tomat Cherry Panggang",
-              kcal: "470 KKAL",
-              ket: "Fat : 18g, Saturated Fat : 3g, Cholesterol : 85mg, Sodium : 210mg",
-            },
-            {
-              img: "img/avocado egg plate.jpg",
-              title: "AVOCADO EGG PLATE",
-              desc: "Disajikan dengan Poached Egg, Grilled Avocado, Broccoli, Crispy Beef Bacon, dan Dark Rye Bread",
-              kcal: "470 KKAL",
-              ket: "Fat: 23g, Saturated Fat: 6g, Cholesterol: 190mg, Sodium: 410mg",
-            },
-            {
-              img: "img/veggie taco platter.jpg",
-              title: "VEGGIE TACO PLATTER",
-              desc: "Disajikan dengan Avocado Slice, Sweet Corn, Red Bean Salsa, Lemon Wedges, dan Saus Creamy & Salsa Pedas",
-              kcal: "520 KKAL",
-              ket: "Fat: 21g, Saturated Fat: 5g, Cholesterol: 0mg, Sodium: 350mg",
-            },
-            {
-              img: "img/Nasi Sate Lilit.jpeg",
-              title: "NASI BUNGA TELANG & SATE LILIT AYAM",
-              desc: "Disajikan dengan Urap Kelapa Pedas & Sambal Matah Bali",
-              kcal: "590 KKAL",
-              ket: "Fat : 24g, Saturated Fat : 8g, Cholesterol : 90mg, Sodium : 400mg",
-            },
-            {
-              img: "img/beef.jpeg",
-              title: "BEEF TENDER SKEWER PLATE",
-              desc: "Disajikan dengan Baby Spinach, Grilled Zucchini, Spinach, Blueberry, Mozzarella, BBQ sauce",
-              kcal: "560 KKAL",
-              ket: "Fat : 27g, Saturated Fat : 10g, Cholesterol : 115mg, Sodium : 430mg",
-            },
-            {
-              img: "img/chicken tikka masala.jpeg",
-              title: "CHICKEN TIKKA MASALA DELIGHT",
-              desc: "Disajikan dengan Basmati Rice dan Garlic Butter Naan",
-              kcal: "470 KKAL",
-              ket: "Fat : 14g, Saturated Fat : 3g, Carbohydrates : 45mg, Fiber : 5g, Protein : 39g, Sodium : 550mg",
-            },
-            {
-              img: "img/Creamy Chicken and Mushroom Soup.jpeg",
-              title: "CREAMY CHICKEN & MUSHROOM SOUP",
-              desc: "Sup krim ayam dengan jamur, wortel, nasi, krim, parsley",
-              kcal: "430 KKAL",
-              ket: "Fat : 22g, Saturated Fat : 9g, Protein : 30g, Carbohydrates : 28g, Fiber : 3g, Sodium : 580mg",
-            },
-          ],
-        },
-      ];
-
-      let currentIndex = 0;
-
-      function renderMenu() {
-        const data = menuData[currentIndex];
-        document.getElementById("week-title").textContent = data.week;
-        document.getElementById("week-dates").textContent = data.dates;
-
-        const container = document.getElementById("menu-cards");
-        container.innerHTML = "";
-
-        data.items.forEach((item, idx) => {
-          const card = document.createElement("div");
-          card.className = "relative cursor-pointer group";
-
-          card.innerHTML = `
-          <img src="${item.img}" class="object-cover w-full aspect-[4/3] max-w-md min-h-40 rounded-xl shadow-lg mb-4 transition-transform group-hover:scale-105 mx-auto" onclick="toggleInfo(${idx})">
-            <div id="info-${idx}" class="hidden bg-white p-3 rounded-lg mt-2 shadow">
-              <h2 class="text-sm font-semibold text-[#63A365] uppercase">${item.title}</h2>
-              <p class="text-gray-900 font-medium mb-1">${item.desc}</p>
-              <p class="text-[#63A365] font-semibold mt-1">${item.kcal}</p>
-              <p class="text-gray-900 font-medium">${item.ket}</p>
-
+      async function loadMenu() {
+        try {
+          // Ambil minggu saat ini
+          const now = new Date();
+          const currentWeek = getWeekNumber(now);
+          
+          const response = await fetch(`http://localhost:3000/api/menu?minggu=${currentWeek}`);
+          if (!response.ok) throw new Error('Gagal mengambil data menu');
+          const data = await response.json();
+          
+          if (!data.menus || data.menus.length === 0) {
+            document.getElementById('menuContainer').innerHTML = 
+              '<div class="text-center text-gray-500 py-8">Belum ada menu untuk minggu ini.</div>';
+            return;
+          }
+          
+          // Render menu berdasarkan kategori
+          const menuContainer = document.getElementById('menuContainer');
+          menuContainer.innerHTML = '';
+          
+          const categories = ['sarapan', 'makan_siang', 'makan_malam', 'snack', 'minuman'];
+          const categoryNames = {
+            'sarapan': 'Sarapan',
+            'makan_siang': 'Makan Siang', 
+            'makan_malam': 'Makan Malam',
+            'snack': 'Snack',
+            'minuman': 'Minuman'
+          };
+          
+          categories.forEach(category => {
+            const categoryMenus = data.menus.filter(menu => menu.kategori === category);
+            if (categoryMenus.length > 0) {
+              const categorySection = document.createElement('div');
+              categorySection.className = 'mb-8';
+              categorySection.innerHTML = `
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">${categoryNames[category]}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  ${categoryMenus.map(menu => `
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                      <img src="${menu.gambar}" alt="${menu.nama}" class="w-full h-48 object-cover">
+                      <div class="p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">${menu.nama}</h3>
+                        <p class="text-gray-600 text-sm mb-3">${menu.deskripsi}</p>
+                        <div class="flex justify-between items-center mb-3">
+                          <span class="text-lg font-bold text-green-600">Rp ${new Intl.NumberFormat('id-ID').format(menu.harga)}</span>
+                          <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">Minggu ${menu.minggu}</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-xs text-gray-500 mb-3">
+                          <div>Kalori: ${menu.nutrisi?.kalori || 0} kcal</div>
+                          <div>Protein: ${menu.nutrisi?.protein || 0}g</div>
+                          <div>Karbohidrat: ${menu.nutrisi?.karbohidrat || 0}g</div>
+                        </div>
+                        <button onclick="addToCart('${menu._id}', '${menu.nama}', ${menu.harga})" 
+                                class="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition duration-200">
+                          Tambah ke Keranjang
+                        </button>
+                      </div>
+                    </div>
+                  `).join('')}
             </div>
           `;
-          container.appendChild(card);
-        });
-      }
-
-      function toggleInfo(index) {
-        const info = document.getElementById(`info-${index}`);
-        if (info) {
-          info.classList.toggle("hidden");
+              menuContainer.appendChild(categorySection);
+            }
+          });
+          
+        } catch (error) {
+          console.error('Error loading menu:', error);
+          document.getElementById('menuContainer').innerHTML = 
+            '<div class="text-center text-red-500 py-8">Gagal memuat menu. Silakan coba lagi.</div>';
         }
       }
-
-      function changeWeek(dir) {
-        currentIndex = (currentIndex + dir + menuData.length) % menuData.length;
-        renderMenu();
+      
+      // Fungsi untuk mendapatkan nomor minggu saat ini
+      function getWeekNumber(date) {
+        const startOfYear = new Date(date.getFullYear(), 0, 1);
+        const days = Math.floor((date - startOfYear) / (24 * 60 * 60 * 1000));
+        return Math.ceil((days + startOfYear.getDay() + 1) / 7);
       }
-
-      window.onload = renderMenu;
     </script>
 
     <!-- Paket Catering -->
@@ -965,24 +893,22 @@
       // Inisialisasi
     renderOrders();
       // Jalankan ketika halaman sudah dimuat
-      window.addEventListener("DOMContentLoaded", function () {
-        fetch("/dashboard", {
-          method: "GET",
-          credentials: "include"
-        })
-          .then(res => {
-            if (!res.ok) throw new Error("Gagal mengambil data dashboard");
-            return res.json();
-          })
-          .then(data => {
-            console.log("DASHBOARD DATA:", data);
-            // Kalau kamu mau render ke halaman, bisa proses di sini
-            // Misalnya: document.getElementById("nama-user").textContent = data.fullName;
-          })
-          .catch(err => {
-            console.error("Error saat ambil data dashboard:", err);
-          });
-      });
+      // window.addEventListener("DOMContentLoaded", function () {
+      //   fetch("/dashboard", {
+      //     method: "GET",
+      //     credentials: "include"
+      //   })
+      //     .then(res => {
+      //       if (!res.ok) throw new Error("Gagal mengambil data dashboard");
+      //       return res.json();
+      //     })
+      //     .then(data => {
+      //       console.log("DASHBOARD DATA:", data);
+      //     })
+      //     .catch(err => {
+      //       console.error("Error saat ambil data dashboard:", err);
+      //     });
+      // });
 
     </script>
 

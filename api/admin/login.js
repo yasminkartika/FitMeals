@@ -7,11 +7,11 @@ module.exports = async function loginHandler(req, res) {
     return res.status(405).json({ message: "Method not allowed" });
   }
 
-  const { email, password } = req.body;
+  const { identifier, password } = req.body;
 
   // Validasi input dasar
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email dan password wajib diisi" });
+  if (!identifier || !password) {
+    return res.status(400).json({ message: "Username/email dan password wajib diisi" });
   }
 
   try {
@@ -19,12 +19,17 @@ module.exports = async function loginHandler(req, res) {
     await dbConnect();
     console.log("Database connected successfully");
 
-    // Cari user berdasarkan email
-    const user = await User.findOne({ email: email.toLowerCase() });
+    // Cek apakah identifier mengandung '@' (email) atau tidak (username)
+    let user;
+    if (identifier.includes("@")) {
+      user = await User.findOne({ email: identifier.toLowerCase() });
+    } else {
+      user = await User.findOne({ username: identifier.toLowerCase() });
+    }
     console.log("User search result:", user ? "User found" : "User not found");
 
     if (!user) {
-      return res.status(401).json({ message: "Email tidak ditemukan" });
+      return res.status(401).json({ message: "Username/email tidak ditemukan" });
     }
 
     // Verifikasi password

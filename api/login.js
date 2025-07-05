@@ -1,7 +1,8 @@
 const dbConnect = require("../lib/db.js");
 const User = require("../models/User.js");
 const bcrypt = require("bcryptjs");
-const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
+const JWT_SECRET = process.env.JWT_SECRET || "fitmeals_secret";
 
 async function handler(req, res) {
   if (req.method !== "POST") {
@@ -10,7 +11,6 @@ async function handler(req, res) {
 
   const { username, password } = req.body;
 
-  // Validasi input dasar
   if (!username || !password) {
     return res
       .status(400)
@@ -30,39 +30,24 @@ async function handler(req, res) {
       return res.status(401).json({ message: "Password salah" });
     }
 
-    // Kalau berhasil, kirim data user (tanpa password)
     const { password: _, ...userData } = user._doc;
-    
-    // Simpan ke session dengan data yang lebih lengkap
-    req.session.user = {
+
+    // Buat JWT
+    const payload = {
       id: user._id,
       username: user.username,
       namaLengkap: user.namaLengkap,
       email: user.email,
-      role: user.role || 'user',
-      loginTime: new Date().toISOString()
+      nomorHP: user.nomorHP,
+      role: user.role || "user",
     };
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
 
-    // Regenerate session ID untuk keamanan
-    req.session.regenerate((err) => {
-      if (err) {
-        console.error("Session regeneration error:", err);
-        return res.status(500).json({ message: "Terjadi kesalahan server" });
-      }
-      
-      // Generate token yang lebih aman
-      const token = crypto.randomBytes(32).toString('hex');
-      
-      // Simpan token di session juga
-      req.session.token = token;
-      
-      return res.status(200).json({
-        message: "Login berhasil",
-        user: userData,
-        token: token,
-      });
+    return res.status(200).json({
+      message: "Login berhasil",
+      user: userData,
+      token: token,
     });
-    
   } catch (error) {
     console.error("Login error:", error);
     return res.status(500).json({ message: "Terjadi kesalahan server" });

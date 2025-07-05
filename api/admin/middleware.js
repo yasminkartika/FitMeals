@@ -2,7 +2,7 @@ const dbConnect = require("../../lib/db.js");
 const User = require("../../models/User.js");
 
 // Middleware untuk verifikasi admin
-export async function verifyAdmin(req, res, next) {
+async function verifyAdmin(req, res, next) {
   try {
     // Ambil token dari header Authorization
     const authHeader = req.headers.authorization;
@@ -44,7 +44,7 @@ export async function verifyAdmin(req, res, next) {
 }
 
 // Middleware untuk verifikasi admin dari localStorage (untuk frontend)
-export function verifyAdminFromStorage() {
+function verifyAdminFromStorage() {
   return (req, res, next) => {
     try {
       const user = JSON.parse(req.headers['x-user-data'] || '{}');
@@ -59,4 +59,9 @@ export function verifyAdminFromStorage() {
       return res.status(401).json({ message: "Data user tidak valid" });
     }
   };
-} 
+}
+
+module.exports = {
+  verifyAdmin,
+  verifyAdminFromStorage
+}; 

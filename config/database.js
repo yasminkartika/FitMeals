@@ -8,7 +8,7 @@ mongoose.connect(process.env.MONGODB_URI, {
   useUnifiedTopology: true
 });
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/fitmeals";
+const MONGODB_URI = process.env.MONGODB_URI;
 
 let isConnected = false;
 

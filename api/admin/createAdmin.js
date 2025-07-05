@@ -7,10 +7,10 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ message: "Method not allowed" });
   }
 
-  const { namaLengkap, email, nomorHP, password, secretKey } = req.body;
+  const { namaLengkap, email, nomorHP, username, password, secretKey } = req.body;
 
   // Validasi input
-  if (!namaLengkap || !email || !nomorHP || !password) {
+  if (!namaLengkap || !email || !nomorHP || !username || !password) {
     return res.status(400).json({ message: "Semua field wajib diisi" });
   }
 
@@ -36,6 +36,12 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ message: "Email sudah terdaftar" });
     }
 
+    // Cek apakah username sudah terdaftar
+    const existingUsername = await User.findOne({ username: username.toLowerCase() });
+    if (existingUsername) {
+      return res.status(400).json({ message: "Username sudah terdaftar" });
+    }
+
     // Hash password
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -46,6 +52,7 @@ module.exports = async function handler(req, res) {
       namaLengkap,
       email: email.toLowerCase(),
       nomorHP,
+      username: username.toLowerCase(),
       password: hashedPassword,
       role: "admin",
     });

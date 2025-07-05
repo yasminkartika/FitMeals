@@ -37,6 +37,19 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true,
   },
+  tanggalLahir: {
+    type: Date,
+    required: false,
+  },
+  alamat: [{
+    type: String,
+    trim: true,
+  }],
+  fotoProfil: {
+    type: String,
+    required: false,
+    default: null,
+  },
 });
 
 // Cegah error recompile model di serverless function

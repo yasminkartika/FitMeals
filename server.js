@@ -4,7 +4,8 @@ const session = require("express-session");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const app = express();
-const PORT = 3000;
+// const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 dotenv.config();
 
@@ -32,18 +33,20 @@ app.use(
 
 app.use(express.json());
 
+// Serve static files
+app.use("/uploads", express.static("uploads"));
+
 // Session configuration - Improved for better persistence
 app.use(
   session({
     secret: "WM3AL33GTGZOVPN",
-    resave: true, // Changed to true for better session persistence
+    resave: false, // Changed to true for better session persistence
     saveUninitialized: false,
     cookie: {
       secure: false, // HARUS false kalau pakai http
       httpOnly: true,
-      sameSite: "lax",
-      maxAge: 1000 * 60 * 60 * 24 * 7, // Extended to 7 days
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // Explicit expiration
+      // sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 hari
     },
     name: "connect.sid",
     rolling: true, // Extends session on each request
@@ -76,14 +79,28 @@ app.use((req, res, next) => {
 });
 
 const createAdmin = require("./api/admin/createAdmin.js");
-const loginHandler = require("./api/admin/login.js");
+const userLoginHandler = require("./api/login.js");
+const adminLoginHandler = require("./api/admin/login.js");
+const getUsers = require("./api/admin/getUsers");
+const getOrders = require("./api/admin/getOrders");
+const menuHandler = require("./api/admin/menu");
 
 // Routing manual
 app.post("/api/admin/createAdmin", createAdmin);
-app.post("/api/admin/login", loginHandler);
+app.post("/api/admin/login", adminLoginHandler);
+app.get("/api/admin/getUsers", require("./api/admin/getUsers"));
+app.get("/api/admin/getOrders", require("./api/admin/getOrders"));
+app.use("/api/admin/menu", menuHandler);
+app.use("/api/admin/uploadPhoto", require("./api/admin/uploadPhoto.js"));
+app.get("/api/menu", require("./api/menu.js"));
+app.post("/api/login", userLoginHandler);
 app.post("/api/register", require("./api/register.js"));
-app.post("/api/login", require("./api/login.js"));
+app.post("/api/login", userLoginHandler);
 app.get("/api/user/me", require("./api/user/me.js"));
+app.post("/api/user/updateProfile", require("./api/user/updateProfile.js"));
+app.post("/api/user/updateAccount", require("./api/user/updateAccount.js"));
+app.post("/api/user/uploadPhoto", require("./api/user/uploadPhoto.js"));
+app.post("/api/user/removePhoto", require("./api/user/removePhoto.js"));
 app.post("/api/logout", require("./api/logout.js"));
 
 app.get("/dashboard", (req, res) => {
@@ -119,13 +136,29 @@ app.post("/api/refresh-session", (req, res) => {
   if (req.session && req.session.user) {
     req.session.touch();
     req.session.lastActivity = Date.now();
-    res.json({ 
+    res.json({
       message: "Session refreshed",
-      lastActivity: req.session.lastActivity 
+      lastActivity: req.session.lastActivity,
     });
   } else {
     res.status(401).json({ message: "No active session" });
   }
+});
+
+const path = require("path");
+
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+
+app.get("/dashboard.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "dashboard.html"));
 });
 
 // Start server
