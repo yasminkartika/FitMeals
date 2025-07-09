@@ -215,7 +215,7 @@
         }
         console.log("📦 Token yang dikirim:", token); // Log token yang dikirim
 
-        fetch("api/user/me", {
+        fetch("/api/user/me", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -238,7 +238,7 @@
 
               // Refresh session tiap 5 menit
               setInterval(() => {
-                fetch("api/refresh-session", {
+                fetch("/api/refresh-session", {
                   method: "POST",
                   credentials: "include",
                 }).catch((err) => {
@@ -266,8 +266,8 @@
             localStorage.removeItem("token");
             localStorage.removeItem("user");
 
-            // Call logout API
-            fetch("api/logout", {
+            // Call logout api
+            fetch("/api/logout", {
               method: "POST",
               credentials: "include",
             })
@@ -691,7 +691,7 @@
       async function fetchUserOrders() {
         try {
           const token = localStorage.getItem("token");
-          const response = await fetch("api/orders/user", {
+          const response = await fetch("/api/orders/user", {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -1048,7 +1048,7 @@
 
         // Kirim review ke database
         const token = localStorage.getItem("token");
-        fetch("api/reviews/create", {
+        fetch("/api/reviews/create", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -1127,10 +1127,10 @@
 
           console.log(
             "📡 Sending cancel request to:",
-            `api/orders/${orderId}/cancel`
+            `/api/orders/${orderId}/cancel`
           );
 
-          const response = await fetch(`api/orders/${orderId}/cancel`, {
+          const response = await fetch(`/api/orders/${orderId}/cancel`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -1182,11 +1182,11 @@
 
           console.log(
             "📡 Sending payment confirmation to:",
-            `api/orders/${orderId}/confirm-payment`
+            `/api/orders/${orderId}/confirm-payment`
           );
 
           const response = await fetch(
-            `api/orders/${orderId}/confirm-payment`,
+            `/api/orders/${orderId}/confirm-payment`,
             {
               method: "PUT",
               headers: {
@@ -1274,7 +1274,7 @@
       // Fungsi untuk mengambil menu dari database
       async function fetchMenuData() {
         try {
-          const response = await fetch("api/menu");
+          const response = await fetch("/api/menu");
 
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -1283,7 +1283,7 @@
           const data = await response.json();
 
           if (data.menus && data.menus.length > 0) {
-            // Render menu langsung dari data API
+            // Render menu langsung dari data api
             renderMenu(data.menus);
           } else {
             // Tampilkan pesan jika tidak ada menu

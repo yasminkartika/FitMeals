@@ -2027,7 +2027,7 @@
       // Fungsi untuk memuat testimoni dari database
       async function loadTestimonials() {
         try {
-          const response = await fetch("api/reviews/testimonials");
+          const response = await fetch("/api/reviews/testimonials");
           if (!response.ok) {
             throw new Error("Failed to fetch testimonials");
           }

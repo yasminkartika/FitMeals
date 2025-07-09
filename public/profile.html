@@ -410,7 +410,7 @@
         const formData = new FormData();
         formData.append("photo", file);
 
-        fetch("api/user/uploadPhoto", {
+        fetch("/api/user/uploadPhoto", {
           method: "POST",
           headers: {
             Authorization: "Bearer " + token,
@@ -448,7 +448,7 @@
         }
 
         if (confirm("Apakah Anda yakin ingin menghapus foto profil?")) {
-          fetch("api/user/removePhoto", {
+          fetch("/api/user/removePhoto", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -503,7 +503,7 @@
         }
 
         // Update profile data
-        fetch("api/user/updateProfile", {
+        fetch("/api/user/updateProfile", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -557,7 +557,7 @@
         }
 
         // Update account data
-        fetch("api/user/updateAccount", {
+        fetch("/api/user/updateAccount", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -689,7 +689,7 @@
             window.location.href = "login.html";
             return;
           }
-          fetch("api/user/me", {
+          fetch("/api/user/me", {
             headers: { Authorization: "Bearer " + token },
           })
             .then((res) => {
