@@ -2,12 +2,14 @@
 const mongoose = require("mongoose");
 require("dotenv").config({ path: ".env.local" });
 
-mongoose.connect(process.env.MONGODB_URI, {
-  dbName: "fitmeals",
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
-
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    dbName: "fitmeals",
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 const MONGODB_URI = process.env.MONGODB_URI;
 
 let isConnected = false;
@@ -32,4 +34,4 @@ async function dbConnect() {
   }
 }
 
-module.exports = dbConnect; 
+module.exports = dbConnect;
