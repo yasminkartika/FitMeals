@@ -1,0 +1,27 @@
+name: 🚀 CD to Railway
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: 📥 Install dependencies
+        run: npm install
+
+      - name: 🚀 Trigger deploy on Railway
+        uses: railwayapp/railway-action@v1.2.9
+        with:
+          railwayToken: ${{ secrets.RAILWAY_TOKEN }}
