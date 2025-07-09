@@ -11,7 +11,9 @@ module.exports = async function loginHandler(req, res) {
 
   // Validasi input dasar
   if (!identifier || !password) {
-    return res.status(400).json({ message: "Username/email dan password wajib diisi" });
+    return res
+      .status(400)
+      .json({ message: "Username/email dan password wajib diisi" });
   }
 
   try {
@@ -29,7 +31,9 @@ module.exports = async function loginHandler(req, res) {
     console.log("User search result:", user ? "User found" : "User not found");
 
     if (!user) {
-      return res.status(401).json({ message: "Username/email tidak ditemukan" });
+      return res
+        .status(401)
+        .json({ message: "Username/email tidak ditemukan" });
     }
 
     // Verifikasi password
@@ -53,6 +57,14 @@ module.exports = async function loginHandler(req, res) {
 
     const token = generateAdminToken(userData);
     console.log("Generated token:", token);
+
+    // ✅ Tambahkan penyimpanan session admin di sini
+    req.session.admin = {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+    };
+    console.log("Session admin disimpan:", req.session.admin);
 
     return res.status(200).json({
       message: "Login admin berhasil",

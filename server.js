@@ -44,9 +44,9 @@ app.use(
     resave: false, // Changed to true for better session persistence
     saveUninitialized: false,
     cookie: {
-      secure: false, // HARUS false kalau pakai http
+      secure: process.env.NODE_ENV === "production", // HARUS false kalau pakai http
       httpOnly: true,
-      // sameSite: "lax",
+      sameSite: process.env.NODE_ENV === "production",
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 hari
     },
     name: "connect.sid",
