@@ -15,6 +15,7 @@ const allowedOrigins = [
   "http://localhost:5500",
   "http://localhost:3000",
   "http://127.0.0.1:3000",
+  "https://fitmeals.up.railway.app",
 ];
 app.use(
   cors({
@@ -177,7 +178,7 @@ app.get("/dashboard.html", (req, res) => {
 app.get("/admin/admin.html", (req, res) => {
   // Cek apakah ada session admin
   if (!req.session.admin) {
-    return res.redirect('/admin/login.html');
+    return res.redirect("/admin/login.html");
   }
   res.sendFile(path.join(__dirname, "admin", "admin.html"));
 });
@@ -185,17 +186,17 @@ app.get("/admin/admin.html", (req, res) => {
 // Middleware untuk melindungi file admin
 app.use("/admin", (req, res, next) => {
   // Izinkan akses ke login.html
-  if (req.path === '/login.html') {
+  if (req.path === "/login.html") {
     return next();
   }
-  
+
   // Izinkan akses ke file statis (CSS, JS, images) jika sudah login
   if (req.session.admin) {
     return next();
   }
-  
+
   // Redirect ke login untuk file admin lainnya
-  res.redirect('/admin/login.html');
+  res.redirect("/admin/login.html");
 });
 
 // Serve static files untuk admin (CSS, JS, images)
