@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        .step-active {
+            background-color: #63A365;
+            color: white;
+        }
+        .step-completed {
+            background-color: #4ade80;
+            color: white;
+        }
+        .step-pending {
+            background-color: #e5e7eb;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="bg-white w-full border-b border-gray-200 fixed top-0 left-0 z-50">
+        <div class="max-w-screen-xl mx-auto flex flex-wrap items-center justify-between p-4">
+            <a href="dashboard.html" class="flex items-center space-x-3">
+                <img src="/img/Logo FitMeals.png" class="h-8" alt="Logo" />
+            </a>
+            <div class="flex items-center space-x-4">
+                <a href="dashboard.html" class="text-gray-900 hover:text-[#63A365]">
+                    <i class="fas fa-arrow-left mr-2"></i>Kembali ke Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-20 pb-8">
+        <div class="max-w-6xl mx-auto px-4">
+            <!-- Progress Steps -->
+            <div class="mb-8">
+                <div class="flex items-center justify-center space-x-4">
+                    <div class="flex items-center">
+                        <div id="step1" class="step-active w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                            1
+                        </div>
+                        <span class="ml-2 text-sm font-medium text-gray-900">Paket & Data Pengantaran</span>
+                    </div>
+                    <div class="w-16 h-0.5 bg-gray-300"></div>
+                    <div class="flex items-center">
+                        <div id="step2" class="step-pending w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                            2
+                        </div>
+                        <span class="ml-2 text-sm font-medium text-gray-500">Konfirmasi Pesanan</span>
+                    </div>
+                    <div class="w-16 h-0.5 bg-gray-300"></div>
+                    <div class="flex items-center">
+                        <div id="step3" class="step-pending w-10 h-10 rounded-full flex items-center justify-center font-semibold">
+                            3
+                        </div>
+                        <span class="ml-2 text-sm font-medium text-gray-500">Pembayaran</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 1: Paket & Data Pengantaran -->
+            <div id="step1-content" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Paket yang Dipilih -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-shopping-cart text-[#63A365] mr-2"></i>
+                            Paket yang Dipilih
+                        </h2>
+                        
+                        <div id="selected-packages" class="space-y-4">
+                            <!-- Paket akan diisi melalui JavaScript -->
+                        </div>
+                        
+                        <!-- Tombol Tambah Paket -->
+                        <div id="add-package-section" class="mt-6 pt-4 border-t border-gray-200">
+                            <button id="add-package-btn" 
+                                class="w-full bg-gray-100 text-[#63A365] border-2 border-dashed border-[#63A365] py-4 px-4 rounded-lg font-semibold hover:bg-[#63A365] hover:text-white transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:ring-offset-2">
+                                <i class="fas fa-plus mr-2"></i>Tambah Paket Lain
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Form Data Pengantaran -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-truck text-[#63A365] mr-2"></i>
+                            Data Pengantaran
+                        </h2>
+                        
+                        <form id="delivery-form" class="space-y-6">
+                            <!-- Data Pribadi -->
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Data Pribadi</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="nama" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap *</label>
+                                        <input type="text" id="nama" name="nama" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label for="telepon" class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon *</label>
+                                        <input type="tel" id="telepon" name="telepon" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                                        <input type="email" id="email" name="email" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Alamat Pengantaran -->
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Alamat Pengantaran</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="alamat" class="block text-sm font-medium text-gray-700 mb-2">Alamat Lengkap *</label>
+                                        <textarea id="alamat" name="alamat" rows="3" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent"
+                                            placeholder="Masukkan alamat lengkap pengantaran"></textarea>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label for="kota" class="block text-sm font-medium text-gray-700 mb-2">Kota *</label>
+                                            <input type="text" id="kota" name="kota" required
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                        </div>
+                                        <div>
+                                            <label for="kode_pos" class="block text-sm font-medium text-gray-700 mb-2">Kode Pos *</label>
+                                            <input type="text" id="kode_pos" name="kode_pos" required
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                        </div>
+                                        <div>
+                                            <label for="provinsi" class="block text-sm font-medium text-gray-700 mb-2">Provinsi *</label>
+                                            <input type="text" id="provinsi" name="provinsi" required
+                                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Jadwal Pengantaran -->
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Jadwal Pengantaran</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="tanggal_mulai" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai *</label>
+                                        <input type="date" id="tanggal_mulai" name="tanggal_mulai" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label for="waktu_pengantaran" class="block text-sm font-medium text-gray-700 mb-2">Waktu Pengantaran *</label>
+                                        <select id="waktu_pengantaran" name="waktu_pengantaran" required
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent">
+                                            <option value="">Pilih waktu</option>
+                                            <option value="06:00-08:00">06:00 - 08:00</option>
+                                            <option value="08:00-10:00">08:00 - 10:00</option>
+                                            <option value="10:00-12:00">10:00 - 12:00</option>
+                                            <option value="12:00-14:00">12:00 - 14:00</option>
+                                            <option value="14:00-16:00">14:00 - 16:00</option>
+                                            <option value="16:00-18:00">16:00 - 18:00</option>
+                                            <option value="18:00-20:00">18:00 - 20:00</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Catatan Khusus -->
+                            <div>
+                                <label for="catatan" class="block text-sm font-medium text-gray-700 mb-2">Catatan Khusus</label>
+                                <textarea id="catatan" name="catatan" rows="3"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:border-transparent"
+                                    placeholder="Contoh: Alergi makanan, instruksi khusus, dll."></textarea>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Ringkasan Pesanan -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-receipt text-[#63A365] mr-2"></i>
+                            Ringkasan Pesanan
+                        </h2>
+                        
+                        <div id="order-summary" class="space-y-4">
+                            <!-- Ringkasan akan diisi melalui JavaScript -->
+                        </div>
+                        
+                        <div class="border-t pt-4 mt-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm text-gray-600">Subtotal</span>
+                                <span id="subtotal" class="text-sm font-medium">Rp 0</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm text-gray-600">Biaya Pengantaran</span>
+                                <span id="delivery-fee" class="text-sm font-medium">Rp 0</span>
+                            </div>
+                            <div class="flex justify-between items-center text-lg font-semibold text-[#63A365]">
+                                <span>Total</span>
+                                <span id="total" class="text-xl">Rp 0</span>
+                            </div>
+                        </div>
+                        
+                        <button id="next-step-btn" 
+                            class="w-full mt-6 bg-[#63A365] text-white py-3 px-4 rounded-lg font-semibold hover:bg-[#4f8a51] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:ring-offset-2">
+                            Lanjut ke Konfirmasi Pesanan
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Review Pesanan (Hidden) -->
+            <div id="step2-content" class="hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Review Pesanan -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                                <i class="fas fa-eye text-[#63A365] mr-2"></i>
+                                Konfirmasi Pesanan
+                            </h2>
+                            
+                            <!-- Paket yang Dipilih -->
+                            <div class="mb-6">
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Paket yang Dipilih</h3>
+                                <div id="review-packages" class="space-y-4">
+                                    <!-- Paket akan diisi melalui JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Data Pengantaran -->
+                            <div class="mb-6">
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Data Pengantaran</h3>
+                                <div id="review-delivery-data" class="bg-gray-50 rounded-lg p-4">
+                                    <!-- Data akan diisi melalui JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Jadwal Pengantaran -->
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Jadwal Pengantaran</h3>
+                                <div id="review-schedule" class="bg-gray-50 rounded-lg p-4">
+                                    <!-- Jadwal akan diisi melalui JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tombol Navigasi -->
+                        <div class="flex justify-between">
+                            <button id="back-to-step1" 
+                                class="bg-gray-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                                <i class="fas fa-arrow-left mr-2"></i>Kembali
+                            </button>
+                            <button id="proceed-to-payment" 
+                                class="bg-[#63A365] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#4f8a51] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:ring-offset-2">
+                                Lanjut ke Pembayaran<i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ringkasan Pesanan -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                                <i class="fas fa-receipt text-[#63A365] mr-2"></i>
+                                Ringkasan Pesanan
+                            </h2>
+                            
+                            <div id="review-order-summary" class="space-y-4">
+                                <!-- Ringkasan akan diisi melalui JavaScript -->
+                            </div>
+                            
+                            <div class="border-t pt-4 mt-6">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-600">Subtotal</span>
+                                    <span id="review-subtotal" class="text-sm font-medium">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-600">Biaya Pengantaran</span>
+                                    <span id="review-delivery-fee" class="text-sm font-medium">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between items-center text-lg font-semibold text-[#63A365]">
+                                    <span>Total</span>
+                                    <span id="review-total" class="text-xl">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Pembayaran (Hidden) -->
+            <div id="step3-content" class="hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Metode Pembayaran -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                                <i class="fas fa-credit-card text-[#63A365] mr-2"></i>
+                                Pilih Metode Pembayaran
+                            </h2>
+                            
+                            <div class="space-y-4">
+                                <!-- Transfer Bank -->
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <input type="radio" id="transfer" name="payment_method" value="transfer" class="text-[#63A365] focus:ring-[#63A365]">
+                                            <label for="transfer" class="font-medium text-gray-900">Transfer Bank</label>
+                                        </div>
+                                        <i class="fas fa-university text-gray-400"></i>
+                                    </div>
+                                    <div id="transfer-details" class="mt-4 ml-6 hidden">
+                                        <div class="bg-gray-50 rounded-lg p-4">
+                                            <h4 class="font-medium text-gray-900 mb-2">Rekening Tujuan:</h4>
+                                            <div class="space-y-2 text-sm">
+                                                <div class="flex justify-between">
+                                                    <span>Bank BCA:</span>
+                                                    <span class="font-mono">1234567890</span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <span>Atas Nama:</span>
+                                                    <span>PT FitMeals Indonesia</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- E-Wallet -->
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-3">
+                                            <input type="radio" id="ewallet" name="payment_method" value="ewallet" class="text-[#63A365] focus:ring-[#63A365]">
+                                            <label for="ewallet" class="font-medium text-gray-900">E-Wallet</label>
+                                        </div>
+                                        <i class="fas fa-mobile-alt text-gray-400"></i>
+                                    </div>
+                                    <div id="ewallet-details" class="mt-4 ml-6 hidden">
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div class="flex items-center space-x-2">
+                                                <input type="radio" id="gopay" name="ewallet_type" value="gopay" class="text-[#63A365] focus:ring-[#63A365]">
+                                                <label for="gopay" class="text-sm">GoPay</label>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="radio" id="ovo" name="ewallet_type" value="ovo" class="text-[#63A365] focus:ring-[#63A365]">
+                                                <label for="ovo" class="text-sm">OVO</label>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="radio" id="dana" name="ewallet_type" value="dana" class="text-[#63A365] focus:ring-[#63A365]">
+                                                <label for="dana" class="text-sm">DANA</label>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="radio" id="shopeepay" name="ewallet_type" value="shopeepay" class="text-[#63A365] focus:ring-[#63A365]">
+                                                <label for="shopeepay" class="text-sm">ShopeePay</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                        <!-- Tombol Navigasi -->
+                        <div class="flex justify-between">
+                            <button id="back-to-step2" 
+                                class="bg-gray-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                                <i class="fas fa-arrow-left mr-2"></i>Kembali
+                            </button>
+                                                    <div class="text-center">
+                            <button id="process-payment" 
+                                class="bg-[#63A365] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[#4f8a51] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#63A365] focus:ring-offset-2">
+                                Proses Pembayaran<i class="fas fa-lock ml-2"></i>
+                            </button>
+                            <p class="text-sm text-gray-600 mt-2">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Pesanan akan dibuat dengan status "Menunggu Pembayaran" dan dapat dibatalkan dalam 24 jam
+                            </p>
+                        </div>
+                        </div>
+                    </div>
+
+                    <!-- Ringkasan Final -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4">
+                                <i class="fas fa-receipt text-[#63A365] mr-2"></i>
+                                Total Pembayaran
+                            </h2>
+                            
+                            <div id="final-order-summary" class="space-y-4">
+                                <!-- Ringkasan akan diisi melalui JavaScript -->
+                            </div>
+                            
+                            <div class="border-t pt-4 mt-6">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-600">Subtotal</span>
+                                    <span id="final-subtotal" class="text-sm font-medium">Rp 0</span>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-600">Biaya Pengantaran</span>
+                                    <span id="final-delivery-fee" class="text-sm font-medium">Rp 0</span>
+                                </div>
+
+                                <div class="flex justify-between items-center text-lg font-semibold text-[#63A365]">
+                                    <span>Total</span>
+                                    <span id="final-total" class="text-xl">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pilih Paket -->
+    <div id="package-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-semibold text-gray-900">
+                            <i class="fas fa-utensils text-[#63A365] mr-2"></i>
+                            Pilih Paket Catering
+                        </h2>
+                        <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="package-grid">
+                        <!-- Paket akan diisi melalui JavaScript -->
+                    </div>
+                    
+                    <!-- Tombol Selesai -->
+                    <div class="mt-6 flex justify-between items-center">
+                        <div class="text-sm text-gray-600">
+                            <span id="selected-count">0</span> paket dipilih
+                        </div>
+                        <button id="finish-selecting" 
+                                class="bg-[#63A365] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#4f8a51] transition duration-200">
+                            Selesai Memilih (<span id="finish-count">0</span>)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data paket dari localStorage
+        let selectedPackages = [];
+        let userData = null;
+
+        // Inisialisasi halaman
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cek autentikasi
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Silakan login terlebih dahulu');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            loadPackageFromLocalStorage();
+            loadUserData();
+            displaySelectedPackages();
+            updateOrderSummary();
+            setupEventListeners();
+            showWelcomeMessage();
+        });
+
+        // Fungsi untuk menampilkan pesan selamat datang
+        function showWelcomeMessage() {
+            if (userData && userData.namaLengkap) {
+                // Buat elemen pesan selamat datang
+                const welcomeDiv = document.createElement('div');
+                welcomeDiv.className = 'bg-green-50 border border-green-200 rounded-lg p-4 mb-6';
+                welcomeDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="fas fa-user-check text-green-600 mr-3"></i>
+                        <div>
+                            <p class="text-green-800 font-medium">Selamat datang, ${userData.namaLengkap}!</p>
+                            <p class="text-green-600 text-sm">Data Anda telah diisi otomatis. Silakan periksa dan lengkapi jika diperlukan.</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Masukkan pesan di awal konten utama
+                const mainContent = document.querySelector('.pt-20.pb-8 .max-w-6xl');
+                if (mainContent) {
+                    mainContent.insertBefore(welcomeDiv, mainContent.firstChild);
+                }
+            }
+        }
+
+        // Fungsi untuk mengambil data paket dari localStorage
+        function loadPackageFromLocalStorage() {
+            const paketData = localStorage.getItem('paketCheckout');
+            if (paketData) {
+                try {
+                    const data = JSON.parse(paketData);
+                    // Konversi data paket ke format yang sesuai
+                    const packageMap = {
+                        'Paket Harian': {
+                            id: 1,
+                            name: "Paket Harian",
+                            price: parseInt(data.harga),
+                            duration: "1 hari",
+                            image: "/img/sarapan.jpg",
+                            description: "Paket makanan sehat untuk 1 hari"
+                        },
+                        'Paket Mingguan': {
+                            id: 2,
+                            name: "Paket Mingguan", 
+                            price: parseInt(data.harga),
+                            duration: "7 hari",
+                            image: "/img/lunch.jpg",
+                            description: "Paket makanan sehat untuk 7 hari"
+                        },
+                        'Paket Bulanan': {
+                            id: 3,
+                            name: "Paket Bulanan",
+                            price: parseInt(data.harga),
+                            duration: "30 hari", 
+                            image: "/img/dinner.png",
+                            description: "Paket makanan sehat untuk 30 hari"
+                        }
+                    };
+                    
+                    if (packageMap[data.paket]) {
+                        selectedPackages = [packageMap[data.paket]];
+                    }
+                } catch (error) {
+                    console.error('Error parsing package data:', error);
+                }
+            }
+        }
+
+        // Fungsi untuk mengambil data user dari localStorage
+        function loadUserData() {
+            // Ambil data user yang sudah login
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                try {
+                    userData = JSON.parse(userStr);
+                    // Auto-fill form dengan data user
+                    if (userData.namaLengkap) document.getElementById('nama').value = userData.namaLengkap;
+                    if (userData.email) document.getElementById('email').value = userData.email;
+                    if (userData.nomorHP) document.getElementById('telepon').value = userData.nomorHP;
+                    // Data alamat bisa diisi manual atau dari profile user
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                }
+            }
+        }
+
+        function displaySelectedPackages() {
+            const container = document.getElementById('selected-packages');
+            container.innerHTML = '';
+
+            if (selectedPackages.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-shopping-cart text-4xl mb-4"></i>
+                        <p>Belum ada paket yang dipilih</p>
+                        <button onclick="showPackageModal()" class="mt-4 bg-[#63A365] text-white px-4 py-2 rounded-lg">
+                            Pilih Paket
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            selectedPackages.forEach(package => {
+                const packageElement = document.createElement('div');
+                packageElement.className = 'flex items-center space-x-4 p-4 border border-gray-200 rounded-lg';
+                packageElement.innerHTML = `
+                    <img src="${package.image}" alt="${package.name}" class="w-16 h-16 object-cover rounded-lg">
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-gray-900">${package.name}</h3>
+                        <p class="text-sm text-gray-600">${package.description}</p>
+                        <p class="text-sm text-gray-500">Durasi: ${package.duration}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold text-[#63A365]">Rp ${package.price.toLocaleString()}</p>
+                        <button onclick="removePackage(${package.id})" class="text-red-500 text-sm hover:text-red-700">
+                            <i class="fas fa-trash"></i> Hapus
+                        </button>
+                    </div>
+                `;
+                container.appendChild(packageElement);
+            });
+        }
+
+        function updateOrderSummary() {
+            const subtotal = selectedPackages.reduce((sum, pkg) => sum + pkg.price, 0);
+            const deliveryFee = 15000; // Biaya pengantaran tetap
+            const total = subtotal + deliveryFee;
+
+            // Update ringkasan di sidebar
+            const summaryContainer = document.getElementById('order-summary');
+            summaryContainer.innerHTML = '';
+            
+            selectedPackages.forEach(package => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'flex justify-between items-center';
+                itemElement.innerHTML = `
+                    <span class="text-sm text-gray-600">${package.name}</span>
+                    <span class="text-sm font-medium">Rp ${package.price.toLocaleString()}</span>
+                `;
+                summaryContainer.appendChild(itemElement);
+            });
+
+            // Update total
+            const subtotalElement = document.getElementById('subtotal');
+            const deliveryFeeElement = document.getElementById('delivery-fee');
+            const totalElement = document.getElementById('total');
+            
+            if (subtotalElement) subtotalElement.textContent = 'Rp ' + subtotal.toLocaleString();
+            if (deliveryFeeElement) deliveryFeeElement.textContent = 'Rp ' + deliveryFee.toLocaleString();
+            if (totalElement) totalElement.textContent = 'Rp ' + total.toLocaleString();
+        }
+
+        function removePackage(packageId) {
+            const index = selectedPackages.findIndex(pkg => pkg.id === packageId);
+            if (index > -1) {
+                selectedPackages.splice(index, 1);
+                displaySelectedPackages();
+                updateOrderSummary();
+                updatePackageCounter(); // Update counter saat paket dihapus
+            }
+        }
+
+        function showPackageModal() {
+            document.getElementById('package-modal').classList.remove('hidden');
+            displayPackageModal();
+            updatePackageCounter();
+        }
+
+        // Fungsi untuk menampilkan paket di modal
+        function displayPackageModal() {
+            const packageGrid = document.getElementById('package-grid');
+            const availablePackages = [
+                {
+                    id: 1,
+                    name: "Paket Harian",
+                    price: 75000,
+                    duration: "1 hari",
+                    image: "/img/sarapan.jpg",
+                    description: "Paket makanan sehat untuk 1 hari dengan 3 kali makan lengkap"
+                },
+                {
+                    id: 2,
+                    name: "Paket Mingguan",
+                    price: 450000,
+                    duration: "7 hari",
+                    image: "/img/lunch.jpg",
+                    description: "Paket makanan sehat untuk 7 hari dengan menu bervariasi"
+                },
+                {
+                    id: 3,
+                    name: "Paket Bulanan",
+                    price: 1800000,
+                    duration: "30 hari",
+                    image: "/img/dinner.png",
+                    description: "Paket makanan sehat untuk 30 hari dengan harga terbaik"
+                }
+            ];
+
+            packageGrid.innerHTML = '';
+            
+            availablePackages.forEach(package => {
+                const isSelected = selectedPackages.some(p => p.id === package.id);
+                const packageElement = document.createElement('div');
+                packageElement.className = 'bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300';
+                packageElement.innerHTML = `
+                    <img src="${package.image}" alt="${package.name}" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">${package.name}</h3>
+                        <p class="text-gray-600 text-sm mb-3">${package.description}</p>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-lg font-bold text-green-600">Rp ${package.price.toLocaleString()}</span>
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">${package.duration}</span>
+                        </div>
+                        <button onclick="selectPackage(${package.id})" 
+                                class="w-full ${isSelected ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'} text-white py-2 px-4 rounded transition duration-200 ${isSelected ? '' : 'hover:bg-green-700'}"
+                                ${isSelected ? 'disabled' : ''}>
+                            ${isSelected ? 'Sudah Dipilih' : 'Pilih Paket'}
+                        </button>
+                    </div>
+                `;
+                packageGrid.appendChild(packageElement);
+            });
+        }
+
+        // Fungsi untuk memilih paket
+        function selectPackage(packageId) {
+            const availablePackages = [
+                {
+                    id: 1,
+                    name: "Paket Harian",
+                    price: 75000,
+                    duration: "1 hari",
+                    image: "/img/sarapan.jpg",
+                    description: "Paket makanan sehat untuk 1 hari dengan 3 kali makan lengkap"
+                },
+                {
+                    id: 2,
+                    name: "Paket Mingguan",
+                    price: 450000,
+                    duration: "7 hari",
+                    image: "/img/lunch.jpg",
+                    description: "Paket makanan sehat untuk 7 hari dengan menu bervariasi"
+                },
+                {
+                    id: 3,
+                    name: "Paket Bulanan",
+                    price: 1800000,
+                    duration: "30 hari",
+                    image: "/img/dinner.png",
+                    description: "Paket makanan sehat untuk 30 hari dengan harga terbaik"
+                }
+            ];
+
+            const selectedPackage = availablePackages.find(p => p.id === packageId);
+            if (selectedPackage) {
+                // Cek apakah paket sudah dipilih
+                const isAlreadySelected = selectedPackages.some(p => p.id === packageId);
+                if (!isAlreadySelected) {
+                    selectedPackages.push(selectedPackage);
+                    displaySelectedPackages();
+                    updateOrderSummary();
+                    displayPackageModal(); // Refresh modal untuk update status
+                    updatePackageCounter(); // Update counter
+                }
+            }
+        }
+
+        // Fungsi untuk update counter paket di modal
+        function updatePackageCounter() {
+            const selectedCount = document.getElementById('selected-count');
+            const finishCount = document.getElementById('finish-count');
+            const count = selectedPackages.length;
+            
+            if (selectedCount) selectedCount.textContent = count;
+            if (finishCount) finishCount.textContent = count;
+        }
+
+        function setupEventListeners() {
+            // Tombol next step
+            const nextStepBtn = document.getElementById('next-step-btn');
+            if (nextStepBtn) {
+                nextStepBtn.addEventListener('click', function() {
+                    if (validateStep1()) {
+                        goToStep2();
+                    }
+                });
+            }
+
+            // Tombol tambah paket
+            const addPackageBtn = document.getElementById('add-package-btn');
+            if (addPackageBtn) {
+                addPackageBtn.addEventListener('click', function() {
+                    showPackageModal();
+                });
+            }
+
+            // Tombol tutup modal
+            const closeModalBtn = document.getElementById('close-modal');
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', function() {
+                    document.getElementById('package-modal').classList.add('hidden');
+                });
+            }
+
+            // Tombol selesai memilih paket
+            const finishSelectingBtn = document.getElementById('finish-selecting');
+            if (finishSelectingBtn) {
+                finishSelectingBtn.addEventListener('click', function() {
+                    document.getElementById('package-modal').classList.add('hidden');
+                });
+            }
+
+            // Tutup modal jika klik di luar modal
+            const modal = document.getElementById('package-modal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            }
+        }
+
+        function validateStep1() {
+            // Validasi paket dipilih
+            if (selectedPackages.length === 0) {
+                alert('Mohon pilih minimal satu paket sebelum melanjutkan');
+                return false;
+            }
+
+            // Validasi form fields
+            const requiredFields = ['nama', 'telepon', 'email', 'alamat', 'kota', 'kode_pos', 'provinsi', 'tanggal_mulai', 'waktu_pengantaran'];
+            let isValid = true;
+
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.classList.add('border-red-500');
+                    isValid = false;
+                } else {
+                    field.classList.remove('border-red-500');
+                }
+            });
+
+            if (!isValid) {
+                alert('Mohon lengkapi semua field yang wajib diisi');
+            }
+
+            return isValid;
+        }
+
+        function goToStep2() {
+            // Simpan data checkout ke localStorage
+            const checkoutData = {
+                packages: selectedPackages,
+                delivery: {
+                    nama: document.getElementById('nama').value,
+                    telepon: document.getElementById('telepon').value,
+                    email: document.getElementById('email').value,
+                    alamat: document.getElementById('alamat').value,
+                    kota: document.getElementById('kota').value,
+                    kode_pos: document.getElementById('kode_pos').value,
+                    provinsi: document.getElementById('provinsi').value,
+                    tanggal_mulai: document.getElementById('tanggal_mulai').value,
+                    waktu: document.getElementById('waktu_pengantaran').value, // Ganti dari waktu_pengantaran ke waktu
+                    catatan: document.getElementById('catatan').value
+                },
+                timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+            
+            // Tampilkan data konfirmasi pesanan
+            displayOrderConfirmation();
+            
+            document.getElementById('step1-content').classList.add('hidden');
+            document.getElementById('step2-content').classList.remove('hidden');
+            
+            // Update progress steps
+            document.getElementById('step1').className = 'step-completed w-10 h-10 rounded-full flex items-center justify-center font-semibold';
+            document.getElementById('step2').className = 'step-active w-10 h-10 rounded-full flex items-center justify-center font-semibold';
+        }
+
+        // Fungsi untuk menampilkan konfirmasi pesanan
+        function displayOrderConfirmation() {
+            // Ambil data dari localStorage
+            const checkoutData = JSON.parse(localStorage.getItem('checkoutData'));
+            if (!checkoutData) return;
+
+            // Tampilkan paket yang dipilih
+            const reviewPackages = document.getElementById('review-packages');
+            reviewPackages.innerHTML = '';
+            
+            checkoutData.packages.forEach(package => {
+                const packageElement = document.createElement('div');
+                packageElement.className = 'flex items-center space-x-4 p-4 border border-gray-200 rounded-lg';
+                packageElement.innerHTML = `
+                    <img src="${package.image}" alt="${package.name}" class="w-16 h-16 object-cover rounded-lg">
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-gray-900">${package.name}</h4>
+                        <p class="text-sm text-gray-600">${package.description}</p>
+                        <p class="text-sm text-gray-500">Durasi: ${package.duration}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold text-[#63A365]">Rp ${package.price.toLocaleString()}</p>
+                    </div>
+                `;
+                reviewPackages.appendChild(packageElement);
+            });
+
+            // Tampilkan data pengantaran
+            const reviewDeliveryData = document.getElementById('review-delivery-data');
+            const delivery = checkoutData.delivery;
+            reviewDeliveryData.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Nama Lengkap</p>
+                        <p class="font-medium text-gray-900">${delivery.nama}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Nomor Telepon</p>
+                        <p class="font-medium text-gray-900">${delivery.telepon}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Email</p>
+                        <p class="font-medium text-gray-900">${delivery.email}</p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <p class="text-sm text-gray-600">Alamat Lengkap</p>
+                        <p class="font-medium text-gray-900">${delivery.alamat}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Kota</p>
+                        <p class="font-medium text-gray-900">${delivery.kota}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Kode Pos</p>
+                        <p class="font-medium text-gray-900">${delivery.kode_pos}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Provinsi</p>
+                        <p class="font-medium text-gray-900">${delivery.provinsi}</p>
+                    </div>
+                    ${delivery.catatan ? `
+                    <div class="md:col-span-2">
+                        <p class="text-sm text-gray-600">Catatan Khusus</p>
+                        <p class="font-medium text-gray-900">${delivery.catatan}</p>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            // Tampilkan jadwal pengantaran
+            const reviewSchedule = document.getElementById('review-schedule');
+            reviewSchedule.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Tanggal Mulai</p>
+                        <p class="font-medium text-gray-900">${formatDate(delivery.tanggal_mulai)}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Waktu Pengantaran</p>
+                        <p class="font-medium text-gray-900">${delivery.waktu}</p>
+                    </div>
+                </div>
+            `;
+
+            // Update ringkasan pesanan di sidebar
+            updateReviewOrderSummary();
+        }
+
+        // Fungsi untuk update ringkasan pesanan di Step 2
+        function updateReviewOrderSummary() {
+            const checkoutData = JSON.parse(localStorage.getItem('checkoutData'));
+            if (!checkoutData) return;
+
+            const subtotal = checkoutData.packages.reduce((sum, pkg) => sum + pkg.price, 0);
+            const deliveryFee = 15000;
+            const total = subtotal + deliveryFee;
+
+            // Update ringkasan di sidebar
+            const summaryContainer = document.getElementById('review-order-summary');
+            summaryContainer.innerHTML = '';
+            
+            checkoutData.packages.forEach(package => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'flex justify-between items-center';
+                itemElement.innerHTML = `
+                    <span class="text-sm text-gray-600">${package.name}</span>
+                    <span class="text-sm font-medium">Rp ${package.price.toLocaleString()}</span>
+                `;
+                summaryContainer.appendChild(itemElement);
+            });
+
+            // Update total
+            document.getElementById('review-subtotal').textContent = 'Rp ' + subtotal.toLocaleString();
+            document.getElementById('review-delivery-fee').textContent = 'Rp ' + deliveryFee.toLocaleString();
+            document.getElementById('review-total').textContent = 'Rp ' + total.toLocaleString();
+        }
+
+        // Fungsi untuk format tanggal
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Fungsi untuk generate invoice number
+        function generateInvoiceNumber() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            return `INV-${year}${month}${day}-${random}`;
+        }
+
+        // Fungsi untuk format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR'
+            }).format(amount);
+        }
+
+                // Fungsi untuk generate dan download invoice
+        function generateAndDownloadInvoice(orderData) {
+            try {
+                console.log('Generating invoice for order data:', orderData);
+                
+                // Simpan data order ke localStorage dengan ID unik
+                const orderId = Date.now();
+                localStorage.setItem('orderData_' + orderId, JSON.stringify(orderData));
+                
+                console.log('Order data saved with ID:', orderId);
+                
+                // Redirect ke invoice.html dengan parameter orderId
+                const invoiceUrl = 'invoice.html?orderId=' + orderId;
+                console.log('Opening invoice URL:', invoiceUrl);
+                
+                const newWindow = window.open(invoiceUrl, '_blank');
+                
+                if (newWindow) {
+                    console.log('Invoice window opened successfully');
+                } else {
+                    console.error('Failed to open invoice window - popup might be blocked');
+                    alert('Invoice tidak bisa dibuka. Pastikan popup tidak diblokir browser.');
+                }
+            } catch (error) {
+                console.error('Error generating invoice:', error);
+                alert('Terjadi kesalahan saat generate invoice: ' + error.message);
+            }
+        }
+
+        // Fungsi untuk update ringkasan pembayaran final di Step 3
+        function updateFinalPaymentSummary() {
+            const checkoutData = JSON.parse(localStorage.getItem('checkoutData'));
+            if (!checkoutData) return;
+
+            const subtotal = checkoutData.packages.reduce((sum, pkg) => sum + pkg.price, 0);
+            const deliveryFee = 15000;
+            const total = subtotal + deliveryFee;
+
+            // Update ringkasan final di sidebar
+            const finalSummaryContainer = document.getElementById('final-order-summary');
+            finalSummaryContainer.innerHTML = '';
+            
+            checkoutData.packages.forEach(package => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'flex justify-between items-center';
+                itemElement.innerHTML =
+                    '<span class="text-sm text-gray-600">' + package.name + '</span>' +
+                    '<span class="text-sm font-medium">Rp ' + package.price.toLocaleString() + '</span>';
+                finalSummaryContainer.appendChild(itemElement);
+            });
+
+            // Update total final
+            document.getElementById('final-subtotal').textContent = 'Rp ' + subtotal.toLocaleString();
+            document.getElementById('final-delivery-fee').textContent = 'Rp ' + deliveryFee.toLocaleString();
+            document.getElementById('final-total').textContent = 'Rp ' + total.toLocaleString();
+        }
+
+        // Event listener untuk tombol navigasi
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tombol kembali ke Step 1
+            const backToStep1Btn = document.getElementById('back-to-step1');
+            if (backToStep1Btn) {
+                backToStep1Btn.addEventListener('click', function() {
+                    document.getElementById('step2-content').classList.add('hidden');
+                    document.getElementById('step1-content').classList.remove('hidden');
+                    
+                    // Update progress steps
+                    document.getElementById('step2').className = 'step-pending w-10 h-10 rounded-full flex items-center justify-center font-semibold';
+                    document.getElementById('step1').className = 'step-active w-10 h-10 rounded-full flex items-center justify-center font-semibold';
+                });
+            }
+
+            // Tombol lanjut ke pembayaran
+            const proceedToPaymentBtn = document.getElementById('proceed-to-payment');
+            if (proceedToPaymentBtn) {
+                proceedToPaymentBtn.addEventListener('click', function() {
+                    document.getElementById('step2-content').classList.add('hidden');
+                    document.getElementById('step3-content').classList.remove('hidden');
+                    
+                    // Update progress steps
+                    document.getElementById('step2').className = 'step-completed w-10 h-10 rounded-full flex items-center justify-center font-semibold';
+                    document.getElementById('step3').className = 'step-active w-10 h-10 rounded-full flex items-center justify-center font-semibold';
+                    
+                    // Update final payment summary
+                    updateFinalPaymentSummary();
+                });
+            }
+
+            // Tombol kembali ke Step 2
+            const backToStep2Btn = document.getElementById('back-to-step2');
+            if (backToStep2Btn) {
+                backToStep2Btn.addEventListener('click', function() {
+                    document.getElementById('step3-content').classList.add('hidden');
+                    document.getElementById('step2-content').classList.remove('hidden');
+                    
+                    // Update progress steps
+                    document.getElementById('step3').className = 'step-pending w-10 h-10 rounded-full flex items-center justify-center font-semibold';
+                    document.getElementById('step2').className = 'step-active w-10 h-10 rounded-full flex items-center justify-center font-semibold';
+                });
+            }
+
+            // Event listener untuk metode pembayaran
+            const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
+            paymentMethods.forEach(method => {
+                method.addEventListener('change', function() {
+                    // Sembunyikan semua detail pembayaran
+                    const transferDetails = document.getElementById('transfer-details');
+                    const ewalletDetails = document.getElementById('ewallet-details');
+                    
+                    if (transferDetails) transferDetails.classList.add('hidden');
+                    if (ewalletDetails) ewalletDetails.classList.add('hidden');
+                    
+                    // Tampilkan detail sesuai metode yang dipilih
+                    if (this.value === 'transfer' && transferDetails) {
+                        transferDetails.classList.remove('hidden');
+                    } else if (this.value === 'ewallet' && ewalletDetails) {
+                        ewalletDetails.classList.remove('hidden');
+                    }
+                });
+            });
+
+            // Tombol proses pembayaran
+            const processPaymentBtn = document.getElementById('process-payment');
+            if (processPaymentBtn) {
+                processPaymentBtn.addEventListener('click', function() {
+                    const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked');
+                    
+                    if (!selectedPaymentMethod) {
+                        alert('Mohon pilih metode pembayaran terlebih dahulu');
+                        return;
+                    }
+
+                    // Konfirmasi pembayaran
+                    const confirmPayment = confirm('Apakah Anda yakin ingin melanjutkan pembayaran? Pesanan akan dibuat dengan status "Menunggu Pembayaran" dan dapat dibatalkan dalam 24 jam.');
+                    
+                    if (!confirmPayment) {
+                        return;
+                    }
+
+                    // Ambil data checkout
+                    const checkoutData = JSON.parse(localStorage.getItem('checkoutData'));
+                    if (!checkoutData) {
+                        alert('Data checkout tidak ditemukan');
+                        return;
+                    }
+
+                    // Hitung total pembayaran
+                    const subtotal = checkoutData.packages.reduce((sum, pkg) => sum + pkg.price, 0);
+                    const deliveryFee = 15000;
+                    const totalAmount = subtotal + deliveryFee;
+
+                    // Data order untuk database
+                    const orderData = {
+                        packages: checkoutData.packages,
+                        delivery: checkoutData.delivery,
+                        payment: {
+                            method: selectedPaymentMethod.value,
+                            timestamp: new Date().toISOString()
+                        },
+                        totalAmount: totalAmount
+                    };
+
+                    // Sebelum mengirim orderData ke backend, tambahkan ini:
+                    orderData.packages = orderData.packages.map(pkg => {
+                      const { _id, ...rest } = pkg;
+                      return rest;
+                    });
+
+                    // Simpan order ke database
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        alert('Token tidak ditemukan. Silakan login ulang.');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
+                    // Disable tombol untuk mencegah double click
+                    processPaymentBtn.disabled = true;
+                    processPaymentBtn.textContent = 'Memproses...';
+
+                    fetch('http://localhost:3000/api/orders/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + token
+                        },
+                        body: JSON.stringify(orderData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Tampilkan pesan sukses dengan informasi order
+                            const message = 'Pesanan Anda berhasil dibuat!\n\nNomor Order: ' + data.order._id + '\nStatus: Menunggu Pembayaran\n\nPesanan dapat dibatalkan dalam 24 jam dari halaman dashboard.\n\nApakah Anda ingin mengunduh invoice?';
+                            const shouldDownload = confirm(message);
+                            
+                            if (shouldDownload) {
+                                // Generate dan download invoice
+                                generateAndDownloadInvoice(orderData);
+                            }
+                            
+                            // Clear localStorage
+                            localStorage.removeItem('checkoutData');
+                            localStorage.removeItem('paketCheckout');
+                            
+                            // Redirect ke dashboard
+                            window.location.href = 'dashboard.html';
+                        } else {
+                            alert('Gagal memproses pesanan: ' + data.message);
+                            // Re-enable tombol jika gagal
+                            processPaymentBtn.disabled = false;
+                            processPaymentBtn.textContent = 'Proses Pembayaran';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan saat memproses pesanan');
+                        // Re-enable tombol jika error
+                        processPaymentBtn.disabled = false;
+                        processPaymentBtn.textContent = 'Proses Pembayaran';
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

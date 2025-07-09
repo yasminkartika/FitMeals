@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - FitMeals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                margin: 0;
+                padding: 20px;
+            }
+            .invoice-container {
+                box-shadow: none !important;
+                border: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto py-8 px-4">
+        <!-- Header with navigation -->
+        <div class="no-print mb-6 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <img src="/img/Logo FitMeals.png" alt="FitMeals" class="h-12">
+                <h1 class="text-2xl font-bold text-gray-800">Invoice</h1>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
+                    <i class="fas fa-print mr-2"></i>Print
+                </button>
+                <button onclick="window.close()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center">
+                    <i class="fas fa-times mr-2"></i>Tutup
+                </button>
+                <a href="dashboard.html" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i>Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Invoice Container -->
+        <div id="invoice-container" class="bg-white rounded-lg shadow-lg p-8 max-w-4xl mx-auto invoice-container">
+            <!-- Loading -->
+            <div id="loading" class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600">Memuat data invoice...</p>
+            </div>
+
+            <!-- Invoice Content -->
+            <div id="invoice-content" class="hidden">
+                <!-- Invoice Header -->
+                <div class="flex justify-between items-start mb-8 border-b pb-6">
+                    <div>
+                        <img src="/img/Logo FitMeals.png" alt="FitMeals" class="h-16 mb-4">
+                        <h2 class="text-2xl font-bold text-gray-800">INVOICE</h2>
+                        <p class="text-gray-600">FitMeals Indonesia</p>
+                        <p class="text-gray-600">Jl. Contoh No. 123, Yogyakarta</p>
+                        <p class="text-gray-600">Telp: (0274) 123456</p>
+                        <p class="text-gray-600">Email: info@fitmeals.com</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="bg-green-100 text-green-800 px-4 py-2 rounded-lg mb-4">
+                            <span class="font-semibold" id="invoice-status">PAID</span>
+                        </div>
+                        <p class="text-gray-600">Invoice No:</p>
+                        <p class="font-bold text-lg" id="invoice-number">INV-2025-001</p>
+                        <p class="text-gray-600">Tanggal:</p>
+                        <p class="font-medium" id="invoice-date">01 Januari 2025</p>
+                    </div>
+                </div>
+
+                <!-- Customer Info -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">Informasi Pelanggan</h3>
+                        <div class="space-y-2">
+                            <p><span class="font-medium">Nama:</span> <span id="customer-name">-</span></p>
+                            <p><span class="font-medium">Email:</span> <span id="customer-email">-</span></p>
+                            <p><span class="font-medium">Telepon:</span> <span id="customer-phone">-</span></p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-lg mb-3 text-gray-800">Informasi Pengiriman</h3>
+                        <div class="space-y-2">
+                            <p><span class="font-medium">Alamat:</span> <span id="delivery-address">-</span></p>
+                            <p><span class="font-medium">Kota:</span> <span id="delivery-city">-</span></p>
+                            <p><span class="font-medium">Tanggal Mulai:</span> <span id="delivery-start">-</span></p>
+                            <p><span class="font-medium">Waktu:</span> <span id="delivery-time">-</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Details -->
+                <div class="mb-8">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">Detail Pesanan</h3>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                            <div>
+                                <p class="font-medium text-gray-800">Paket</p>
+                                <p id="package-name" class="text-gray-600">-</p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Durasi</p>
+                                <p id="package-duration" class="text-gray-600">-</p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Harga</p>
+                                <p id="package-price" class="text-gray-600">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Info -->
+                <div class="mb-8">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">Informasi Pembayaran</h3>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="font-medium text-gray-800">Metode Pembayaran</p>
+                                <p id="payment-method" class="text-gray-600">-</p>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800">Status Pembayaran</p>
+                                <p id="payment-status" class="text-gray-600">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total -->
+                <div class="border-t pt-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600">Terima kasih telah memilih FitMeals!</p>
+                            <p class="text-sm text-gray-500 mt-2">Pesanan Anda akan diproses segera setelah pembayaran dikonfirmasi.</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-medium text-gray-800">Total Pembayaran:</p>
+                            <p class="text-3xl font-bold text-green-600" id="total-amount">Rp 0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-8 pt-6 border-t text-center text-gray-500 text-sm">
+                    <p>© 2025 FitMeals Indonesia. Semua hak dilindungi.</p>
+                    <p class="mt-1">Untuk pertanyaan, silakan hubungi kami di info@fitmeals.com</p>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error-message" class="hidden text-center py-8">
+                <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-4"></i>
+                <p class="text-red-600 font-medium mb-2">Gagal memuat data invoice</p>
+                <p class="text-gray-600 mb-4" id="error-details">Terjadi kesalahan saat mengambil data pesanan.</p>
+                <button onclick="loadInvoiceData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    Coba Lagi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get order ID from URL parameter
+        function getOrderIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        // Generate invoice number
+        function generateInvoiceNumber(orderId) {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const shortId = orderId.slice(-6).toUpperCase();
+            return `INV-${year}${month}${day}-${shortId}`;
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Load invoice data
+        async function loadInvoiceData() {
+            const orderId = getOrderIdFromUrl();
+            
+            if (!orderId) {
+                showError('ID pesanan tidak ditemukan dalam URL');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showError('Token autentikasi tidak ditemukan. Silakan login ulang.');
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:3000/api/orders/user`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Gagal mengambil data pesanan');
+                }
+
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'Gagal mengambil data pesanan');
+                }
+
+                // Find the specific order
+                const order = data.orders.find(o => o._id === orderId);
+                
+                if (!order) {
+                    showError('Pesanan tidak ditemukan');
+                    return;
+                }
+
+                // Populate invoice data
+                populateInvoiceData(order);
+                
+            } catch (error) {
+                console.error('Error loading invoice data:', error);
+                showError(error.message);
+            }
+        }
+
+        // Populate invoice with order data
+        function populateInvoiceData(order) {
+            // Hide loading, show content
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('invoice-content').classList.remove('hidden');
+
+            // Invoice header
+            document.getElementById('invoice-number').textContent = generateInvoiceNumber(order._id);
+            document.getElementById('invoice-date').textContent = formatDate(order.orderDate);
+            
+            // Status
+            const statusElement = document.getElementById('invoice-status');
+            statusElement.textContent = order.status.toUpperCase();
+            
+            // Update status color based on status
+            const statusContainer = statusElement.parentElement;
+            statusContainer.className = 'px-4 py-2 rounded-lg mb-4';
+            
+            switch(order.status) {
+                case 'Pending Payment':
+                    statusContainer.classList.add('bg-orange-100', 'text-orange-800');
+                    break;
+                case 'Paid':
+                    statusContainer.classList.add('bg-blue-100', 'text-blue-800');
+                    break;
+                case 'Processing':
+                    statusContainer.classList.add('bg-yellow-100', 'text-yellow-800');
+                    break;
+                case 'Selesai':
+                    statusContainer.classList.add('bg-green-100', 'text-green-800');
+                    break;
+                case 'Dibatalkan':
+                    statusContainer.classList.add('bg-red-100', 'text-red-800');
+                    break;
+                default:
+                    statusContainer.classList.add('bg-gray-100', 'text-gray-800');
+            }
+
+            // Customer info
+            if (order.delivery) {
+                document.getElementById('customer-name').textContent = order.delivery.nama || '-';
+                document.getElementById('customer-email').textContent = order.delivery.email || '-';
+                document.getElementById('customer-phone').textContent = order.delivery.telepon || '-';
+                
+                // Delivery info
+                document.getElementById('delivery-address').textContent = order.delivery.alamat || '-';
+                document.getElementById('delivery-city').textContent = order.delivery.kota || '-';
+                document.getElementById('delivery-start').textContent = order.delivery.tanggal_mulai || '-';
+                document.getElementById('delivery-time').textContent = order.delivery.waktu || '-';
+            }
+
+            // Package info
+            if (order.packages && order.packages.length > 0) {
+                const package = order.packages[0];
+                document.getElementById('package-name').textContent = package.name || '-';
+                document.getElementById('package-duration').textContent = package.duration || '-';
+                document.getElementById('package-price').textContent = formatCurrency(package.price || 0);
+            }
+
+            // Payment info
+            if (order.payment) {
+                document.getElementById('payment-method').textContent = order.payment.method || '-';
+            }
+            document.getElementById('payment-status').textContent = order.status || '-';
+
+            // Total amount
+            document.getElementById('total-amount').textContent = formatCurrency(order.totalAmount || 0);
+        }
+
+        // Show error message
+        function showError(message) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('invoice-content').classList.add('hidden');
+            document.getElementById('error-message').classList.remove('hidden');
+            document.getElementById('error-details').textContent = message;
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInvoiceData();
+        });
+    </script>
+</body>
+</html> 

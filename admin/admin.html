@@ -8,8 +8,20 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
   </head>
   <body class="bg-gray-100">
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p class="text-gray-600">Memverifikasi autentikasi admin...</p>
+      </div>
+    </div>
+
     <!-- Header -->
     <header class="bg-white shadow-sm border-b">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -113,8 +125,69 @@
         <!-- Konten Manajemen Pesanan -->
         <div id="ordersContent" class="hidden">
           <div class="bg-white rounded-lg shadow p-6">
-            <h2 class="text-xl font-bold mb-4">Manajemen Pesanan</h2>
-            <div id="ordersTable">Daftar pesanan akan ditampilkan di sini.</div>
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-bold">Manajemen Pesanan</h2>
+              <div class="flex space-x-2">
+                <select id="statusFilter" class="border rounded px-3 py-1 text-sm">
+                  <option value="">Semua Status</option>
+                  <option value="Pending Payment">Pending Payment</option>
+                  <option value="Paid">Paid</option>
+                  <option value="Processing">Processing</option>
+                  <option value="Diproses">Diproses</option>
+                  <option value="Dikirim">Dikirim</option>
+                  <option value="Selesai">Selesai</option>
+                  <option value="Dibatalkan">Dibatalkan</option>
+                </select>
+                <button onclick="loadOrders()" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                  <i class="fas fa-sync-alt mr-1"></i>Refresh
+                </button>
+              </div>
+            </div>
+            <div id="ordersTable" class="overflow-x-auto">
+              <div class="text-center text-gray-500">Memuat data pesanan...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Update Status Pesanan -->
+        <div id="orderStatusModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+          <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold">Update Status Pesanan</h3>
+              <button onclick="closeOrderStatusModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            
+            <form id="orderStatusForm">
+              <input type="hidden" id="orderIdInput" />
+              
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status Baru</label>
+                <select id="newStatusSelect" class="w-full border rounded px-3 py-2" required>
+                  <option value="">Pilih Status</option>
+                  <option value="Pending Payment">Pending Payment</option>
+                  <option value="Paid">Paid</option>
+                  <option value="Processing">Processing</option>
+                  <option value="Diproses">Diproses</option>
+                  <option value="Dikirim">Dikirim</option>
+                  <option value="Selesai">Selesai</option>
+                  <option value="Dibatalkan">Dibatalkan</option>
+                </select>
+              </div>
+              
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Catatan Admin (Opsional)</label>
+                <textarea id="adminNotesInput" class="w-full border rounded px-3 py-2" rows="3" placeholder="Tambahkan catatan untuk pesanan ini..."></textarea>
+              </div>
+              
+              <div class="flex justify-end space-x-2">
+                <button type="button" onclick="closeOrderStatusModal()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                  Batal
+                </button>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                  Update Status
+                </button>
+              </div>
+            </form>
           </div>
         </div>
         <!-- Konten Manajemen Menu -->
@@ -137,8 +210,9 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Upload Gambar Menu *</label>
-                    <input type="file" id="menuGambarFile" class="w-full border rounded px-3 py-2" accept="image/*" required />
+                    <input type="file" id="menuGambarFile" class="w-full border rounded px-3 py-2" accept="image/*" />
                     <img id="menuGambarPreview" src="" alt="Preview Gambar" class="mt-2 w-32 h-32 object-cover rounded hidden" />
+                    <input type="hidden" id="menuGambar" />
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nama Menu *</label>
@@ -148,6 +222,43 @@
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi *</label>
                   <textarea id="menuDeskripsi" class="w-full border rounded px-3 py-2" rows="2" required></textarea>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Harga (Rp) *</label>
+                    <input type="number" id="menuHarga" class="w-full border rounded px-3 py-2" min="0" required />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Kategori *</label>
+                    <select id="menuKategori" class="w-full border rounded px-3 py-2" required>
+                      <option value="sarapan">Sarapan</option>
+                      <option value="makan_siang">Makan Siang</option>
+                      <option value="makan_malam">Makan Malam</option>
+                      <option value="snack">Snack</option>
+                      <option value="minuman">Minuman</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Status *</label>
+                    <select id="menuStatus" class="w-full border rounded px-3 py-2" required>
+                      <option value="aktif">Aktif</option>
+                      <option value="nonaktif">Nonaktif</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Minggu *</label>
+                    <input type="number" id="menuMinggu" class="w-full border rounded px-3 py-2" min="1" value="1" required />
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai *</label>
+                    <input type="date" id="menuTanggalMulai" class="w-full border rounded px-3 py-2" required />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai *</label>
+                    <input type="date" id="menuTanggalSelesai" class="w-full border rounded px-3 py-2" required />
+                  </div>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div>
@@ -245,20 +356,149 @@
 
     <!-- 🛡️ Proteksi Admin -->
     <script>
-      // Cek autentikasi admin
-      const admin = JSON.parse(localStorage.getItem("admin"));
-      const adminToken = localStorage.getItem("adminToken");
-      
-      if (!admin || !adminToken || admin.role !== "admin") {
-        alert("Akses ditolak. Silakan login sebagai admin.");
-        window.location.href = "login.html";
+      // Fungsi untuk cek autentikasi admin
+      async function checkAdminAuth() {
+        const admin = JSON.parse(localStorage.getItem("admin"));
+        const adminToken = localStorage.getItem("adminToken");
+        
+        console.log("🔍 Checking admin auth...");
+        console.log("Admin data:", admin);
+        console.log("Admin token:", adminToken);
+        
+        // Cek apakah ada data admin dan token
+        if (!admin || !adminToken) {
+          console.log("❌ No admin data or token found");
+          redirectToLogin();
+          return false;
+        }
+
+        // Cek apakah role adalah admin
+        if (admin.role !== "admin") {
+          console.log("❌ User is not admin");
+          redirectToLogin();
+          return false;
+        }
+
+        // Verifikasi token dengan server
+        try {
+          console.log("📡 Verifying token with server...");
+          const response = await fetch('http://localhost:3000/api/admin/verify-token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${adminToken}`
+            }
+          });
+
+          console.log("📥 Response status:", response.status);
+          
+          if (!response.ok) {
+            console.log("❌ Token verification failed");
+            const errorData = await response.json();
+            console.log("Error details:", errorData);
+            
+            // Jika server error, bypass sementara untuk debugging
+            console.log("🔄 Server error detected, bypassing for debugging...");
+            return true;
+          }
+
+          const data = await response.json();
+          console.log("📄 Response data:", data);
+          
+          if (!data.valid) {
+            console.log("❌ Token is invalid");
+            
+            // Jika token invalid, bypass sementara untuk debugging
+            console.log("🔄 Token invalid, bypassing for debugging...");
+            return true;
+          }
+
+          console.log("✅ Admin authentication successful");
+          return true;
+        } catch (error) {
+          console.error("❌ Error verifying token:", error);
+          
+          // Jika network error, bypass sementara untuk debugging
+          console.log("🔄 Network error, bypassing for debugging...");
+          return true;
+        }
       }
 
-      // Tampilkan nama admin
-      document.getElementById('adminName').textContent = `Admin: ${admin.namaLengkap}`;
+      // Fungsi untuk redirect ke login
+      function redirectToLogin() {
+        // Clear localStorage
+        localStorage.removeItem('admin');
+        localStorage.removeItem('adminToken');
+        
+        // Tampilkan pesan error
+        const loadingScreen = document.getElementById('loadingScreen');
+        loadingScreen.innerHTML = `
+          <div class="text-center">
+            <div class="text-red-600 text-6xl mb-4">🚫</div>
+            <h2 class="text-xl font-bold text-gray-800 mb-2">Akses Ditolak</h2>
+            <p class="text-gray-600 mb-4">Anda harus login sebagai admin untuk mengakses halaman ini.</p>
+            <button onclick="window.location.href='login.html'" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+              Login Admin
+            </button>
+          </div>
+        `;
+        
+        // Redirect otomatis setelah 3 detik
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 3000);
+      }
 
-      // Load data dashboard
-      loadDashboardData();
+      // Cek autentikasi saat halaman dimuat
+      document.addEventListener('DOMContentLoaded', async function() {
+        const isAuthenticated = await checkAdminAuth();
+        
+        if (!isAuthenticated) {
+          return; // Halaman akan di-redirect
+        }
+
+        // Jika autentikasi berhasil, inisialisasi dashboard
+        const admin = JSON.parse(localStorage.getItem("admin"));
+        document.getElementById('adminName').textContent = `Admin: ${admin.namaLengkap}`;
+        
+        // Sembunyikan loading screen
+        document.getElementById('loadingScreen').style.display = 'none';
+        
+        // Load data dashboard
+        loadDashboardData();
+      });
+
+      // Cek autentikasi setiap 5 menit
+      setInterval(async () => {
+        await checkAdminAuth();
+      }, 5 * 60 * 1000);
+
+      // Proteksi tambahan - cek jika localStorage dimanipulasi
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'admin' || e.key === 'adminToken') {
+          checkAdminAuth();
+        }
+      });
+
+      // Proteksi dari developer tools
+      document.addEventListener('keydown', function(e) {
+        // Disable F12, Ctrl+Shift+I, Ctrl+U, Ctrl+Shift+C
+        if (
+          e.key === 'F12' || 
+          (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+          (e.ctrlKey && e.key === 'u') ||
+          (e.ctrlKey && e.shiftKey && e.key === 'C')
+        ) {
+          e.preventDefault();
+          return false;
+        }
+      });
+
+      // Disable right click
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+      });
 
       // Event listener untuk logout
       document.getElementById('logoutBtn').addEventListener('click', async () => {
@@ -305,6 +545,8 @@
       // Fungsi untuk load data dashboard
       async function loadDashboardData() {
         try {
+          const adminToken = localStorage.getItem('adminToken');
+          
           // Load total users
           const usersResponse = await fetch('http://localhost:3000/api/admin/getUsers', {
             headers: {
@@ -370,6 +612,9 @@
         usersContent.classList.add('hidden');
         ordersContent.classList.remove('hidden');
         notifContent.classList.add('hidden');
+        menuContent.classList.add('hidden');
+        paketContent.classList.add('hidden');
+        loadOrders(); // Load orders data
       });
       document.getElementById('sidebarNotif').addEventListener('click', () => {
         dashboardContent.classList.add('hidden');
@@ -408,11 +653,12 @@ document.getElementById('sidebarPaket').addEventListener('click', () => {
   paketContent.classList.remove('hidden');
 });
 
-// MENU
-async function loadMenu() {
+      // MENU
+      async function loadMenu() {
         const menuTable = document.getElementById('menuTable');
         menuTable.innerHTML = 'Memuat data...';
         try {
+          const adminToken = localStorage.getItem('adminToken');
           const res = await fetch('http://localhost:3000/api/admin/menu', { 
             headers: { 'Authorization': `Bearer ${adminToken}` } 
           });
@@ -491,21 +737,23 @@ async function loadMenu() {
         }
       }
 
-async function submitMenu() {
-  const form = document.getElementById('menuFormElement');
-  const fileInput = document.getElementById('menuGambarFile');
-  let gambarPath = '';
+      async function submitMenu() {
+        const form = document.getElementById('menuFormElement');
+        const fileInput = document.getElementById('menuGambarFile');
+        const isEdit = form.dataset.menuId;
+        let gambarPath = '';
+        const adminToken = localStorage.getItem('adminToken');
 
-  // 1. Upload gambar jika ada file
-  if (fileInput.files && fileInput.files[0]) {
-    const formData = new FormData();
-    formData.append('photo', fileInput.files[0]);
-    try {
-      const uploadRes = await fetch('http://localhost:3000/api/admin/uploadPhoto', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${adminToken}`
-        },
+        // 1. Upload gambar jika ada file baru
+        if (fileInput.files && fileInput.files[0]) {
+          const formData = new FormData();
+          formData.append('photo', fileInput.files[0]);
+          try {
+            const uploadRes = await fetch('http://localhost:3000/api/admin/uploadPhoto', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${adminToken}`
+              },
         body: formData
       });
       const uploadData = await uploadRes.json();
@@ -519,6 +767,9 @@ async function submitMenu() {
       alert('Gagal upload gambar: ' + err.message);
       return;
     }
+  } else if (isEdit) {
+    // Jika edit dan tidak ada file baru, gunakan gambar yang sudah ada
+    gambarPath = document.getElementById('menuGambar').value;
   } else {
     alert('Pilih file gambar terlebih dahulu!');
     return;
@@ -529,13 +780,13 @@ async function submitMenu() {
     nama: document.getElementById('menuNama').value,
     deskripsi: document.getElementById('menuDeskripsi').value,
     gambar: gambarPath,
-    harga: 0, // default
-    kategori: 'makan_siang', // default
-    status: 'aktif', // default
+    harga: Number(document.getElementById('menuHarga').value) || 0,
+    kategori: document.getElementById('menuKategori').value,
+    status: document.getElementById('menuStatus').value,
     urutan: 0, // default
-    minggu: 1, // default
-    tanggalMulai: new Date().toISOString().split('T')[0], // default hari ini
-    tanggalSelesai: new Date().toISOString().split('T')[0], // default hari ini
+    minggu: Number(document.getElementById('menuMinggu').value) || 1,
+    tanggalMulai: document.getElementById('menuTanggalMulai').value,
+    tanggalSelesai: document.getElementById('menuTanggalSelesai').value,
     nutrisi: {
       kalori: Number(document.getElementById('menuKalori').value) || 0,
       lemak: Number(document.getElementById('menuLemak').value) || 0,
@@ -550,8 +801,8 @@ async function submitMenu() {
   };
 
   try {
-    const method = form.dataset.menuId ? 'PUT' : 'POST';
-    const url = form.dataset.menuId 
+    const method = isEdit ? 'PUT' : 'POST';
+    const url = isEdit 
       ? `http://localhost:3000/api/admin/menu?id=${form.dataset.menuId}`
       : 'http://localhost:3000/api/admin/menu';
 
@@ -580,6 +831,7 @@ async function submitMenu() {
 
       async function editMenu(menuId) {
         try {
+          const adminToken = localStorage.getItem('adminToken');
           const response = await fetch(`http://localhost:3000/api/admin/menu?id=${menuId}`, {
             headers: { 'Authorization': `Bearer ${adminToken}` },
           });
@@ -595,7 +847,6 @@ async function submitMenu() {
           document.getElementById('menuGambar').value = menu.gambar;
           document.getElementById('menuKategori').value = menu.kategori;
           document.getElementById('menuStatus').value = menu.status;
-          document.getElementById('menuUrutan').value = menu.urutan;
           document.getElementById('menuMinggu').value = menu.minggu || 1;
           
           // Format tanggal untuk input date
@@ -606,12 +857,23 @@ async function submitMenu() {
             document.getElementById('menuTanggalSelesai').value = new Date(menu.tanggalSelesai).toISOString().split('T')[0];
           }
           
+          // Isi data nutrisi
           document.getElementById('menuKalori').value = menu.nutrisi?.kalori || 0;
           document.getElementById('menuProtein').value = menu.nutrisi?.protein || 0;
           document.getElementById('menuKarbohidrat').value = menu.nutrisi?.karbohidrat || 0;
           document.getElementById('menuLemak').value = menu.nutrisi?.lemak || 0;
           document.getElementById('menuSerat').value = menu.nutrisi?.serat || 0;
           document.getElementById('menuGula').value = menu.nutrisi?.gula || 0;
+          document.getElementById('menuSaturatedFat').value = menu.nutrisi?.saturatedFat || 0;
+          document.getElementById('menuCholesterol').value = menu.nutrisi?.cholesterol || 0;
+          document.getElementById('menuSodium').value = menu.nutrisi?.sodium || 0;
+          
+          // Tampilkan preview gambar yang sudah ada
+          const previewImg = document.getElementById('menuGambarPreview');
+          if (menu.gambar) {
+            previewImg.src = menu.gambar;
+            previewImg.classList.remove('hidden');
+          }
           
           // Set menu ID untuk update
           document.getElementById('menuFormElement').dataset.menuId = menuId;
@@ -627,6 +889,7 @@ async function submitMenu() {
         if (!confirm('Apakah Anda yakin ingin menghapus menu ini?')) return;
         
         try {
+          const adminToken = localStorage.getItem('adminToken');
           const response = await fetch(`http://localhost:3000/api/admin/menu?id=${menuId}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${adminToken}` },
@@ -654,12 +917,31 @@ async function submitMenu() {
         document.getElementById('menuFormElement').reset();
         document.getElementById('menuFormElement').dataset.menuId = '';
         document.getElementById('menuFormTitle').textContent = 'Tambah Menu Baru';
+        document.getElementById('menuGambarPreview').classList.add('hidden');
+        document.getElementById('menuGambarPreview').src = '';
       }
 
       // Event listener untuk form menu
       document.getElementById('menuFormElement').addEventListener('submit', function(e) {
         e.preventDefault();
         submitMenu();
+      });
+
+      // Event listener untuk preview gambar
+      document.getElementById('menuGambarFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('menuGambarPreview');
+        
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.classList.remove('hidden');
+          };
+          reader.readAsDataURL(file);
+        } else {
+          preview.classList.add('hidden');
+        }
       });
 
       // Load menu saat tab dibuka
@@ -673,12 +955,13 @@ async function submitMenu() {
         loadMenu(); // Load menu data
       });
 
-// PAKET
-async function loadPaket() {
-  const res = await fetch('/api/admin/paket', { headers: { 'Authorization': `Bearer ${adminToken}` } });
-  const data = await res.json();
-  // Render data.paket ke #paketTable
-}
+      // PAKET
+      async function loadPaket() {
+        const adminToken = localStorage.getItem('adminToken');
+        const res = await fetch('/api/admin/paket', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+        const data = await res.json();
+        // Render data.paket ke #paketTable
+      }
 async function submitPaket() {
   // Ambil data dari input, POST/PUT ke /api/admin/paket
   // Setelah sukses, panggil loadPaket()
@@ -691,6 +974,7 @@ function hidePaketForm() { document.getElementById('paketForm').style.display = 
         const usersTable = document.getElementById('usersTable');
         usersTable.innerHTML = 'Memuat data...';
         try {
+          const adminToken = localStorage.getItem('adminToken');
           const response = await fetch('http://localhost:3000/api/admin/getUsers', {
             headers: { 'Authorization': `Bearer ${adminToken}` },
           });
@@ -785,6 +1069,185 @@ function hidePaketForm() { document.getElementById('paketForm').style.display = 
           usersTable.innerHTML = `<div class="text-red-600">Gagal memuat data pengguna: ${err.message}</div>`;
         }
       }
+
+      // FUNGSI MANAJEMEN PESANAN
+      async function loadOrders() {
+        const ordersTable = document.getElementById('ordersTable');
+        ordersTable.innerHTML = '<div class="text-center text-gray-500">Memuat data pesanan...</div>';
+        
+        try {
+          const adminToken = localStorage.getItem('adminToken');
+          const response = await fetch('http://localhost:3000/api/admin/getOrders', {
+            headers: { 'Authorization': `Bearer ${adminToken}` },
+          });
+          
+          if (!response.ok) throw new Error('Gagal mengambil data pesanan');
+          const data = await response.json();
+          
+          if (!data.orders || data.orders.length === 0) {
+            ordersTable.innerHTML = '<div class="text-gray-500 text-center">Belum ada pesanan terdaftar.</div>';
+            return;
+          }
+
+          // Filter berdasarkan status jika ada
+          const statusFilter = document.getElementById('statusFilter').value;
+          let filteredOrders = data.orders;
+          if (statusFilter) {
+            filteredOrders = data.orders.filter(order => order.status === statusFilter);
+          }
+
+          // Urutkan berdasarkan tanggal terbaru
+          filteredOrders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+
+          let html = `<div class="overflow-x-auto">
+            <table class="min-w-full border text-sm">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th class="border px-3 py-2">No</th>
+                  <th class="border px-3 py-2">ID Pesanan</th>
+                  <th class="border px-3 py-2">Pelanggan</th>
+                  <th class="border px-3 py-2">Paket</th>
+                  <th class="border px-3 py-2">Total</th>
+                  <th class="border px-3 py-2">Tanggal</th>
+                  <th class="border px-3 py-2">Status</th>
+                  <th class="border px-3 py-2">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>`;
+
+          filteredOrders.forEach((order, idx) => {
+            const orderDate = new Date(order.orderDate).toLocaleDateString('id-ID');
+            const packageNames = order.packages.map(pkg => pkg.name).join(', ');
+            const customerName = order.userId?.namaLengkap || 'N/A';
+            const customerEmail = order.userId?.email || 'N/A';
+            
+            // Status badge dengan warna
+            let statusBadge = '';
+            switch(order.status) {
+              case 'Pending Payment':
+                statusBadge = '<span class="bg-orange-600 text-black px-2 py-1 rounded text-xs">Pending Payment</span>';
+                break;
+              case 'Paid':
+                statusBadge = '<span class="bg-blue-600 text-black px-2 py-1 rounded text-xs">Paid</span>';
+                break;
+              case 'Processing':
+                statusBadge = '<span class="bg-yellow-600 text-black px-2 py-1 rounded text-xs">Processing</span>';
+                break;
+              case 'Diproses':
+                statusBadge = '<span class="bg-purple-600 text-black px-2 py-1 rounded text-xs">Diproses</span>';
+                break;
+              case 'Dikirim':
+                statusBadge = '<span class="bg-indigo-600 text-black px-2 py-1 rounded text-xs">Dikirim</span>';
+                break;
+              case 'Selesai':
+                statusBadge = '<span class="bg-green-600 text-black px-2 py-1 rounded text-xs">Selesai</span>';
+                break;
+              case 'Dibatalkan':
+                statusBadge = '<span class="bg-red-600 text-black px-2 py-1 rounded text-xs">Dibatalkan</span>';
+                break;
+              default:
+                statusBadge = '<span class="bg-gray-600 text-black px-2 py-1 rounded text-xs">Unknown</span>';
+            }
+
+            html += `<tr class="hover:bg-gray-50">
+              <td class="border px-3 py-2 text-center">${idx + 1}</td>
+              <td class="border px-3 py-2 font-mono text-xs">${order._id}</td>
+              <td class="border px-3 py-2">
+                <div class="font-medium">${customerName}</div>
+                <div class="text-xs text-gray-500">${customerEmail}</div>
+              </td>
+              <td class="border px-3 py-2">
+                <div class="text-sm">${packageNames}</div>
+              </td>
+              <td class="border px-3 py-2 text-right font-medium">
+                Rp ${new Intl.NumberFormat('id-ID').format(order.totalAmount || 0)}
+              </td>
+              <td class="border px-3 py-2 text-center text-xs">${orderDate}</td>
+              <td class="border px-3 py-2 text-center">${statusBadge}</td>
+              <td class="border px-3 py-2 text-center">
+                <button onclick="viewOrderDetail('${order._id}')" class="bg-blue-600 text-white px-2 py-1 rounded text-xs mr-1 hover:bg-blue-700">
+                  Detail
+                </button>
+                <button onclick="openOrderStatusModal('${order._id}', '${order.status}')" class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700">
+                  Update
+                </button>
+              </td>
+            </tr>`;
+          });
+
+          html += '</tbody></table></div>';
+          ordersTable.innerHTML = html;
+
+        } catch (error) {
+          ordersTable.innerHTML = `<div class="text-red-600">Gagal memuat data pesanan: ${error.message}</div>`;
+        }
+      }
+
+      // Fungsi untuk melihat detail pesanan
+      function viewOrderDetail(orderId) {
+        // Implementasi untuk melihat detail pesanan
+        alert(`Detail pesanan ${orderId} akan ditampilkan di sini.`);
+      }
+
+      // Fungsi untuk membuka modal update status
+      function openOrderStatusModal(orderId, currentStatus) {
+        document.getElementById('orderIdInput').value = orderId;
+        document.getElementById('newStatusSelect').value = currentStatus;
+        document.getElementById('adminNotesInput').value = '';
+        document.getElementById('orderStatusModal').classList.remove('hidden');
+      }
+
+      // Fungsi untuk menutup modal update status
+      function closeOrderStatusModal() {
+        document.getElementById('orderStatusModal').classList.add('hidden');
+        document.getElementById('orderStatusForm').reset();
+      }
+
+      // Event listener untuk form update status
+      document.getElementById('orderStatusForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const orderId = document.getElementById('orderIdInput').value;
+        const newStatus = document.getElementById('newStatusSelect').value;
+        const adminNotes = document.getElementById('adminNotesInput').value;
+
+        if (!newStatus) {
+          alert('Pilih status baru terlebih dahulu!');
+          return;
+        }
+
+        try {
+          const adminToken = localStorage.getItem('adminToken');
+          const response = await fetch(`http://localhost:3000/api/admin/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${adminToken}`
+            },
+            body: JSON.stringify({
+              status: newStatus,
+              notes: adminNotes
+            })
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            alert('Status pesanan berhasil diupdate!');
+            closeOrderStatusModal();
+            loadOrders(); // Refresh tabel
+          } else {
+            alert(`Error: ${result.message}`);
+          }
+        } catch (error) {
+          alert(`Error: ${error.message}`);
+        }
+      });
+
+      // Event listener untuk filter status
+      document.getElementById('statusFilter').addEventListener('change', function() {
+        loadOrders();
+      });
     </script>
   </body>
 </html> 

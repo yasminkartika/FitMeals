@@ -6,22 +6,113 @@ const OrderSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  paket: {
-    type: String,
-    required: true
+  packages: [{
+    id: {
+      type: Number,
+      required: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
+    price: {
+      type: Number,
+      required: true
+    },
+    duration: {
+      type: String,
+      required: true
+    },
+    image: {
+      type: String,
+      required: true
+    },
+    description: {
+      type: String,
+      required: true
+    }
+  }],
+  delivery: {
+    nama: {
+      type: String,
+      required: true
+    },
+    telepon: {
+      type: String,
+      required: true
+    },
+    email: {
+      type: String,
+      required: true
+    },
+    alamat: {
+      type: String,
+      required: true
+    },
+    kota: {
+      type: String,
+      required: true
+    },
+    kode_pos: {
+      type: String,
+      required: true
+    },
+    provinsi: {
+      type: String,
+      required: true
+    },
+    tanggal_mulai: {
+      type: String,
+      required: true
+    },
+    waktu: {
+      type: String,
+      required: true
+    },
+    catatan: {
+      type: String,
+      required: false
+    }
   },
-  totalHarga: {
+  payment: {
+    method: {
+      type: String,
+      required: true
+    },
+    timestamp: {
+      type: String,
+      required: true
+    }
+  },
+  totalAmount: {
     type: Number,
     required: true
   },
   status: {
     type: String,
-    enum: ['pending', 'processed', 'completed', 'cancelled'],
-    default: 'pending'
+    enum: ['Pending Payment', 'Paid', 'Processing', 'Diproses', 'Dikirim', 'Selesai', 'Dibatalkan'],
+    default: 'Pending Payment'
   },
-  createdAt: {
+  orderDate: {
     type: Date,
     default: Date.now
+  },
+  paymentConfirmedAt: {
+    type: Date,
+    default: null
+  },
+  adminNotes: {
+    type: String,
+    default: null
+  },
+  statusUpdatedAt: {
+    type: Date,
+    default: null
+  },
+  statusUpdatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
   }
 });
 

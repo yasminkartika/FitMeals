@@ -236,10 +236,10 @@
               credentials: "include",
             })
               .then(() => {
-                window.location.href = "login.html";
+                window.location.href = "index.html";
               })
               .catch(() => {
-                window.location.href = "login.html";
+                window.location.href = "index.html";
               });
           });
         }
@@ -292,7 +292,8 @@
       </div>
     </section>
 
-    <section id="menu" class="pt-18 text-gray-600 body-font bg-[#ffffff]">
+    <!-- Menu -->
+    <section id="menu" class="pt-18 text-gray-600 body-font bg-[#FFFFFF]">
       <div class="container px-8 sm:px-12 lg:px-20 mx-auto py-8">
         <div class="flex flex-col text-center w-full mb-8">
           <h1 class="text-base text-gray-700">FitMeals Menu</h1>
@@ -310,141 +311,15 @@
           </p>
         </div>
 
-        <div class="relative">
-          <!-- Tombol kiri -->
-          <button
-            onclick="changeWeek(-1)"
-            class="absolute left-[-2rem] top-1/2 -translate-y-1/2 bg-[#63A365] text-white p-2 rounded-full shadow-lg z-10 hover:bg-[#57925B]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-
-          <!-- Tombol kanan -->
-          <button
-            onclick="changeWeek(1)"
-            class="absolute right-[-2rem] top-1/2 -translate-y-1/2 bg-[#63A365] text-white p-2 rounded-full shadow-lg z-10 hover:bg-[#57925B]"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
-
-          <!-- Grid gambar -->
-          <div
-            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
-            id="menu-cards"
-          >
-            <!-- JS akan render card di sini -->
-          </div>
+        <!-- Grid gambar -->
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
+          id="menu-cards"
+        >
+          <!-- JS akan render card di sini -->
         </div>
       </div>
     </section>
-
-    <!-- Menu -->
-    <script>
-      async function loadMenu() {
-        try {
-          // Ambil minggu saat ini
-          const now = new Date();
-          const currentWeek = getWeekNumber(now);
-          
-          const response = await fetch(`http://localhost:3000/api/menu?minggu=${currentWeek}`);
-          if (!response.ok) throw new Error('Gagal mengambil data menu');
-          const data = await response.json();
-          
-          if (!data.menus || data.menus.length === 0) {
-            document.getElementById('menuContainer').innerHTML = 
-              '<div class="text-center text-gray-500 py-8">Belum ada menu untuk minggu ini.</div>';
-            return;
-          }
-          
-          // Render menu berdasarkan kategori
-          const menuContainer = document.getElementById('menuContainer');
-          menuContainer.innerHTML = '';
-          
-          const categories = ['sarapan', 'makan_siang', 'makan_malam', 'snack', 'minuman'];
-          const categoryNames = {
-            'sarapan': 'Sarapan',
-            'makan_siang': 'Makan Siang', 
-            'makan_malam': 'Makan Malam',
-            'snack': 'Snack',
-            'minuman': 'Minuman'
-          };
-          
-          categories.forEach(category => {
-            const categoryMenus = data.menus.filter(menu => menu.kategori === category);
-            if (categoryMenus.length > 0) {
-              const categorySection = document.createElement('div');
-              categorySection.className = 'mb-8';
-              categorySection.innerHTML = `
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">${categoryNames[category]}</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  ${categoryMenus.map(menu => `
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                      <img src="${menu.gambar}" alt="${menu.nama}" class="w-full h-48 object-cover">
-                      <div class="p-4">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">${menu.nama}</h3>
-                        <p class="text-gray-600 text-sm mb-3">${menu.deskripsi}</p>
-                        <div class="flex justify-between items-center mb-3">
-                          <span class="text-lg font-bold text-green-600">Rp ${new Intl.NumberFormat('id-ID').format(menu.harga)}</span>
-                          <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">Minggu ${menu.minggu}</span>
-                        </div>
-                        <div class="grid grid-cols-3 gap-2 text-xs text-gray-500 mb-3">
-                          <div>Kalori: ${menu.nutrisi?.kalori || 0} kcal</div>
-                          <div>Protein: ${menu.nutrisi?.protein || 0}g</div>
-                          <div>Karbohidrat: ${menu.nutrisi?.karbohidrat || 0}g</div>
-                        </div>
-                        <button onclick="addToCart('${menu._id}', '${menu.nama}', ${menu.harga})" 
-                                class="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition duration-200">
-                          Tambah ke Keranjang
-                        </button>
-                      </div>
-                    </div>
-                  `).join('')}
-            </div>
-          `;
-              menuContainer.appendChild(categorySection);
-            }
-          });
-          
-        } catch (error) {
-          console.error('Error loading menu:', error);
-          document.getElementById('menuContainer').innerHTML = 
-            '<div class="text-center text-red-500 py-8">Gagal memuat menu. Silakan coba lagi.</div>';
-        }
-      }
-      
-      // Fungsi untuk mendapatkan nomor minggu saat ini
-      function getWeekNumber(date) {
-        const startOfYear = new Date(date.getFullYear(), 0, 1);
-        const days = Math.floor((date - startOfYear) / (24 * 60 * 60 * 1000));
-        return Math.ceil((days + startOfYear.getDay() + 1) / 7);
-      }
-    </script>
 
     <!-- Paket Catering -->
     <section id="Paket" class="bg-[#f8f6f2]">
@@ -489,7 +364,9 @@
             </p>
             <p class="text-[#63a365] font-bold mb-4">Rp. 75.000</p>
             <button
-              class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition"
+              class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition pesan-sekarang"
+              data-paket="Paket Harian"
+              data-harga="75000"
             >
               Pesan Sekarang
             </button>
@@ -526,7 +403,9 @@
             </p>
             <p class="text-[#63a365] font-bold mb-4">Rp. 450.000/minggu~</p>
             <button
-              class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition"
+              class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition pesan-sekarang"
+              data-paket="Paket Mingguan"
+              data-harga="450000"
             >
               Pesan Sekarang
             </button>
@@ -564,7 +443,9 @@
             </p>
             <p class="text-[#63a365] font-bold mb-4">Rp. 1.800.000/bulan~</p>
             <button
-              class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition"
+              class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition pesan-sekarang"
+              data-paket="Paket Bulanan"
+              data-harga="1800000"
             >
               Pesan Sekarang
             </button>
@@ -687,6 +568,28 @@
           </form>
         </div>
       </div>
+
+      <!-- Modal Detail Pesanan -->
+      <div
+        id="order-detail-modal"
+        class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden"
+      >
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold">Detail Pesanan</h2>
+            <button
+              id="close-order-detail-modal"
+              class="text-gray-500 hover:text-gray-700 text-2xl"
+            >
+              &times;
+            </button>
+          </div>
+          
+          <div id="order-detail-content">
+            <!-- Content will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
     </section>
 
     <script>
@@ -733,84 +636,106 @@
         }
       };
 
-      // Dummy data pesanan
-      const orders = [
-        {
-          id: 1,
-          menu: "Paket Mingguan",
-          image: "img/lunch.jpg",
-          tanggal: "2025-06-01",
-          status: "Selesai",
-          reviewed: false,
-        },
-        {
-          id: 2,
-          menu: "Paket Harian",
-          image: "img/sarapan.jpg",
-          tanggal: "2025-06-03",
-          status: "Diproses",
-          reviewed: false,
-        },
-        {
-          id: 3,
-          menu: "Paket Harian",
-          image: "img/sarapan.jpg",
-          tanggal: "2025-05-28",
-          status: "Selesai",
-          reviewed: true,
-          rating: 5,
-          review: "Enak dan sehat!",
-        },
-        {
-          id: 4,
-          menu: "Paket Bulanan",
-          image: "img/dinner.png",
-          tanggal: "2025-05-25",
-          status: "Dibatalkan",
-          reviewed: false,
-        },
-      ];
+      // Data pesanan dari database
+      let orders = [];
 
       // Cek localStorage untuk review yang sudah dikirim
       function getLocalReviews() {
         return JSON.parse(localStorage.getItem("orderReviews") || "{}");
       }
+      
       function setLocalReview(orderId, rating, review) {
         const reviews = getLocalReviews();
         reviews[orderId] = { rating, review };
         localStorage.setItem("orderReviews", JSON.stringify(reviews));
       }
 
+      // Fungsi untuk mengambil pesanan dari database
+      async function fetchUserOrders() {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch('http://localhost:3000/api/orders/user', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to fetch orders');
+          }
+
+          const data = await response.json();
+          if (data.success) {
+            orders = data.orders;
+            renderOrders();
+          }
+        } catch (error) {
+          console.error('Error fetching orders:', error);
+          // Fallback ke dummy data jika gagal
+          orders = [
+            {
+              _id: 1,
+              packages: [{ name: "Paket Mingguan" }],
+              orderDate: "2025-06-01",
+              status: "Selesai",
+              delivery: { tanggal_mulai: "2025-06-01" }
+            }
+          ];
+          renderOrders();
+        }
+      }
+
       function renderOrders() {
         const reviews = getLocalReviews();
         const list = document.getElementById("orders-list");
         list.innerHTML = "";
+
+        if (orders.length === 0) {
+          list.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+              <i class="fas fa-shopping-bag text-4xl mb-4"></i>
+              <p>Belum ada pesanan</p>
+              <a href="#Paket" class="mt-4 inline-block bg-[#63A365] text-white px-4 py-2 rounded-lg">
+                Pesan Sekarang
+              </a>
+            </div>
+          `;
+          return;
+        }
+
         orders.forEach((order) => {
-          let reviewed = order.reviewed;
-          let rating = order.rating;
-          let review = order.review;
-          if (reviews[order.id]) {
+          let reviewed = false;
+          let rating = 0;
+          let review = "";
+          
+          if (reviews[order._id]) {
             reviewed = true;
-            rating = reviews[order.id].rating;
-            review = reviews[order.id].review;
+            rating = reviews[order._id].rating;
+            review = reviews[order._id].review;
           }
+
+          const orderDate = new Date(order.orderDate).toLocaleDateString('id-ID');
+          const packageNames = order.packages.map(pkg => pkg.name).join(', ');
+          
           const card = document.createElement("div");
           card.className =
-            "rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center justify-between mx-auto my-0 w-full";
+            "rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center justify-between mx-auto my-0 w-full cursor-pointer hover:shadow-lg transition-shadow";
           card.style.boxSizing = "border-box";
           card.style.maxWidth = "800px";
           card.style.marginBottom = "1.5rem";
           card.style.width = "100%";
           card.style.backgroundColor = "#63A365";
           card.style.color = "white";
+          card.onclick = () => openOrderDetailModal(order);
           card.innerHTML = `
           <div class="flex items-center gap-4">
-            <img src="${order.image}" alt="${
-            order.menu
-          }" class="w-20 h-20 object-cover rounded-lg">
+            <img src="img/lunch.jpg" alt="${packageNames}" class="w-20 h-20 object-cover rounded-lg">
             <div>
-              <div class="font-semibold text-lg">${order.menu}</div>
-              <div class="text-sm text-gray-300">Tanggal: ${order.tanggal}</div>
+              <div class="font-semibold text-lg">${packageNames}</div>
+              <div class="text-sm text-gray-300">Tanggal: ${orderDate}</div>
+              <div class="text-sm text-gray-300">Total: Rp ${order.totalAmount?.toLocaleString() || '0'}</div>
               <div class="text-sm mt-1">Status: <span class="font-semibold ${
                 order.status === "Selesai"
                   ? "text-yellow-300"
@@ -821,9 +746,15 @@
             </div>
           </div>
           <div class="mt-3 md:mt-0 flex flex-col items-end gap-2">
+            <div class="text-sm text-gray-300">Klik untuk detail</div>
+            ${
+              order.status === "Pending Payment"
+                ? `<button class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 font-semibold" onclick="event.stopPropagation(); cancelOrder('${order._id}')">Batalkan</button>`
+                : ""
+            }
             ${
               order.status === "Selesai" && !reviewed
-                ? `<button class="bg-yellow-400 text-white px-4 py-1 rounded hover:bg-yellow-500 font-semibold" onclick="openReviewModal(${order.id})">Beri Ulasan</button>`
+                ? `<button class="bg-yellow-400 text-white px-4 py-1 rounded hover:bg-yellow-500 font-semibold" onclick="event.stopPropagation(); openReviewModal('${order._id}')">Beri Ulasan</button>`
                 : ""
             }
             ${
@@ -852,6 +783,174 @@
         document.getElementById("review-modal").classList.add("hidden");
       };
 
+      // Order Detail Modal logic
+      function openOrderDetailModal(order) {
+        const modal = document.getElementById("order-detail-modal");
+        const content = document.getElementById("order-detail-content");
+        
+        const orderDate = new Date(order.orderDate).toLocaleDateString('id-ID', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+        
+        const packageNames = order.packages.map(pkg => pkg.name).join(', ');
+        const totalAmount = order.totalAmount?.toLocaleString() || '0';
+        
+        let statusColor = '';
+        let statusText = order.status;
+        
+        switch(order.status) {
+          case 'Pending Payment':
+            statusColor = 'text-orange-600 bg-orange-100';
+            statusText = 'Menunggu Pembayaran';
+            break;
+          case 'Paid':
+            statusColor = 'text-blue-600 bg-blue-100';
+            statusText = 'Sudah Dibayar';
+            break;
+          case 'Processing':
+            statusColor = 'text-yellow-600 bg-yellow-100';
+            statusText = 'Sedang Diproses';
+            break;
+          case 'Selesai':
+            statusColor = 'text-green-600 bg-green-100';
+            statusText = 'Selesai';
+            break;
+          case 'Dibatalkan':
+            statusColor = 'text-red-600 bg-red-100';
+            statusText = 'Dibatalkan';
+            break;
+          default:
+            statusColor = 'text-gray-600 bg-gray-100';
+        }
+
+        content.innerHTML = `
+          <div class="space-y-6">
+            <!-- Order Info -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <h3 class="font-semibold text-lg mb-3 text-gray-800">Informasi Pesanan</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p class="text-sm text-gray-600">ID Pesanan</p>
+                  <p class="font-medium">${order._id}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600">Tanggal Pesanan</p>
+                  <p class="font-medium">${orderDate}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600">Paket</p>
+                  <p class="font-medium">${packageNames}</p>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600">Total Pembayaran</p>
+                  <p class="font-bold text-lg text-[#63A365]">Rp ${totalAmount}</p>
+                </div>
+                <div class="md:col-span-2">
+                  <p class="text-sm text-gray-600">Status</p>
+                  <span class="inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColor}">${statusText}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Delivery Info -->
+            ${order.delivery ? `
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <h3 class="font-semibold text-lg mb-3 text-gray-800">Informasi Pengiriman</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                ${order.delivery.tanggal_mulai ? `
+                <div>
+                  <p class="text-sm text-gray-600">Tanggal Mulai</p>
+                  <p class="font-medium">${new Date(order.delivery.tanggal_mulai).toLocaleDateString('id-ID')}</p>
+                </div>
+                ` : ''}
+                ${order.delivery.alamat ? `
+                <div>
+                  <p class="text-sm text-gray-600">Alamat Pengiriman</p>
+                  <p class="font-medium">${order.delivery.alamat}</p>
+                </div>
+                ` : ''}
+                ${order.delivery.catatan ? `
+                <div class="md:col-span-2">
+                  <p class="text-sm text-gray-600">Catatan</p>
+                  <p class="font-medium">${order.delivery.catatan}</p>
+                </div>
+                ` : ''}
+              </div>
+            </div>
+            ` : ''}
+
+            <!-- Payment Info -->
+            ${order.status === 'Pending Payment' ? `
+            <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+              <h3 class="font-semibold text-lg mb-3 text-orange-800">Informasi Pembayaran</h3>
+              <div class="space-y-3">
+                <div>
+                  <p class="text-sm text-orange-700">Rekening Tujuan</p>
+                  <p class="font-medium text-orange-800">Bank BCA - 1234567890</p>
+                  <p class="text-sm text-orange-600">a.n. FitMeals Indonesia</p>
+                </div>
+                <div>
+                  <p class="text-sm text-orange-700">Jumlah Transfer</p>
+                  <p class="font-bold text-lg text-orange-800">Rp ${totalAmount}</p>
+                </div>
+                <div class="text-sm text-orange-700">
+                  <p class="font-medium mb-2">Instruksi Pembayaran:</p>
+                  <ul class="list-disc list-inside space-y-1">
+                    <li>Transfer ke rekening di atas</li>
+                    <li>Simpan bukti transfer</li>
+                    <li>Konfirmasi pembayaran di bawah ini</li>
+                    <li>Pesanan dapat dibatalkan dalam 24 jam</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            ` : ''}
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-3">
+              ${order.status === 'Pending Payment' ? `
+                <button onclick="confirmPayment('${order._id}')" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium">
+                  <i class="fas fa-check mr-2"></i>Konfirmasi Pembayaran
+                </button>
+                <button onclick="cancelOrder('${order._id}')" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 font-medium">
+                  <i class="fas fa-times mr-2"></i>Batalkan Pesanan
+                </button>
+              ` : ''}
+              
+              ${order.status === 'Selesai' ? `
+                <a href="invoice.html?id=${order._id}" target="_blank" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium inline-flex items-center">
+                  <i class="fas fa-file-invoice mr-2"></i>Lihat Invoice
+                </a>
+                ${!getLocalReviews()[order._id] ? `
+                <button onclick="openReviewModal('${order._id}')" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 font-medium">
+                  <i class="fas fa-star mr-2"></i>Beri Ulasan
+                </button>
+                ` : ''}
+              ` : ''}
+              
+              <button onclick="closeOrderDetailModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 font-medium">
+                <i class="fas fa-times mr-2"></i>Tutup
+              </button>
+            </div>
+          </div>
+        `;
+        
+        modal.classList.remove("hidden");
+      }
+      window.openOrderDetailModal = openOrderDetailModal;
+
+      function closeOrderDetailModal() {
+        document.getElementById("order-detail-modal").classList.add("hidden");
+      }
+      window.closeOrderDetailModal = closeOrderDetailModal;
+
+      document.getElementById("close-order-detail-modal").onclick = function () {
+        closeOrderDetailModal();
+      };
+
       document.getElementById("review-form").onsubmit = function (e) {
         e.preventDefault();
         const orderId = document.getElementById("review-order-id").value;
@@ -861,9 +960,42 @@
           alert("Mohon isi rating dan ulasan.");
           return;
         }
-        setLocalReview(orderId, rating, review);
-        document.getElementById("review-modal").classList.add("hidden");
-        renderOrders();
+
+        // Cari order untuk mendapatkan nama paket
+        const order = orders.find(o => o._id === orderId);
+        const packageName = order ? order.packages[0].name : 'Paket Catering';
+
+        // Kirim review ke database
+        const token = localStorage.getItem('token');
+        fetch('http://localhost:3000/api/reviews/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          },
+          body: JSON.stringify({
+            orderId: orderId,
+            rating: parseInt(rating),
+            review: review,
+            packageName: packageName
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Simpan juga ke localStorage untuk UI
+            setLocalReview(orderId, rating, review);
+            document.getElementById("review-modal").classList.add("hidden");
+            renderOrders();
+            alert('Ulasan berhasil dikirim!');
+          } else {
+            alert('Gagal mengirim ulasan: ' + data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Terjadi kesalahan saat mengirim ulasan');
+        });
       };
 
       // Custom select logic for review-rating
@@ -890,8 +1022,130 @@
         customSelectList.classList.add("hidden");
       });
 
+      // Fungsi untuk cancel order
+      async function cancelOrder(orderId) {
+        console.log('🚀 Attempting to cancel order:', orderId);
+        
+        const confirmCancel = confirm('Apakah Anda yakin ingin membatalkan pesanan ini? Tindakan ini tidak dapat dibatalkan.');
+        
+        if (!confirmCancel) {
+          console.log('❌ User cancelled the confirmation');
+          return;
+        }
+
+        try {
+          const token = localStorage.getItem('token');
+          console.log('🔑 Token:', token ? 'Found' : 'Not found');
+          
+          if (!token) {
+            alert('Token tidak ditemukan. Silakan login ulang.');
+            return;
+          }
+
+          console.log('📡 Sending cancel request to:', `http://localhost:3000/api/orders/${orderId}/cancel`);
+          
+          const response = await fetch(`http://localhost:3000/api/orders/${orderId}/cancel`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token
+            }
+          });
+
+          console.log('📥 Response status:', response.status);
+          
+          const data = await response.json();
+          console.log('📄 Response data:', data);
+          
+          if (data.success) {
+            alert('Pesanan berhasil dibatalkan!');
+            // Refresh orders list
+            fetchUserOrders();
+            closeOrderDetailModal();
+          } else {
+            alert('Gagal membatalkan pesanan: ' + data.message);
+          }
+        } catch (error) {
+          console.error('❌ Error cancelling order:', error);
+          alert('Terjadi kesalahan saat membatalkan pesanan: ' + error.message);
+        }
+      }
+      window.cancelOrder = cancelOrder;
+
+      // Fungsi untuk konfirmasi pembayaran
+      async function confirmPayment(orderId) {
+        console.log('💰 Attempting to confirm payment for order:', orderId);
+        
+        const confirmPayment = confirm('Apakah Anda sudah melakukan transfer pembayaran? Pastikan Anda telah menyimpan bukti transfer.');
+        
+        if (!confirmPayment) {
+          console.log('❌ User cancelled payment confirmation');
+          return;
+        }
+
+        try {
+          const token = localStorage.getItem('token');
+          console.log('🔑 Token:', token ? 'Found' : 'Not found');
+          
+          if (!token) {
+            alert('Token tidak ditemukan. Silakan login ulang.');
+            return;
+          }
+
+          console.log('📡 Sending payment confirmation to:', `http://localhost:3000/api/orders/${orderId}/confirm-payment`);
+          
+          const response = await fetch(`http://localhost:3000/api/orders/${orderId}/confirm-payment`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token
+            }
+          });
+
+          console.log('📥 Response status:', response.status);
+          
+          const data = await response.json();
+          console.log('📄 Response data:', data);
+          
+          if (data.success) {
+            alert('Konfirmasi pembayaran berhasil! Tim kami akan memverifikasi pembayaran Anda.');
+            // Refresh orders list
+            fetchUserOrders();
+            closeOrderDetailModal();
+          } else {
+            alert('Gagal mengkonfirmasi pembayaran: ' + data.message);
+          }
+        } catch (error) {
+          console.error('❌ Error confirming payment:', error);
+          alert('Terjadi kesalahan saat mengkonfirmasi pembayaran: ' + error.message);
+        }
+      }
+      window.confirmPayment = confirmPayment;
+
       // Inisialisasi
-    renderOrders();
+      fetchUserOrders();
+
+      // Handle klik tombol Pesan Sekarang
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.pesan-sekarang').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            // Ambil data paket
+            const paket = btn.getAttribute('data-paket');
+            const harga = btn.getAttribute('data-harga');
+            
+            // Simpan ke localStorage
+            localStorage.setItem('paketCheckout', JSON.stringify({ 
+              paket: paket, 
+              harga: harga,
+              timestamp: new Date().toISOString()
+            }));
+            
+            // Redirect ke checkout.html
+            window.location.href = 'checkout.html';
+          });
+        });
+      });
+
       // Jalankan ketika halaman sudah dimuat
       // window.addEventListener("DOMContentLoaded", function () {
       //   fetch("/dashboard", {
@@ -910,6 +1164,121 @@
       //     });
       // });
 
+    </script>
+
+    <!-- Script untuk memuat menu dari database -->
+    <script>
+      // Data menu dari database
+      let menuData = [];
+
+      // Fungsi untuk mengambil menu dari database
+      async function fetchMenuData() {
+        try {
+          const response = await fetch('http://localhost:3000/api/menu');
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          
+          if (data.menus && data.menus.length > 0) {
+            // Render menu langsung dari data API
+            renderMenu(data.menus);
+          } else {
+            // Tampilkan pesan jika tidak ada menu
+            showNoMenuMessage();
+          }
+        } catch (error) {
+          console.error('Error fetching menu data:', error);
+          showNoMenuMessage();
+        }
+      }
+
+      // Fungsi untuk mendapatkan tanggal minggu saat ini
+      function getCurrentWeekDates() {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const startOfYear = new Date(currentYear, 0, 1);
+        const days = Math.floor((now - startOfYear) / (24 * 60 * 60 * 1000));
+        const currentWeek = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+        
+        const startDate = new Date(currentYear, 0, 1 + (currentWeek - 1) * 7);
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
+        
+        return `${startDate.getDate()} ${startDate.toLocaleDateString('id-ID', { month: 'short' })} - ${endDate.getDate()} ${endDate.toLocaleDateString('id-ID', { month: 'short' })} ${currentYear}`;
+      }
+
+      // Fungsi untuk render menu
+      function renderMenu(menus) {
+        const weekTitle = document.getElementById("week-title");
+        const weekDates = document.getElementById("week-dates");
+        const container = document.getElementById("menu-cards");
+        
+        if (!weekTitle || !weekDates || !container) {
+          console.error('Required elements not found');
+          return;
+        }
+        
+        // Update judul dan tanggal
+        weekTitle.textContent = "Menu Minggu Ini";
+        weekDates.textContent = `(${getCurrentWeekDates()})`;
+        container.innerHTML = "";
+
+        // Render setiap menu
+        menus.forEach((menu, idx) => {
+          const card = document.createElement("div");
+          card.className = "relative cursor-pointer group";
+
+          card.innerHTML = `
+            <img src="${menu.gambar}" class="object-cover w-full aspect-[4/3] max-w-md min-h-40 rounded-xl shadow-lg mb-4 transition-transform group-hover:scale-105 mx-auto" onclick="toggleInfo(${idx})">
+            <div id="info-${idx}" class="hidden bg-white p-3 rounded-lg mt-2 shadow">
+              <h2 class="text-sm font-semibold text-[#63A365] uppercase">${menu.nama}</h2>
+              <p class="text-gray-900 font-medium mb-1">${menu.deskripsi}</p>
+              <p class="text-[#63A365] font-semibold mt-1">${menu.nutrisi?.kalori || 0} KKAL</p>
+              <p class="text-gray-900 font-medium">Fat: ${menu.nutrisi?.lemak || 0}g, Protein: ${menu.nutrisi?.protein || 0}g, Karbohidrat: ${menu.nutrisi?.karbohidrat || 0}g</p>
+              ${menu.harga ? `<p class="text-[#63A365] font-bold mt-2">Rp ${menu.harga.toLocaleString()}</p>` : ''}
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      // Fungsi untuk menampilkan pesan jika tidak ada menu
+      function showNoMenuMessage() {
+        const weekTitle = document.getElementById("week-title");
+        const weekDates = document.getElementById("week-dates");
+        const container = document.getElementById("menu-cards");
+        
+        if (weekTitle) weekTitle.textContent = "Menu Minggu Ini";
+        if (weekDates) weekDates.textContent = `(${getCurrentWeekDates()})`;
+        if (container) {
+          container.innerHTML = `
+            <div class="text-center py-8 text-gray-500">
+              <i class="fas fa-utensils text-4xl mb-4"></i>
+              <p class="text-lg font-medium">Belum ada menu untuk minggu ini</p>
+              <p class="text-sm">Silakan cek kembali nanti</p>
+            </div>
+          `;
+        }
+      }
+
+      // Fungsi untuk toggle info
+      function toggleInfo(index) {
+        const info = document.getElementById(`info-${index}`);
+        if (info) {
+          info.classList.toggle("hidden");
+        }
+      }
+
+      // Load menu when page loads
+      document.addEventListener('DOMContentLoaded', function() {
+        fetchMenuData();
+      });
+
+      // Make functions global
+      window.toggleInfo = toggleInfo;
     </script>
 
     <!-- Overlay WhatsApp Button -->

@@ -1,0 +1,17 @@
+# Protect admin files from direct access
+<Files "admin.html">
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+# Allow access only through server routes
+<Files "login.html">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+# Protect all other admin files
+<FilesMatch "\.(html|js|css)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch> 

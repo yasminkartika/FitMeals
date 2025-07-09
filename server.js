@@ -84,12 +84,18 @@ const adminLoginHandler = require("./api/admin/login.js");
 const getUsers = require("./api/admin/getUsers");
 const getOrders = require("./api/admin/getOrders");
 const menuHandler = require("./api/admin/menu");
+const verifyAdminToken = require("./api/admin/verifyToken.js");
+const updateOrderStatus = require("./api/admin/updateOrderStatus.js");
+const testEndpoint = require("./api/admin/test.js");
 
 // Routing manual
 app.post("/api/admin/createAdmin", createAdmin);
 app.post("/api/admin/login", adminLoginHandler);
+app.post("/api/admin/verify-token", verifyAdminToken);
+app.get("/api/admin/test", testEndpoint);
 app.get("/api/admin/getUsers", require("./api/admin/getUsers"));
 app.get("/api/admin/getOrders", require("./api/admin/getOrders"));
+app.put("/api/admin/orders/:orderId/status", updateOrderStatus);
 app.use("/api/admin/menu", menuHandler);
 app.use("/api/admin/uploadPhoto", require("./api/admin/uploadPhoto.js"));
 app.get("/api/menu", require("./api/menu.js"));
@@ -102,6 +108,12 @@ app.post("/api/user/updateAccount", require("./api/user/updateAccount.js"));
 app.post("/api/user/uploadPhoto", require("./api/user/uploadPhoto.js"));
 app.post("/api/user/removePhoto", require("./api/user/removePhoto.js"));
 app.post("/api/logout", require("./api/logout.js"));
+
+// Orders routes
+app.use("/api/orders", require("./api/orders.js"));
+
+// Reviews routes
+app.use("/api/reviews", require("./api/reviews.js"));
 
 app.get("/dashboard", (req, res) => {
   if (!req.session.user) {
@@ -160,6 +172,34 @@ app.get("/login", (req, res) => {
 app.get("/dashboard.html", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "dashboard.html"));
 });
+
+// Proteksi halaman admin - redirect ke login jika tidak ada session admin
+app.get("/admin/admin.html", (req, res) => {
+  // Cek apakah ada session admin
+  if (!req.session.admin) {
+    return res.redirect('/admin/login.html');
+  }
+  res.sendFile(path.join(__dirname, "admin", "admin.html"));
+});
+
+// Middleware untuk melindungi file admin
+app.use("/admin", (req, res, next) => {
+  // Izinkan akses ke login.html
+  if (req.path === '/login.html') {
+    return next();
+  }
+  
+  // Izinkan akses ke file statis (CSS, JS, images) jika sudah login
+  if (req.session.admin) {
+    return next();
+  }
+  
+  // Redirect ke login untuk file admin lainnya
+  res.redirect('/admin/login.html');
+});
+
+// Serve static files untuk admin (CSS, JS, images)
+app.use("/admin", express.static(path.join(__dirname, "admin")));
 
 // Start server
 app.listen(PORT, () => {

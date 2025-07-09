@@ -23,6 +23,16 @@ module.exports = async function handler(req, res) {
     }
 
     const userId = tokenParts[1];
+    const timestamp = tokenParts[2];
+
+    // Check if token is not too old (24 hours)
+    const tokenAge = Date.now() - parseInt(timestamp);
+    const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    
+    if (tokenAge > maxAge) {
+      return res.status(401).json({ message: "Token telah kadaluarsa" });
+    }
+
     const user = await User.findById(userId);
     if (!user || user.role !== "admin") {
       return res.status(403).json({ message: "Akses ditolak. Anda bukan admin." });
