@@ -582,8 +582,6 @@
       window.onload = renderMenu;
     </script>
 
-
-
     <!-- Paket Catering -->
     <section id="Paket" class="bg-[#ffffff]">
       <div class="max-w-5xl mx-auto py-10 px-4 pt-18">
@@ -2011,7 +2009,10 @@
                     </svg>
                   </div>
                   <p class="text-gray-600">
-                    "Makanan FitMeals sangat enak dan sehat! Saya sudah mencoba paket mingguan dan hasilnya luar biasa. Berat badan turun 3kg dalam 2 minggu tanpa merasa lapar. Menu bervariasi dan pengantaran tepat waktu."
+                    "Makanan FitMeals sangat enak dan sehat! Saya sudah mencoba
+                    paket mingguan dan hasilnya luar biasa. Berat badan turun
+                    3kg dalam 2 minggu tanpa merasa lapar. Menu bervariasi dan
+                    pengantaran tepat waktu."
                   </p>
                 </div>
               </div>
@@ -2026,39 +2027,46 @@
       // Fungsi untuk memuat testimoni dari database
       async function loadTestimonials() {
         try {
-          const response = await fetch('http://localhost:3000/api/reviews/testimonials');
+          const response = await fetch("api/reviews/testimonials");
           if (!response.ok) {
-            throw new Error('Failed to fetch testimonials');
+            throw new Error("Failed to fetch testimonials");
           }
 
           const data = await response.json();
           if (data.success && data.reviews.length > 0) {
             // Update swiper wrapper dengan testimoni dari database
-            const swiperWrapper = document.querySelector('.swiper-wrapper');
+            const swiperWrapper = document.querySelector(".swiper-wrapper");
             if (swiperWrapper) {
-              swiperWrapper.innerHTML = '';
-              
+              swiperWrapper.innerHTML = "";
+
               data.reviews.forEach((review, index) => {
-                const slide = document.createElement('div');
-                slide.className = 'swiper-slide group bg-white border border-solid border-gray-300 rounded-2xl max-sm:max-w-sm max-sm:mx-auto p-6 transition-all duration-500';
-                
+                const slide = document.createElement("div");
+                slide.className =
+                  "swiper-slide group bg-white border border-solid border-gray-300 rounded-2xl max-sm:max-w-sm max-sm:mx-auto p-6 transition-all duration-500";
+
                 // Generate Font Awesome stars based on rating
-                const stars = Array.from({length: 5}, (_, i) => 
-                  `<i class="fas fa-star${i < review.rating ? '' : ' text-gray-300'}"></i>`
-                ).join('');
-                
+                const stars = Array.from(
+                  { length: 5 },
+                  (_, i) =>
+                    `<i class="fas fa-star${
+                      i < review.rating ? "" : " text-gray-300"
+                    }"></i>`
+                ).join("");
+
                 slide.innerHTML = `
                   <div class="flex items-center gap-5 mb-5 sm:mb-9">
                     <img
                       class="w-16 h-16 rounded-full object-cover"
                       src="img/ica.jpg"
-                      alt="${review.userId?.namaLengkap || 'Customer'}"
+                      alt="${review.userId?.namaLengkap || "Customer"}"
                     />
                     <div class="grid gap-1">
                       <h5 class="text-gray-900 font-medium transition-all duration-500">
-                        ${review.userId?.namaLengkap || 'Customer'}
+                        ${review.userId?.namaLengkap || "Customer"}
                       </h5>
-                      <span class="text-sm leading-6 text-gray-500">${review.packageName || 'Paket Catering'}</span>
+                      <span class="text-sm leading-6 text-gray-500">${
+                        review.packageName || "Paket Catering"
+                      }</span>
                     </div>
                   </div>
                   <div class="flex items-center mb-5 sm:mb-9 gap-2 text-amber-500 transition-all duration-500">
@@ -2068,10 +2076,10 @@
                     "${review.review}"
                   </p>
                 `;
-                
+
                 swiperWrapper.appendChild(slide);
               });
-              
+
               // Reinitialize Swiper
               if (window.mySwiper) {
                 window.mySwiper.destroy();
@@ -2100,13 +2108,13 @@
             }
           }
         } catch (error) {
-          console.error('Error loading testimonials:', error);
+          console.error("Error loading testimonials:", error);
           // Fallback ke testimoni statis jika gagal
         }
       }
 
       // Load testimonials when page loads
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener("DOMContentLoaded", function () {
         loadTestimonials();
       });
     </script>
@@ -2183,8 +2191,5 @@
         <p>&copy; 2025 FitMeals.<br />All rights reserved.</p>
       </div>
     </footer>
-
   </body>
 </html>
- 
- 

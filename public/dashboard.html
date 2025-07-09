@@ -28,9 +28,20 @@
   </head>
   <body>
     <!-- Pesan error autentikasi -->
-    <div id="auth-error" style="display:none;" class="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center z-50 mt-20">
-      <span id="auth-error-msg">Sesi Anda telah berakhir. Silakan login ulang.</span>
-      <button id="auth-error-login-btn" class="ml-4 bg-[#63A365] text-white px-3 py-1 rounded">Login Ulang</button>
+    <div
+      id="auth-error"
+      style="display: none"
+      class="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center z-50 mt-20"
+    >
+      <span id="auth-error-msg"
+        >Sesi Anda telah berakhir. Silakan login ulang.</span
+      >
+      <button
+        id="auth-error-login-btn"
+        class="ml-4 bg-[#63A365] text-white px-3 py-1 rounded"
+      >
+        Login Ulang
+      </button>
     </div>
     <!-- NAVBAR -->
     <nav
@@ -97,16 +108,31 @@
             </a>
             <!-- User Dropdown -->
             <div class="relative">
-              <button id="user-dropdown-btn" class="text-gray-900 hover:text-[#63A365] text-xl focus:outline-none">
+              <button
+                id="user-dropdown-btn"
+                class="text-gray-900 hover:text-[#63A365] text-xl focus:outline-none"
+              >
                 <i class="fa-regular fa-user"></i>
-                <span id="user-name" class="ml-2 text-base font-semibold hidden md:inline"></span>
+                <span
+                  id="user-name"
+                  class="ml-2 text-base font-semibold hidden md:inline"
+                ></span>
               </button>
-              <div id="user-dropdown-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-100">
-                <a href="profile.html" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+              <div
+                id="user-dropdown-menu"
+                class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-100"
+              >
+                <a
+                  href="profile.html"
+                  class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+                >
                   <i class="fa-solid fa-gear mr-2"></i>
                   <span>Pengaturan</span>
                 </a>
-                <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+                <a
+                  href="#"
+                  class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+                >
                   <i class="fa-solid fa-right-from-bracket mr-2"></i>
                   <span>Keluar</span>
                 </a>
@@ -122,7 +148,7 @@
       btn.addEventListener("click", () => {
         menu.classList.toggle("hidden");
       });
-    
+
       // User dropdown logic
       const userDropdownBtn = document.getElementById("user-dropdown-btn");
       const userDropdownMenu = document.getElementById("user-dropdown-menu");
@@ -135,11 +161,11 @@
           userDropdownMenu.classList.add("hidden");
         }
       });
-    
+
       // Integrasi user login
       document.addEventListener("DOMContentLoaded", function () {
         console.log("Dashboard loaded, checking authentication...");
-    
+
         // Fungsi untuk redirect ke login atau tampilkan pesan error
         function redirectToLogin() {
           console.log("Redirecting to login...");
@@ -150,15 +176,16 @@
           if (errDiv) {
             errDiv.style.display = "block";
             window.scrollTo(0, 0);
-            document.getElementById("auth-error-login-btn").onclick = function() {
-              window.location.href = "login.html";
-            };
+            document.getElementById("auth-error-login-btn").onclick =
+              function () {
+                window.location.href = "login.html";
+              };
           } else {
             // fallback: redirect langsung
             window.location.href = "login.html";
           }
         }
-    
+
         // Fungsi untuk update UI dengan data user
         function updateUserUI(user) {
           console.log("Updating UI with user data:", user);
@@ -171,22 +198,29 @@
           // Simpan user ke localStorage
           localStorage.setItem("user", JSON.stringify(user));
         }
-    
+
         // Cek session / token
         const token = localStorage.getItem("token");
-        if (!token || token === "undefined" || token === "null" || token.trim() === "") {
-          console.error("❌ Token tidak valid di localStorage, redirecting to login.");
+        if (
+          !token ||
+          token === "undefined" ||
+          token === "null" ||
+          token.trim() === ""
+        ) {
+          console.error(
+            "❌ Token tidak valid di localStorage, redirecting to login."
+          );
           redirectToLogin();
           return;
         }
         console.log("📦 Token yang dikirim:", token); // Log token yang dikirim
 
-
-        fetch("http://localhost:3000/api/user/me", {
+        fetch("api/user/me", {
           method: "GET",
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer " + token },
+            Authorization: "Bearer " + token,
+          },
           // credentials: "include",
         })
           .then((res) => {
@@ -201,10 +235,10 @@
             if (user) {
               console.log("✅ User authenticated:", user);
               updateUserUI(user);
-    
+
               // Refresh session tiap 5 menit
               setInterval(() => {
-                fetch("http://localhost:3000/api/refresh-session", {
+                fetch("api/refresh-session", {
                   method: "POST",
                   credentials: "include",
                 }).catch((err) => {
@@ -218,20 +252,22 @@
             redirectToLogin();
           });
       });
-    
+
       // Logout handler
       document.addEventListener("DOMContentLoaded", function () {
-        const logoutLink = document.querySelector("#user-dropdown-menu a:last-child");
+        const logoutLink = document.querySelector(
+          "#user-dropdown-menu a:last-child"
+        );
         if (logoutLink) {
           logoutLink.addEventListener("click", function (e) {
             e.preventDefault();
-    
+
             // Clear localStorage
             localStorage.removeItem("token");
             localStorage.removeItem("user");
-    
+
             // Call logout API
-            fetch("http://localhost:3000/api/logout", {
+            fetch("api/logout", {
               method: "POST",
               credentials: "include",
             })
@@ -247,13 +283,12 @@
     </script>
     <script type="module">
       import { getUser, logout } from "./js/auth.js";
-    
+
       const user = getUser(); // Kalau belum login, otomatis redirect
-    
+
       // Tampilkan nama user di UI
       document.getElementById("user-name").textContent = user.namaLengkap;
     </script>
-    
 
     <!-- Headline -->
     <section
@@ -574,7 +609,9 @@
         id="order-detail-modal"
         class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden"
       >
-        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div
+          class="bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+        >
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-semibold">Detail Pesanan</h2>
             <button
@@ -584,7 +621,7 @@
               &times;
             </button>
           </div>
-          
+
           <div id="order-detail-content">
             <!-- Content will be populated by JavaScript -->
           </div>
@@ -643,7 +680,7 @@
       function getLocalReviews() {
         return JSON.parse(localStorage.getItem("orderReviews") || "{}");
       }
-      
+
       function setLocalReview(orderId, rating, review) {
         const reviews = getLocalReviews();
         reviews[orderId] = { rating, review };
@@ -653,17 +690,17 @@
       // Fungsi untuk mengambil pesanan dari database
       async function fetchUserOrders() {
         try {
-          const token = localStorage.getItem('token');
-          const response = await fetch('http://localhost:3000/api/orders/user', {
-            method: 'GET',
+          const token = localStorage.getItem("token");
+          const response = await fetch("api/orders/user", {
+            method: "GET",
             headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + token
-            }
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
+            },
           });
 
           if (!response.ok) {
-            throw new Error('Failed to fetch orders');
+            throw new Error("Failed to fetch orders");
           }
 
           const data = await response.json();
@@ -672,7 +709,7 @@
             renderOrders();
           }
         } catch (error) {
-          console.error('Error fetching orders:', error);
+          console.error("Error fetching orders:", error);
           // Fallback ke dummy data jika gagal
           orders = [
             {
@@ -680,8 +717,8 @@
               packages: [{ name: "Paket Mingguan" }],
               orderDate: "2025-06-01",
               status: "Selesai",
-              delivery: { tanggal_mulai: "2025-06-01" }
-            }
+              delivery: { tanggal_mulai: "2025-06-01" },
+            },
           ];
           renderOrders();
         }
@@ -709,16 +746,18 @@
           let reviewed = false;
           let rating = 0;
           let review = "";
-          
+
           if (reviews[order._id]) {
             reviewed = true;
             rating = reviews[order._id].rating;
             review = reviews[order._id].review;
           }
 
-          const orderDate = new Date(order.orderDate).toLocaleDateString('id-ID');
-          const packageNames = order.packages.map(pkg => pkg.name).join(', ');
-          
+          const orderDate = new Date(order.orderDate).toLocaleDateString(
+            "id-ID"
+          );
+          const packageNames = order.packages.map((pkg) => pkg.name).join(", ");
+
           const card = document.createElement("div");
           card.className =
             "rounded-lg shadow p-4 flex flex-col md:flex-row md:items-center justify-between mx-auto my-0 w-full cursor-pointer hover:shadow-lg transition-shadow";
@@ -735,7 +774,9 @@
             <div>
               <div class="font-semibold text-lg">${packageNames}</div>
               <div class="text-sm text-gray-300">Tanggal: ${orderDate}</div>
-              <div class="text-sm text-gray-300">Total: Rp ${order.totalAmount?.toLocaleString() || '0'}</div>
+              <div class="text-sm text-gray-300">Total: Rp ${
+                order.totalAmount?.toLocaleString() || "0"
+              }</div>
               <div class="text-sm mt-1">Status: <span class="font-semibold ${
                 order.status === "Selesai"
                   ? "text-yellow-300"
@@ -787,43 +828,46 @@
       function openOrderDetailModal(order) {
         const modal = document.getElementById("order-detail-modal");
         const content = document.getElementById("order-detail-content");
-        
-        const orderDate = new Date(order.orderDate).toLocaleDateString('id-ID', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-        
-        const packageNames = order.packages.map(pkg => pkg.name).join(', ');
-        const totalAmount = order.totalAmount?.toLocaleString() || '0';
-        
-        let statusColor = '';
+
+        const orderDate = new Date(order.orderDate).toLocaleDateString(
+          "id-ID",
+          {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }
+        );
+
+        const packageNames = order.packages.map((pkg) => pkg.name).join(", ");
+        const totalAmount = order.totalAmount?.toLocaleString() || "0";
+
+        let statusColor = "";
         let statusText = order.status;
-        
-        switch(order.status) {
-          case 'Pending Payment':
-            statusColor = 'text-orange-600 bg-orange-100';
-            statusText = 'Menunggu Pembayaran';
+
+        switch (order.status) {
+          case "Pending Payment":
+            statusColor = "text-orange-600 bg-orange-100";
+            statusText = "Menunggu Pembayaran";
             break;
-          case 'Paid':
-            statusColor = 'text-blue-600 bg-blue-100';
-            statusText = 'Sudah Dibayar';
+          case "Paid":
+            statusColor = "text-blue-600 bg-blue-100";
+            statusText = "Sudah Dibayar";
             break;
-          case 'Processing':
-            statusColor = 'text-yellow-600 bg-yellow-100';
-            statusText = 'Sedang Diproses';
+          case "Processing":
+            statusColor = "text-yellow-600 bg-yellow-100";
+            statusText = "Sedang Diproses";
             break;
-          case 'Selesai':
-            statusColor = 'text-green-600 bg-green-100';
-            statusText = 'Selesai';
+          case "Selesai":
+            statusColor = "text-green-600 bg-green-100";
+            statusText = "Selesai";
             break;
-          case 'Dibatalkan':
-            statusColor = 'text-red-600 bg-red-100';
-            statusText = 'Dibatalkan';
+          case "Dibatalkan":
+            statusColor = "text-red-600 bg-red-100";
+            statusText = "Dibatalkan";
             break;
           default:
-            statusColor = 'text-gray-600 bg-gray-100';
+            statusColor = "text-gray-600 bg-gray-100";
         }
 
         content.innerHTML = `
@@ -856,34 +900,54 @@
             </div>
 
             <!-- Delivery Info -->
-            ${order.delivery ? `
+            ${
+              order.delivery
+                ? `
             <div class="bg-gray-50 p-4 rounded-lg">
               <h3 class="font-semibold text-lg mb-3 text-gray-800">Informasi Pengiriman</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                ${order.delivery.tanggal_mulai ? `
+                ${
+                  order.delivery.tanggal_mulai
+                    ? `
                 <div>
                   <p class="text-sm text-gray-600">Tanggal Mulai</p>
-                  <p class="font-medium">${new Date(order.delivery.tanggal_mulai).toLocaleDateString('id-ID')}</p>
+                  <p class="font-medium">${new Date(
+                    order.delivery.tanggal_mulai
+                  ).toLocaleDateString("id-ID")}</p>
                 </div>
-                ` : ''}
-                ${order.delivery.alamat ? `
+                `
+                    : ""
+                }
+                ${
+                  order.delivery.alamat
+                    ? `
                 <div>
                   <p class="text-sm text-gray-600">Alamat Pengiriman</p>
                   <p class="font-medium">${order.delivery.alamat}</p>
                 </div>
-                ` : ''}
-                ${order.delivery.catatan ? `
+                `
+                    : ""
+                }
+                ${
+                  order.delivery.catatan
+                    ? `
                 <div class="md:col-span-2">
                   <p class="text-sm text-gray-600">Catatan</p>
                   <p class="font-medium">${order.delivery.catatan}</p>
                 </div>
-                ` : ''}
+                `
+                    : ""
+                }
               </div>
             </div>
-            ` : ''}
+            `
+                : ""
+            }
 
             <!-- Payment Info -->
-            ${order.status === 'Pending Payment' ? `
+            ${
+              order.status === "Pending Payment"
+                ? `
             <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
               <h3 class="font-semibold text-lg mb-3 text-orange-800">Informasi Pembayaran</h3>
               <div class="space-y-3">
@@ -907,29 +971,45 @@
                 </div>
               </div>
             </div>
-            ` : ''}
+            `
+                : ""
+            }
 
             <!-- Action Buttons -->
             <div class="flex flex-wrap gap-3">
-              ${order.status === 'Pending Payment' ? `
+              ${
+                order.status === "Pending Payment"
+                  ? `
                 <button onclick="confirmPayment('${order._id}')" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium">
                   <i class="fas fa-check mr-2"></i>Konfirmasi Pembayaran
                 </button>
                 <button onclick="cancelOrder('${order._id}')" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 font-medium">
                   <i class="fas fa-times mr-2"></i>Batalkan Pesanan
                 </button>
-              ` : ''}
+              `
+                  : ""
+              }
               
-              ${order.status === 'Selesai' ? `
-                <a href="invoice.html?id=${order._id}" target="_blank" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium inline-flex items-center">
+              ${
+                order.status === "Selesai"
+                  ? `
+                <a href="invoice.html?id=${
+                  order._id
+                }" target="_blank" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium inline-flex items-center">
                   <i class="fas fa-file-invoice mr-2"></i>Lihat Invoice
                 </a>
-                ${!getLocalReviews()[order._id] ? `
+                ${
+                  !getLocalReviews()[order._id]
+                    ? `
                 <button onclick="openReviewModal('${order._id}')" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 font-medium">
                   <i class="fas fa-star mr-2"></i>Beri Ulasan
                 </button>
-                ` : ''}
-              ` : ''}
+                `
+                    : ""
+                }
+              `
+                  : ""
+              }
               
               <button onclick="closeOrderDetailModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 font-medium">
                 <i class="fas fa-times mr-2"></i>Tutup
@@ -937,7 +1017,7 @@
             </div>
           </div>
         `;
-        
+
         modal.classList.remove("hidden");
       }
       window.openOrderDetailModal = openOrderDetailModal;
@@ -947,9 +1027,10 @@
       }
       window.closeOrderDetailModal = closeOrderDetailModal;
 
-      document.getElementById("close-order-detail-modal").onclick = function () {
-        closeOrderDetailModal();
-      };
+      document.getElementById("close-order-detail-modal").onclick =
+        function () {
+          closeOrderDetailModal();
+        };
 
       document.getElementById("review-form").onsubmit = function (e) {
         e.preventDefault();
@@ -962,40 +1043,40 @@
         }
 
         // Cari order untuk mendapatkan nama paket
-        const order = orders.find(o => o._id === orderId);
-        const packageName = order ? order.packages[0].name : 'Paket Catering';
+        const order = orders.find((o) => o._id === orderId);
+        const packageName = order ? order.packages[0].name : "Paket Catering";
 
         // Kirim review ke database
-        const token = localStorage.getItem('token');
-        fetch('http://localhost:3000/api/reviews/create', {
-          method: 'POST',
+        const token = localStorage.getItem("token");
+        fetch("api/reviews/create", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
           },
           body: JSON.stringify({
             orderId: orderId,
             rating: parseInt(rating),
             review: review,
-            packageName: packageName
+            packageName: packageName,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              // Simpan juga ke localStorage untuk UI
+              setLocalReview(orderId, rating, review);
+              document.getElementById("review-modal").classList.add("hidden");
+              renderOrders();
+              alert("Ulasan berhasil dikirim!");
+            } else {
+              alert("Gagal mengirim ulasan: " + data.message);
+            }
           })
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            // Simpan juga ke localStorage untuk UI
-            setLocalReview(orderId, rating, review);
-            document.getElementById("review-modal").classList.add("hidden");
-            renderOrders();
-            alert('Ulasan berhasil dikirim!');
-          } else {
-            alert('Gagal mengirim ulasan: ' + data.message);
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Terjadi kesalahan saat mengirim ulasan');
-        });
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Terjadi kesalahan saat mengirim ulasan");
+          });
       };
 
       // Custom select logic for review-rating
@@ -1024,100 +1105,117 @@
 
       // Fungsi untuk cancel order
       async function cancelOrder(orderId) {
-        console.log('🚀 Attempting to cancel order:', orderId);
-        
-        const confirmCancel = confirm('Apakah Anda yakin ingin membatalkan pesanan ini? Tindakan ini tidak dapat dibatalkan.');
-        
+        console.log("🚀 Attempting to cancel order:", orderId);
+
+        const confirmCancel = confirm(
+          "Apakah Anda yakin ingin membatalkan pesanan ini? Tindakan ini tidak dapat dibatalkan."
+        );
+
         if (!confirmCancel) {
-          console.log('❌ User cancelled the confirmation');
+          console.log("❌ User cancelled the confirmation");
           return;
         }
 
         try {
-          const token = localStorage.getItem('token');
-          console.log('🔑 Token:', token ? 'Found' : 'Not found');
-          
+          const token = localStorage.getItem("token");
+          console.log("🔑 Token:", token ? "Found" : "Not found");
+
           if (!token) {
-            alert('Token tidak ditemukan. Silakan login ulang.');
+            alert("Token tidak ditemukan. Silakan login ulang.");
             return;
           }
 
-          console.log('📡 Sending cancel request to:', `http://localhost:3000/api/orders/${orderId}/cancel`);
-          
-          const response = await fetch(`http://localhost:3000/api/orders/${orderId}/cancel`, {
-            method: 'PUT',
+          console.log(
+            "📡 Sending cancel request to:",
+            `api/orders/${orderId}/cancel`
+          );
+
+          const response = await fetch(`api/orders/${orderId}/cancel`, {
+            method: "PUT",
             headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + token
-            }
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
+            },
           });
 
-          console.log('📥 Response status:', response.status);
-          
+          console.log("📥 Response status:", response.status);
+
           const data = await response.json();
-          console.log('📄 Response data:', data);
-          
+          console.log("📄 Response data:", data);
+
           if (data.success) {
-            alert('Pesanan berhasil dibatalkan!');
+            alert("Pesanan berhasil dibatalkan!");
             // Refresh orders list
             fetchUserOrders();
             closeOrderDetailModal();
           } else {
-            alert('Gagal membatalkan pesanan: ' + data.message);
+            alert("Gagal membatalkan pesanan: " + data.message);
           }
         } catch (error) {
-          console.error('❌ Error cancelling order:', error);
-          alert('Terjadi kesalahan saat membatalkan pesanan: ' + error.message);
+          console.error("❌ Error cancelling order:", error);
+          alert("Terjadi kesalahan saat membatalkan pesanan: " + error.message);
         }
       }
       window.cancelOrder = cancelOrder;
 
       // Fungsi untuk konfirmasi pembayaran
       async function confirmPayment(orderId) {
-        console.log('💰 Attempting to confirm payment for order:', orderId);
-        
-        const confirmPayment = confirm('Apakah Anda sudah melakukan transfer pembayaran? Pastikan Anda telah menyimpan bukti transfer.');
-        
+        console.log("💰 Attempting to confirm payment for order:", orderId);
+
+        const confirmPayment = confirm(
+          "Apakah Anda sudah melakukan transfer pembayaran? Pastikan Anda telah menyimpan bukti transfer."
+        );
+
         if (!confirmPayment) {
-          console.log('❌ User cancelled payment confirmation');
+          console.log("❌ User cancelled payment confirmation");
           return;
         }
 
         try {
-          const token = localStorage.getItem('token');
-          console.log('🔑 Token:', token ? 'Found' : 'Not found');
-          
+          const token = localStorage.getItem("token");
+          console.log("🔑 Token:", token ? "Found" : "Not found");
+
           if (!token) {
-            alert('Token tidak ditemukan. Silakan login ulang.');
+            alert("Token tidak ditemukan. Silakan login ulang.");
             return;
           }
 
-          console.log('📡 Sending payment confirmation to:', `http://localhost:3000/api/orders/${orderId}/confirm-payment`);
-          
-          const response = await fetch(`http://localhost:3000/api/orders/${orderId}/confirm-payment`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + token
-            }
-          });
+          console.log(
+            "📡 Sending payment confirmation to:",
+            `api/orders/${orderId}/confirm-payment`
+          );
 
-          console.log('📥 Response status:', response.status);
-          
+          const response = await fetch(
+            `api/orders/${orderId}/confirm-payment`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+            }
+          );
+
+          console.log("📥 Response status:", response.status);
+
           const data = await response.json();
-          console.log('📄 Response data:', data);
-          
+          console.log("📄 Response data:", data);
+
           if (data.success) {
-            alert('Konfirmasi pembayaran berhasil! Tim kami akan memverifikasi pembayaran Anda.');
+            alert(
+              "Konfirmasi pembayaran berhasil! Tim kami akan memverifikasi pembayaran Anda."
+            );
             // Refresh orders list
             fetchUserOrders();
             closeOrderDetailModal();
           } else {
-            alert('Gagal mengkonfirmasi pembayaran: ' + data.message);
+            alert("Gagal mengkonfirmasi pembayaran: " + data.message);
           }
         } catch (error) {
-          console.error('❌ Error confirming payment:', error);
-          alert('Terjadi kesalahan saat mengkonfirmasi pembayaran: ' + error.message);
+          console.error("❌ Error confirming payment:", error);
+          alert(
+            "Terjadi kesalahan saat mengkonfirmasi pembayaran: " + error.message
+          );
         }
       }
       window.confirmPayment = confirmPayment;
@@ -1126,22 +1224,25 @@
       fetchUserOrders();
 
       // Handle klik tombol Pesan Sekarang
-      document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.pesan-sekarang').forEach(function(btn) {
-          btn.addEventListener('click', function() {
+      document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".pesan-sekarang").forEach(function (btn) {
+          btn.addEventListener("click", function () {
             // Ambil data paket
-            const paket = btn.getAttribute('data-paket');
-            const harga = btn.getAttribute('data-harga');
-            
+            const paket = btn.getAttribute("data-paket");
+            const harga = btn.getAttribute("data-harga");
+
             // Simpan ke localStorage
-            localStorage.setItem('paketCheckout', JSON.stringify({ 
-              paket: paket, 
-              harga: harga,
-              timestamp: new Date().toISOString()
-            }));
-            
+            localStorage.setItem(
+              "paketCheckout",
+              JSON.stringify({
+                paket: paket,
+                harga: harga,
+                timestamp: new Date().toISOString(),
+              })
+            );
+
             // Redirect ke checkout.html
-            window.location.href = 'checkout.html';
+            window.location.href = "checkout.html";
           });
         });
       });
@@ -1163,7 +1264,6 @@
       //       console.error("Error saat ambil data dashboard:", err);
       //     });
       // });
-
     </script>
 
     <!-- Script untuk memuat menu dari database -->
@@ -1174,14 +1274,14 @@
       // Fungsi untuk mengambil menu dari database
       async function fetchMenuData() {
         try {
-          const response = await fetch('http://localhost:3000/api/menu');
-          
+          const response = await fetch("api/menu");
+
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
           const data = await response.json();
-          
+
           if (data.menus && data.menus.length > 0) {
             // Render menu langsung dari data API
             renderMenu(data.menus);
@@ -1190,7 +1290,7 @@
             showNoMenuMessage();
           }
         } catch (error) {
-          console.error('Error fetching menu data:', error);
+          console.error("Error fetching menu data:", error);
           showNoMenuMessage();
         }
       }
@@ -1202,12 +1302,16 @@
         const startOfYear = new Date(currentYear, 0, 1);
         const days = Math.floor((now - startOfYear) / (24 * 60 * 60 * 1000));
         const currentWeek = Math.ceil((days + startOfYear.getDay() + 1) / 7);
-        
+
         const startDate = new Date(currentYear, 0, 1 + (currentWeek - 1) * 7);
         const endDate = new Date(startDate);
         endDate.setDate(startDate.getDate() + 6);
-        
-        return `${startDate.getDate()} ${startDate.toLocaleDateString('id-ID', { month: 'short' })} - ${endDate.getDate()} ${endDate.toLocaleDateString('id-ID', { month: 'short' })} ${currentYear}`;
+
+        return `${startDate.getDate()} ${startDate.toLocaleDateString("id-ID", {
+          month: "short",
+        })} - ${endDate.getDate()} ${endDate.toLocaleDateString("id-ID", {
+          month: "short",
+        })} ${currentYear}`;
       }
 
       // Fungsi untuk render menu
@@ -1215,12 +1319,12 @@
         const weekTitle = document.getElementById("week-title");
         const weekDates = document.getElementById("week-dates");
         const container = document.getElementById("menu-cards");
-        
+
         if (!weekTitle || !weekDates || !container) {
-          console.error('Required elements not found');
+          console.error("Required elements not found");
           return;
         }
-        
+
         // Update judul dan tanggal
         weekTitle.textContent = "Menu Minggu Ini";
         weekDates.textContent = `(${getCurrentWeekDates()})`;
@@ -1232,13 +1336,27 @@
           card.className = "relative cursor-pointer group";
 
           card.innerHTML = `
-            <img src="${menu.gambar}" class="object-cover w-full aspect-[4/3] max-w-md min-h-40 rounded-xl shadow-lg mb-4 transition-transform group-hover:scale-105 mx-auto" onclick="toggleInfo(${idx})">
+            <img src="${
+              menu.gambar
+            }" class="object-cover w-full aspect-[4/3] max-w-md min-h-40 rounded-xl shadow-lg mb-4 transition-transform group-hover:scale-105 mx-auto" onclick="toggleInfo(${idx})">
             <div id="info-${idx}" class="hidden bg-white p-3 rounded-lg mt-2 shadow">
-              <h2 class="text-sm font-semibold text-[#63A365] uppercase">${menu.nama}</h2>
+              <h2 class="text-sm font-semibold text-[#63A365] uppercase">${
+                menu.nama
+              }</h2>
               <p class="text-gray-900 font-medium mb-1">${menu.deskripsi}</p>
-              <p class="text-[#63A365] font-semibold mt-1">${menu.nutrisi?.kalori || 0} KKAL</p>
-              <p class="text-gray-900 font-medium">Fat: ${menu.nutrisi?.lemak || 0}g, Protein: ${menu.nutrisi?.protein || 0}g, Karbohidrat: ${menu.nutrisi?.karbohidrat || 0}g</p>
-              ${menu.harga ? `<p class="text-[#63A365] font-bold mt-2">Rp ${menu.harga.toLocaleString()}</p>` : ''}
+              <p class="text-[#63A365] font-semibold mt-1">${
+                menu.nutrisi?.kalori || 0
+              } KKAL</p>
+              <p class="text-gray-900 font-medium">Fat: ${
+                menu.nutrisi?.lemak || 0
+              }g, Protein: ${menu.nutrisi?.protein || 0}g, Karbohidrat: ${
+            menu.nutrisi?.karbohidrat || 0
+          }g</p>
+              ${
+                menu.harga
+                  ? `<p class="text-[#63A365] font-bold mt-2">Rp ${menu.harga.toLocaleString()}</p>`
+                  : ""
+              }
             </div>
           `;
           container.appendChild(card);
@@ -1250,7 +1368,7 @@
         const weekTitle = document.getElementById("week-title");
         const weekDates = document.getElementById("week-dates");
         const container = document.getElementById("menu-cards");
-        
+
         if (weekTitle) weekTitle.textContent = "Menu Minggu Ini";
         if (weekDates) weekDates.textContent = `(${getCurrentWeekDates()})`;
         if (container) {
@@ -1273,7 +1391,7 @@
       }
 
       // Load menu when page loads
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener("DOMContentLoaded", function () {
         fetchMenuData();
       });
 

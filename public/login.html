@@ -124,55 +124,58 @@
       document.addEventListener("DOMContentLoaded", () => {
         const form = document.getElementById("loginForm");
         const notif = document.getElementById("notif");
-    
+
         if (!form) {
           console.error("❌ Form login tidak ditemukan di DOM.");
           return;
         }
-    
+
         form.addEventListener("submit", async (e) => {
           e.preventDefault();
           notif.innerHTML = "";
-    
+
           const data = Object.fromEntries(new FormData(form));
-    
+
           try {
-            const res = await fetch("http://localhost:3000/api/login", {
+            const res = await fetch("api/login", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               credentials: "include",
               body: JSON.stringify(data),
             });
-    
+
             const result = await res.json();
-    
+
             console.log("📦 Response dari server:", result);
             if (res.ok && result.token) {
-            console.log("✅ Token diterima:", result.token);
+              console.log("✅ Token diterima:", result.token);
 
-            // Simpan token dan user ke localStorage
-            localStorage.setItem("token", result.token);
-            localStorage.setItem("user", JSON.stringify(result.user));
+              // Simpan token dan user ke localStorage
+              localStorage.setItem("token", result.token);
+              localStorage.setItem("user", JSON.stringify(result.user));
 
-            // Logging tambahan untuk debugging
-            console.log("➡️ Token DISIMPAN:", localStorage.getItem("token"));
-            if (!localStorage.getItem("token")) {
-              notif.innerHTML = `<div class='bg-red-100 text-red-800 px-4 py-2 rounded mb-2'>Token gagal disimpan di browser. Silakan cek pengaturan browser Anda!</div>`;
-              return;
-            }
+              // Logging tambahan untuk debugging
+              console.log("➡️ Token DISIMPAN:", localStorage.getItem("token"));
+              if (!localStorage.getItem("token")) {
+                notif.innerHTML = `<div class='bg-red-100 text-red-800 px-4 py-2 rounded mb-2'>Token gagal disimpan di browser. Silakan cek pengaturan browser Anda!</div>`;
+                return;
+              }
 
-            notif.innerHTML = `
+              notif.innerHTML = `
               <div class="bg-green-100 text-green-800 px-4 py-2 rounded mb-2">
                 ${result.message || "Login berhasil"}
               </div>
             `;
 
-            setTimeout(() => {
-              console.log("🔁 Redirect ke dashboard...");
-              window.location.href = "dashboard.html";
-            }, 1000);
+              setTimeout(() => {
+                console.log("🔁 Redirect ke dashboard...");
+                window.location.href = "dashboard.html";
+              }, 1000);
             } else {
-              console.warn("❌ Login gagal:", result.message || "Token tidak ditemukan");
+              console.warn(
+                "❌ Login gagal:",
+                result.message || "Token tidak ditemukan"
+              );
               notif.innerHTML = `
                 <div class="bg-red-100 text-red-800 px-4 py-2 rounded mb-2">
                   ${result.message || "Login gagal"}
@@ -190,8 +193,5 @@
         });
       });
     </script>
-    
-    
-    
   </body>
 </html>
