@@ -640,7 +640,7 @@
         // Verifikasi token dengan server
         try {
           console.log("📡 Verifying token with server...");
-          const response = await fetch("api/admin/verify-token", {
+          const response = await fetch("/api/admin/verify-token", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -810,7 +810,7 @@
           const adminToken = localStorage.getItem("adminToken");
 
           // Load total users
-          const usersResponse = await fetch("api/admin/getUsers", {
+          const usersResponse = await fetch("/api/admin/getUsers", {
             headers: {
               Authorization: `Bearer ${adminToken}`,
             },
@@ -823,7 +823,7 @@
           }
 
           // Load total orders
-          const ordersResponse = await fetch("api/admin/getOrders", {
+          const ordersResponse = await fetch("/api/admin/getOrders", {
             headers: {
               Authorization: `Bearer ${adminToken}`,
             },
@@ -928,7 +928,7 @@
         menuTable.innerHTML = "Memuat data...";
         try {
           const adminToken = localStorage.getItem("adminToken");
-          const res = await fetch(" api/admin/menu", {
+          const res = await fetch("/api/admin/menu", {
             headers: { Authorization: `Bearer ${adminToken}` },
           });
           if (!res.ok) throw new Error("Gagal mengambil data menu");
@@ -1040,7 +1040,7 @@
           const formData = new FormData();
           formData.append("photo", fileInput.files[0]);
           try {
-            const uploadRes = await fetch(" api/admin/uploadPhoto", {
+            const uploadRes = await fetch("/api/admin/uploadPhoto", {
               method: "POST",
               headers: {
                 Authorization: `Bearer ${adminToken}`,
@@ -1100,8 +1100,8 @@
         try {
           const method = isEdit ? "PUT" : "POST";
           const url = isEdit
-            ? ` api/admin/menu?id=${form.dataset.menuId}`
-            : " api/admin/menu";
+            ? `/api/admin/menu?id=${form.dataset.menuId}`
+            : "/api/admin/menu";
 
           const response = await fetch(url, {
             method: method,
@@ -1129,7 +1129,7 @@
       async function editMenu(menuId) {
         try {
           const adminToken = localStorage.getItem("adminToken");
-          const response = await fetch(` api/admin/menu?id=${menuId}`, {
+          const response = await fetch(`/api/admin/menu?id=${menuId}`, {
             headers: { Authorization: `Bearer ${adminToken}` },
           });
 
@@ -1581,17 +1581,20 @@
 
           try {
             const adminToken = localStorage.getItem("adminToken");
-            const response = await fetch(`api/admin/orders/${orderId}/status`, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${adminToken}`,
-              },
-              body: JSON.stringify({
-                status: newStatus,
-                notes: adminNotes,
-              }),
-            });
+            const response = await fetch(
+              `/api/admin/orders/${orderId}/status`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${adminToken}`,
+                },
+                body: JSON.stringify({
+                  status: newStatus,
+                  notes: adminNotes,
+                }),
+              }
+            );
 
             const result = await response.json();
 
