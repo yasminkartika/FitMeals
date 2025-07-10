@@ -4,11 +4,20 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // Untuk implementasi sederhana, kita hanya return success
-    // Dalam implementasi yang lebih kompleks, kita bisa:
-    // 1. Blacklist token
-    // 2. Clear session dari database
-    // 3. Update last logout time
+    // Clear session admin
+    if (req.session.admin) {
+      delete req.session.admin;
+      console.log("Admin session cleared");
+    }
+
+    // Destroy session jika diperlukan
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Error destroying session:", err);
+      } else {
+        console.log("Session destroyed successfully");
+      }
+    });
 
     console.log("Admin logout successful");
 

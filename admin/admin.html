@@ -637,6 +637,13 @@
           return false;
         }
 
+        // Cek format token
+        if (!adminToken.startsWith('admin_')) {
+          console.log("❌ Invalid token format");
+          redirectToLogin();
+          return false;
+        }
+
         // Verifikasi token dengan server
         try {
           console.log("📡 Verifying token with server...");
@@ -654,10 +661,7 @@
             console.log("❌ Token verification failed");
             const errorData = await response.json();
             console.log("Error details:", errorData);
-
-            // Jika server error, bypass sementara untuk debugging
-            console.log("🔄 Server error detected, bypassing for debugging...");
-            return true;
+            return false;
           }
 
           const data = await response.json();
@@ -665,20 +669,14 @@
 
           if (!data.valid) {
             console.log("❌ Token is invalid");
-
-            // Jika token invalid, bypass sementara untuk debugging
-            console.log("🔄 Token invalid, bypassing for debugging...");
-            return true;
+            return false;
           }
 
           console.log("✅ Admin authentication successful");
           return true;
         } catch (error) {
           console.error("❌ Error verifying token:", error);
-
-          // Jika network error, bypass sementara untuk debugging
-          console.log("🔄 Network error, bypassing for debugging...");
-          return true;
+          return false;
         }
       }
 
@@ -709,11 +707,16 @@
 
       // Cek autentikasi saat halaman dimuat
       document.addEventListener("DOMContentLoaded", async function () {
+        console.log("🚀 Admin page loaded, checking authentication...");
+        
         const isAuthenticated = await checkAdminAuth();
 
         if (!isAuthenticated) {
+          console.log("❌ Authentication failed, redirecting to login...");
           return; // Halaman akan di-redirect
         }
+
+        console.log("✅ Authentication successful, initializing dashboard...");
 
         // Jika autentikasi berhasil, inisialisasi dashboard
         const admin = JSON.parse(localStorage.getItem("admin"));
@@ -765,6 +768,7 @@
         .getElementById("logoutBtn")
         .addEventListener("click", async () => {
           try {
+            const adminToken = localStorage.getItem("adminToken");
             const response = await fetch("/api/admin/logout", {
               method: "POST",
               headers: {

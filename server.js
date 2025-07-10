@@ -88,10 +88,12 @@ const menuHandler = require("./api/admin/menu");
 const verifyAdminToken = require("./api/admin/verifyToken.js");
 const updateOrderStatus = require("./api/admin/updateOrderStatus.js");
 const testEndpoint = require("./api/admin/test.js");
+const adminLogoutHandler = require("./api/admin/logout.js");
 
 // Routing manual
 app.post("/api/admin/createAdmin", createAdmin);
 app.post("/api/admin/login", adminLoginHandler);
+app.post("/api/admin/logout", adminLogoutHandler);
 app.post("/api/admin/verify-token", verifyAdminToken);
 app.get("/api/admin/test", testEndpoint);
 app.get("/api/admin/getUsers", require("./api/admin/getUsers"));
@@ -176,10 +178,7 @@ app.get("/dashboard.html", (req, res) => {
 
 // Proteksi halaman admin - redirect ke login jika tidak ada session admin
 app.get("/admin/admin.html", (req, res) => {
-  // Cek apakah ada session admin
-  if (!req.session.admin) {
-    return res.redirect("/admin/login.html");
-  }
+  // Hapus pengecekan session, biarkan frontend handle authentication
   res.sendFile(path.join(__dirname, "admin", "admin.html"));
 });
 
@@ -190,13 +189,18 @@ app.use("/admin", (req, res, next) => {
     return next();
   }
 
-  // Izinkan akses ke file statis (CSS, JS, images) jika sudah login
-  if (req.session.admin) {
+  // Izinkan akses ke admin.html (frontend akan handle auth)
+  if (req.path === "/admin.html") {
     return next();
   }
 
-  // Redirect ke login untuk file admin lainnya
-  res.redirect("/admin/login.html");
+  // Izinkan akses ke file statis (CSS, JS, images)
+  if (req.path.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg)$/)) {
+    return next();
+  }
+
+  // Untuk file admin lainnya, biarkan frontend handle
+  return next();
 });
 
 // Serve static files untuk admin (CSS, JS, images)

@@ -63,8 +63,18 @@ module.exports = async function loginHandler(req, res) {
       id: user._id,
       username: user.username,
       email: user.email,
+      role: user.role,
     };
     console.log("Session admin disimpan:", req.session.admin);
+    
+    // Pastikan session disimpan
+    req.session.save((err) => {
+      if (err) {
+        console.error("Error saving session:", err);
+      } else {
+        console.log("Session admin berhasil disimpan");
+      }
+    });
 
     return res.status(200).json({
       message: "Login admin berhasil",
