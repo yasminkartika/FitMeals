@@ -2,25 +2,24 @@ const dbConnect = require("../../lib/db.js");
 const User = require("../../models/User.js");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("../../config/cloudinary.js");
 const path = require("path");
 const fs = require("fs");
 const JWT_SECRET = process.env.JWT_SECRET || "fitmeals_secret";
 
-// Konfigurasi Multer untuk upload file
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadDir = 'uploads/profiles';
-    // Buat direktori jika belum ada
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
+// Konfigurasi Multer untuk upload ke Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "fitmeals/profiles", // folder di Cloudinary
+    allowed_formats: ["jpeg", "jpg", "png", "gif", "webp"],
+    public_id: (req, file) => {
+      // Nama file unik
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      return 'profile-' + uniqueSuffix;
+    },
   },
-  filename: function (req, file, cb) {
-    // Generate nama file unik dengan timestamp
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'profile-' + uniqueSuffix + path.extname(file.originalname));
-  }
 });
 
 // Filter file untuk memastikan hanya gambar yang diupload
@@ -88,19 +87,29 @@ async function uploadPhoto(req, res) {
       console.log("File uploaded:", req.file);
 
       try {
-        // Hapus foto profil lama jika ada
+        // Hapus foto profil lama jika ada (jika sebelumnya sudah di Cloudinary)
         const currentUser = await User.findById(userId);
         if (currentUser && currentUser.fotoProfil) {
-          const oldPhotoPath = currentUser.fotoProfil;
-          if (fs.existsSync(oldPhotoPath)) {
-            fs.unlinkSync(oldPhotoPath);
-            console.log("Old photo deleted:", oldPhotoPath);
+          // Jika URL Cloudinary, hapus dari Cloudinary
+          if (currentUser.fotoProfil.includes("res.cloudinary.com")) {
+            // Ambil public_id dari URL lama
+            const regex = /fitmeals\/profiles\/([^\.\/]+)\./;
+            const match = currentUser.fotoProfil.match(regex);
+            if (match && match[1]) {
+              const publicId = `fitmeals/profiles/${match[1]}`;
+              try {
+                await cloudinary.uploader.destroy(publicId);
+                console.log("Old Cloudinary photo deleted:", publicId);
+              } catch (e) {
+                console.warn("Failed to delete old Cloudinary photo:", e.message);
+              }
+            }
           }
         }
 
-        // Update user dengan foto profil baru
-        const photoUrl = req.file.path;
-        console.log("New photo path:", photoUrl);
+        // Update user dengan foto profil baru (pakai URL Cloudinary)
+        const photoUrl = req.file.path; // URL Cloudinary
+        console.log("New photo URL:", photoUrl);
         
         const updatedUser = await User.findByIdAndUpdate(
           userId,
@@ -143,11 +152,7 @@ async function uploadPhoto(req, res) {
 
       } catch (error) {
         console.error("Database error:", error);
-        // Hapus file yang sudah diupload jika terjadi error
-        if (req.file && fs.existsSync(req.file.path)) {
-          fs.unlinkSync(req.file.path);
-          console.log("File deleted due to error:", req.file.path);
-        }
+        // Tidak perlu hapus file di Cloudinary karena upload atomic
         throw error;
       }
     });
