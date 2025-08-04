@@ -1122,13 +1122,18 @@
           const data = await response.json();
           const menu = data.menu;
 
+          // Validasi menu data
+          if (!menu) {
+            throw new Error("Data menu tidak ditemukan");
+          }
+
           // Isi form dengan data menu
-          document.getElementById("menuNama").value = menu.nama;
-          document.getElementById("menuDeskripsi").value = menu.deskripsi;
-          document.getElementById("menuHarga").value = menu.harga;
-          document.getElementById("menuGambar").value = menu.gambar;
-          document.getElementById("menuKategori").value = menu.kategori;
-          document.getElementById("menuStatus").value = menu.status;
+          document.getElementById("menuNama").value = menu.nama || "";
+          document.getElementById("menuDeskripsi").value = menu.deskripsi || "";
+          document.getElementById("menuHarga").value = menu.harga || 0;
+          document.getElementById("menuGambar").value = menu.gambar || "";
+          document.getElementById("menuKategori").value = menu.kategori || "makan_siang";
+          document.getElementById("menuStatus").value = menu.status || "aktif";
           document.getElementById("menuMinggu").value = menu.minggu || 1;
 
           // Isi data nutrisi

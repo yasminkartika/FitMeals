@@ -8,11 +8,20 @@ const dbConnect = require("../../config/database.js");
 router.get('/', verifyAdmin, async (req, res) => {
   try {
     await dbConnect();
-    const { kategori, status } = req.query;
+    const { kategori, status, id } = req.query;
     let filter = {};
     
     if (kategori) filter.kategori = kategori;
     if (status) filter.status = status;
+    
+    // Jika ada ID, ambil menu spesifik
+    if (id) {
+      const menu = await Menu.findById(id);
+      if (!menu) {
+        return res.status(404).json({ message: "Menu tidak ditemukan" });
+      }
+      return res.json({ menu });
+    }
     
     const menus = await Menu.find(filter).sort({ urutan: 1, createdAt: -1 });
     res.json({ menus });
