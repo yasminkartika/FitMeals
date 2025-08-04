@@ -35,9 +35,7 @@ router.post('/', verifyAdmin, async (req, res) => {
       nutrisi = {},
       status,
       urutan,
-      minggu,
-      tanggalMulai,
-      tanggalSelesai
+      minggu
     } = req.body;
 
     if (!nama || !deskripsi || !gambar) {
@@ -53,8 +51,6 @@ router.post('/', verifyAdmin, async (req, res) => {
       status: status || "aktif",
       urutan: urutan || 0,
       minggu: minggu || 1,
-      tanggalMulai: tanggalMulai ? new Date(tanggalMulai) : new Date(),
-      tanggalSelesai: tanggalSelesai ? new Date(tanggalSelesai) : new Date(),
       nutrisi: {
         kalori: Number(nutrisi.kalori) || 0,
         lemak: Number(nutrisi.lemak) || 0,
@@ -88,8 +84,6 @@ router.put('/:id', verifyAdmin, async (req, res) => {
     if (!updateData.status) updateData.status = "aktif";
     if (!updateData.urutan) updateData.urutan = 0;
     if (!updateData.minggu) updateData.minggu = 1;
-    if (!updateData.tanggalMulai) updateData.tanggalMulai = new Date();
-    if (!updateData.tanggalSelesai) updateData.tanggalSelesai = new Date();
     updateData.nutrisi = {
       kalori: Number(updateData.nutrisi?.kalori) || 0,
       lemak: Number(updateData.nutrisi?.lemak) || 0,

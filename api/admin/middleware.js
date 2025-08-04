@@ -61,7 +61,38 @@ function verifyAdminFromStorage() {
   };
 }
 
+// GET /api/admin/profile - untuk mengambil data profil admin
+async function getAdminProfile(req, res) {
+  try {
+    await dbConnect();
+    
+    // req.user sudah diset oleh verifyAdmin middleware
+    const admin = await User.findById(req.user._id).select('-password');
+    
+    if (!admin) {
+      return res.status(404).json({ message: "Admin tidak ditemukan" });
+    }
+    
+    res.json({
+      _id: admin._id,
+      namaLengkap: admin.namaLengkap,
+      email: admin.email,
+      username: admin.username,
+      nomorHP: admin.nomorHP,
+      role: admin.role,
+      tanggalLahir: admin.tanggalLahir,
+      alamat: admin.alamat,
+      fotoProfil: admin.fotoProfil,
+      createdAt: admin.createdAt
+    });
+  } catch (error) {
+    console.error("Get admin profile error:", error);
+    res.status(500).json({ message: "Gagal mengambil data profil admin", error: error.message });
+  }
+}
+
 module.exports = {
   verifyAdmin,
-  verifyAdminFromStorage
+  verifyAdminFromStorage,
+  getAdminProfile
 }; 

@@ -93,6 +93,12 @@
           >
             Notifikasi Promo
           </button>
+          <button
+            id="sidebarProfile"
+            class="text-left px-4 py-2 rounded hover:bg-orange-100 font-medium text-gray-700"
+          >
+            Profil Admin
+          </button>
         </nav>
       </aside>
       <!-- Main Dashboard Content -->
@@ -392,30 +398,6 @@
                       class="w-full border rounded px-3 py-2"
                       min="1"
                       value="1"
-                      required
-                    />
-                  </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1"
-                      >Tanggal Mulai *</label
-                    >
-                    <input
-                      type="date"
-                      id="menuTanggalMulai"
-                      class="w-full border rounded px-3 py-2"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1"
-                      >Tanggal Selesai *</label
-                    >
-                    <input
-                      type="date"
-                      id="menuTanggalSelesai"
-                      class="w-full border rounded px-3 py-2"
                       required
                     />
                   </div>
@@ -970,19 +952,21 @@
               <tbody>`;
 
           sortedMenus.forEach((menu, idx) => {
-            const statusBadge =
-              menu.status === "aktif"
-                ? '<span class="bg-green-600 text-white px-2 py-1 rounded text-xs">Aktif</span>'
-                : '<span class="bg-red-600 text-white px-2 py-1 rounded text-xs">Nonaktif</span>';
-
-            // Format tanggal
-            const tanggalMulai = menu.tanggalMulai
-              ? new Date(menu.tanggalMulai).toLocaleDateString("id-ID")
-              : "-";
-            const tanggalSelesai = menu.tanggalSelesai
-              ? new Date(menu.tanggalSelesai).toLocaleDateString("id-ID")
-              : "-";
-            const tanggalText = `${tanggalMulai} - ${tanggalSelesai}`;
+            // Format status badge
+            let statusBadge = "";
+            switch (menu.status) {
+              case "aktif":
+                statusBadge =
+                  '<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Aktif</span>';
+                break;
+              case "nonaktif":
+                statusBadge =
+                  '<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">Nonaktif</span>';
+                break;
+              default:
+                statusBadge =
+                  '<span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">Unknown</span>';
+            }
 
             html += `<tr>
               <td class="border px-3 py-2 text-center">${idx + 1}</td>
@@ -1012,8 +996,7 @@
                   menu.minggu || 1
                 }</span>
               </td>
-              <td class="border px-3 py-2 text-center text-xs">${tanggalText}</td>
-              <td class="border px-3 py-2 text-center">${statusBadge}</td>
+              <td class="border px-3 py-2 text-center text-xs">${statusBadge}</td>
               <td class="border px-3 py-2 text-center">
                 <button onclick="editMenu('${
                   menu._id
@@ -1044,7 +1027,7 @@
           const formData = new FormData();
           formData.append("photo", fileInput.files[0]);
           try {
-            const uploadRes = await fetch("/api/admin/uploadPhoto", {
+            const uploadRes = await fetch("/api/admin/uploadPhoto/menu", {
               method: "POST",
               headers: {
                 Authorization: `Bearer ${adminToken}`,
@@ -1052,8 +1035,8 @@
               body: formData,
             });
             const uploadData = await uploadRes.json();
-            if (uploadRes.ok && uploadData.path) {
-              gambarPath = uploadData.path;
+            if (uploadRes.ok && uploadData.imageUrl) {
+              gambarPath = uploadData.imageUrl;
             } else {
               alert(
                 "Gagal upload gambar: " +
@@ -1083,8 +1066,6 @@
           status: document.getElementById("menuStatus").value,
           urutan: 0, // default
           minggu: Number(document.getElementById("menuMinggu").value) || 1,
-          tanggalMulai: document.getElementById("menuTanggalMulai").value,
-          tanggalSelesai: document.getElementById("menuTanggalSelesai").value,
           nutrisi: {
             kalori: Number(document.getElementById("menuKalori").value) || 0,
             lemak: Number(document.getElementById("menuLemak").value) || 0,
@@ -1149,22 +1130,6 @@
           document.getElementById("menuKategori").value = menu.kategori;
           document.getElementById("menuStatus").value = menu.status;
           document.getElementById("menuMinggu").value = menu.minggu || 1;
-
-          // Format tanggal untuk input date
-          if (menu.tanggalMulai) {
-            document.getElementById("menuTanggalMulai").value = new Date(
-              menu.tanggalMulai
-            )
-              .toISOString()
-              .split("T")[0];
-          }
-          if (menu.tanggalSelesai) {
-            document.getElementById("menuTanggalSelesai").value = new Date(
-              menu.tanggalSelesai
-            )
-              .toISOString()
-              .split("T")[0];
-          }
 
           // Isi data nutrisi
           document.getElementById("menuKalori").value =
@@ -1620,6 +1585,148 @@
         .addEventListener("change", function () {
           loadOrders();
         });
+
+      // ===== PROFIL ADMIN SECTION =====
+      document.getElementById("sidebarProfile").addEventListener("click", () => {
+        showProfileSection();
+      });
+
+      function showProfileSection() {
+        const mainContent = document.getElementById("mainContent");
+        mainContent.innerHTML = `
+          <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Profil Admin</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <!-- Info Profil -->
+              <div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Informasi Profil</h3>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                    <input type="text" id="adminNamaLengkap" class="w-full border rounded px-3 py-2" readonly>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="adminEmail" class="w-full border rounded px-3 py-2" readonly>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input type="text" id="adminUsername" class="w-full border rounded px-3 py-2" readonly>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nomor HP</label>
+                    <input type="text" id="adminNomorHP" class="w-full border rounded px-3 py-2" readonly>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Upload Foto Profil -->
+              <div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Foto Profil</h3>
+                <div class="space-y-4">
+                  <div class="flex items-center space-x-4">
+                    <img id="adminFotoPreview" src="/img/default-avatar.png" alt="Foto Profil" 
+                         class="w-24 h-24 rounded-full object-cover border-2 border-gray-200">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-2">Upload Foto Baru</label>
+                      <input type="file" id="adminFotoFile" accept="image/*" 
+                             class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    </div>
+                  </div>
+                  <button id="uploadFotoBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200">
+                    Upload Foto
+                  </button>
+                  <p class="text-xs text-gray-500">Format: JPG, PNG, GIF, WebP. Maksimal 5MB.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Load admin profile data
+        loadAdminProfile();
+        
+        // Add event listener for photo upload
+        document.getElementById("uploadFotoBtn").addEventListener("click", uploadAdminPhoto);
+      }
+
+      async function loadAdminProfile() {
+        try {
+          const adminToken = localStorage.getItem("adminToken");
+          const response = await fetch("/api/admin/profile", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${adminToken}`,
+            },
+          });
+
+          if (response.ok) {
+            const adminData = await response.json();
+            
+            // Fill form fields
+            document.getElementById("adminNamaLengkap").value = adminData.namaLengkap || "";
+            document.getElementById("adminEmail").value = adminData.email || "";
+            document.getElementById("adminUsername").value = adminData.username || "";
+            document.getElementById("adminNomorHP").value = adminData.nomorHP || "";
+            
+            // Set profile photo
+            const fotoPreview = document.getElementById("adminFotoPreview");
+            if (adminData.fotoProfil) {
+              fotoPreview.src = adminData.fotoProfil;
+            } else {
+              fotoPreview.src = "/img/default-avatar.png";
+            }
+          } else {
+            console.error("Failed to load admin profile");
+          }
+        } catch (error) {
+          console.error("Error loading admin profile:", error);
+        }
+      }
+
+      async function uploadAdminPhoto() {
+        const fileInput = document.getElementById("adminFotoFile");
+        const adminToken = localStorage.getItem("adminToken");
+
+        if (!fileInput.files || !fileInput.files[0]) {
+          alert("Pilih file foto terlebih dahulu!");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("photo", fileInput.files[0]);
+
+        try {
+          const response = await fetch("/api/admin/uploadPhoto", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${adminToken}`,
+            },
+            body: formData,
+          });
+
+          const result = await response.json();
+
+          if (response.ok) {
+            alert("Foto profil berhasil diupload!");
+            
+            // Update preview
+            const fotoPreview = document.getElementById("adminFotoPreview");
+            if (result.user && result.user.fotoProfil) {
+              fotoPreview.src = result.user.fotoProfil;
+            }
+            
+            // Clear file input
+            fileInput.value = "";
+          } else {
+            alert("Gagal upload foto: " + (result.message || "Unknown error"));
+          }
+        } catch (error) {
+          alert("Error: " + error.message);
+        }
+      }
     </script>
   </body>
 </html>

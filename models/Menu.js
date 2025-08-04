@@ -51,14 +51,6 @@ const menuSchema = new mongoose.Schema({
     min: 1,
     default: 1,
   },
-  tanggalMulai: {
-    type: Date,
-    required: true,
-  },
-  tanggalSelesai: {
-    type: Date,
-    required: true,
-  },
   createdAt: {
     type: Date,
     default: Date.now,
