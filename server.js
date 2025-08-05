@@ -33,6 +33,8 @@ app.use(express.json());
 
 // Serve static files
 app.use("/uploads", express.static("uploads"));
+app.use("/uploads/fitmeals_menu", express.static("uploads/fitmeals_menu"));
+app.use("/uploads/fitmeals_profiles", express.static("uploads/fitmeals_profiles"));
 
 // Session configuration - Improved for better persistence
 app.use(

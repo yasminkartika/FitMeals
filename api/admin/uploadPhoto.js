@@ -33,7 +33,11 @@ const createStorage = (folder) => {
       throw error;
     }
   } else {
-    console.log("💾 Using local storage as fallback");
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Cloudinary is required in production environment');
+    }
+    
+    console.log("💾 Using local storage as fallback (development only)");
     // Pastikan folder uploads ada
     const uploadDir = path.join(process.cwd(), 'uploads', folder.replace('/', '_'));
     if (!fs.existsSync(uploadDir)) {
@@ -109,7 +113,10 @@ router.post('/', verifyAdmin, (req, res) => {
         photoUrl = req.file.path;
         console.log("☁️  Cloudinary profile photo URL:", photoUrl);
       } else {
-        // Local storage response
+        if (process.env.NODE_ENV === 'production') {
+          throw new Error('Expected Cloudinary URL in production');
+        }
+        // Local storage response (development only)
         photoUrl = `/uploads/fitmeals_profiles/${req.file.filename}`;
         console.log("💾 Local profile photo URL:", photoUrl);
       }
@@ -175,7 +182,10 @@ router.post('/menu', verifyAdmin, (req, res) => {
         photoUrl = req.file.path;
         console.log("☁️  Cloudinary photo URL:", photoUrl);
       } else {
-        // Local storage response
+        if (process.env.NODE_ENV === 'production') {
+          throw new Error('Expected Cloudinary URL in production');
+        }
+        // Local storage response (development only)
         photoUrl = `/uploads/fitmeals_menu/${req.file.filename}`;
         console.log("💾 Local photo URL:", photoUrl);
       }

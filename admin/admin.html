@@ -973,7 +973,10 @@
               <td class="border px-3 py-2 text-center">
                 <img src="${menu.gambar}" alt="${
               menu.nama
-            }" class="w-16 h-16 object-cover rounded mx-auto">
+            }" class="w-16 h-16 object-cover rounded mx-auto" 
+                 onerror="this.src='/img/lunch.jpg'; this.onerror=null;"
+                 onload="this.style.display='block';"
+                 style="display: none;">
               </td>
               <td class="border px-3 py-2">
                 <div class="font-medium">${menu.nama}</div>
