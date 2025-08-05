@@ -1,31 +1,54 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('../../config/cloudinary.js');
 const path = require('path');
+const fs = require('fs');
 const { verifyAdmin } = require('./middleware');
 const User = require('../../models/User.js');
 
-// Konfigurasi Multer untuk upload ke Cloudinary
+// Cek apakah Cloudinary tersedia
+const cloudinary = require('../../config/cloudinary.js');
+const CloudinaryStorage = cloudinary ? require('multer-storage-cloudinary').CloudinaryStorage : null;
+
+// Konfigurasi storage berdasarkan ketersediaan Cloudinary
 const createStorage = (folder) => {
-  console.log("🔧 Creating CloudinaryStorage for folder:", folder);
+  console.log("🔧 Creating storage for folder:", folder);
   
-  try {
-    return new CloudinaryStorage({
-      cloudinary: cloudinary,
-      params: {
-        folder: folder,
-        allowed_formats: ['jpeg', 'jpg', 'png', 'gif', 'webp'],
-        public_id: (req, file) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-          return folder === 'fitmeals/menu' ? 'menu-' + uniqueSuffix : 'admin-profile-' + uniqueSuffix;
+  if (cloudinary && CloudinaryStorage) {
+    console.log("☁️  Using Cloudinary storage");
+    try {
+      return new CloudinaryStorage({
+        cloudinary: cloudinary,
+        params: {
+          folder: folder,
+          allowed_formats: ['jpeg', 'jpg', 'png', 'gif', 'webp'],
+          public_id: (req, file) => {
+            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+            return folder === 'fitmeals/menu' ? 'menu-' + uniqueSuffix : 'admin-profile-' + uniqueSuffix;
+          },
         },
+      });
+    } catch (error) {
+      console.error("❌ Error creating CloudinaryStorage:", error);
+      throw error;
+    }
+  } else {
+    console.log("💾 Using local storage as fallback");
+    // Pastikan folder uploads ada
+    const uploadDir = path.join(process.cwd(), 'uploads', folder.replace('/', '_'));
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    
+    return multer.diskStorage({
+      destination: function (req, file, cb) {
+        cb(null, uploadDir);
       },
+      filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + '-' + file.originalname.replace(/\s+/g, '_'));
+      }
     });
-  } catch (error) {
-    console.error("❌ Error creating CloudinaryStorage:", error);
-    throw error;
   }
 };
 
@@ -58,27 +81,39 @@ router.post('/', verifyAdmin, (req, res) => {
     }
 
     try {
-      // Hapus foto profil lama jika ada
-      const currentUser = await User.findById(req.user._id);
-      if (currentUser && currentUser.fotoProfil && currentUser.fotoProfil.includes('res.cloudinary.com')) {
-        const regex = /fitmeals\/profiles\/([^\.\/]+)\./;
-        const match = currentUser.fotoProfil.match(regex);
-        if (match && match[1]) {
-          const publicId = `fitmeals/profiles/${match[1]}`;
-          try {
-            // Gunakan cloudinary v1 API
-            await cloudinary.uploader.destroy(publicId, (result) => {
-              console.log("Old photo deleted:", result);
-            });
-          } catch (e) {
-            console.warn("Failed to delete old photo:", e.message);
-            // Tidak masalah jika gagal hapus
+      // Hapus foto profil lama jika ada (hanya jika menggunakan Cloudinary)
+      if (cloudinary) {
+        const currentUser = await User.findById(req.user._id);
+        if (currentUser && currentUser.fotoProfil && currentUser.fotoProfil.includes('res.cloudinary.com')) {
+          const regex = /fitmeals\/profiles\/([^\.\/]+)\./;
+          const match = currentUser.fotoProfil.match(regex);
+          if (match && match[1]) {
+            const publicId = `fitmeals/profiles/${match[1]}`;
+            try {
+              // Gunakan cloudinary v1 API
+              await cloudinary.uploader.destroy(publicId, (result) => {
+                console.log("Old photo deleted:", result);
+              });
+            } catch (e) {
+              console.warn("Failed to delete old photo:", e.message);
+              // Tidak masalah jika gagal hapus
+            }
           }
         }
       }
 
       // Update user dengan foto profil baru
-      const photoUrl = req.file.path;
+      let photoUrl;
+      if (cloudinary && req.file.path && req.file.path.includes('res.cloudinary.com')) {
+        // Cloudinary response
+        photoUrl = req.file.path;
+        console.log("☁️  Cloudinary profile photo URL:", photoUrl);
+      } else {
+        // Local storage response
+        photoUrl = `/uploads/fitmeals_profiles/${req.file.filename}`;
+        console.log("💾 Local profile photo URL:", photoUrl);
+      }
+      
       const updatedUser = await User.findByIdAndUpdate(
         req.user._id,
         { fotoProfil: photoUrl },
@@ -132,8 +167,18 @@ router.post('/menu', verifyAdmin, (req, res) => {
 
     try {
       console.log("✅ File uploaded successfully:", req.file);
-      const photoUrl = req.file.path;
-      console.log("📸 Photo URL:", photoUrl);
+      
+      // Handle response berdasarkan storage type
+      let photoUrl;
+      if (cloudinary && req.file.path && req.file.path.includes('res.cloudinary.com')) {
+        // Cloudinary response
+        photoUrl = req.file.path;
+        console.log("☁️  Cloudinary photo URL:", photoUrl);
+      } else {
+        // Local storage response
+        photoUrl = `/uploads/fitmeals_menu/${req.file.filename}`;
+        console.log("💾 Local photo URL:", photoUrl);
+      }
       
       res.json({
         message: 'Foto menu berhasil diupload',

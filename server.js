@@ -1,13 +1,10 @@
-require("dotenv").config({ path: ".env.local" });
+require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
-const dotenv = require("dotenv");
 const cors = require("cors");
 const app = express();
 // const PORT = 3000;
 const PORT = process.env.PORT || 3000;
-
-dotenv.config();
 
 // CORS harus di paling atas
 const allowedOrigins = [

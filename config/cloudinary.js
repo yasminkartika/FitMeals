@@ -2,9 +2,13 @@ const cloudinary = require('cloudinary').v1;
 
 // Validasi environment variables
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-  console.error("❌ Cloudinary environment variables tidak lengkap!");
-  console.error("Pastikan CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, dan CLOUDINARY_API_SECRET sudah diset");
-  process.exit(1);
+  console.warn("⚠️  Cloudinary environment variables tidak lengkap!");
+  console.warn("Pastikan CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, dan CLOUDINARY_API_SECRET sudah diset");
+  console.warn("Upload foto akan menggunakan penyimpanan lokal sebagai fallback");
+  
+  // Gunakan default values atau disable Cloudinary
+  module.exports = null;
+  return;
 }
 
 cloudinary.config({
