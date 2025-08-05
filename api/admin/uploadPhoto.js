@@ -8,17 +8,26 @@ const { verifyAdmin } = require('./middleware');
 const User = require('../../models/User.js');
 
 // Konfigurasi Multer untuk upload ke Cloudinary
-const createStorage = (folder) => new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: folder,
-    allowed_formats: ['jpeg', 'jpg', 'png', 'gif', 'webp'],
-    public_id: (req, file) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-      return folder === 'fitmeals/menu' ? 'menu-' + uniqueSuffix : 'admin-profile-' + uniqueSuffix;
-    },
-  },
-});
+const createStorage = (folder) => {
+  console.log("🔧 Creating CloudinaryStorage for folder:", folder);
+  
+  try {
+    return new CloudinaryStorage({
+      cloudinary: cloudinary,
+      params: {
+        folder: folder,
+        allowed_formats: ['jpeg', 'jpg', 'png', 'gif', 'webp'],
+        public_id: (req, file) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+          return folder === 'fitmeals/menu' ? 'menu-' + uniqueSuffix : 'admin-profile-' + uniqueSuffix;
+        },
+      },
+    });
+  } catch (error) {
+    console.error("❌ Error creating CloudinaryStorage:", error);
+    throw error;
+  }
+};
 
 // Filter file untuk memastikan hanya gambar yang diupload
 const fileFilter = (req, file, cb) => {
@@ -57,8 +66,12 @@ router.post('/', verifyAdmin, (req, res) => {
         if (match && match[1]) {
           const publicId = `fitmeals/profiles/${match[1]}`;
           try {
-            await cloudinary.uploader.destroy(publicId);
+            // Gunakan cloudinary v1 API
+            await cloudinary.uploader.destroy(publicId, (result) => {
+              console.log("Old photo deleted:", result);
+            });
           } catch (e) {
+            console.warn("Failed to delete old photo:", e.message);
             // Tidak masalah jika gagal hapus
           }
         }
@@ -91,6 +104,7 @@ router.post('/', verifyAdmin, (req, res) => {
         }
       });
     } catch (error) {
+      console.error("Upload photo error:", error);
       res.status(500).json({ message: 'Terjadi kesalahan server: ' + error.message });
     }
   });
@@ -98,6 +112,8 @@ router.post('/', verifyAdmin, (req, res) => {
 
 // POST /api/admin/uploadPhoto/menu - untuk foto menu
 router.post('/menu', verifyAdmin, (req, res) => {
+  console.log("📸 Upload foto menu request received");
+  
   const upload = multer({
     storage: createStorage('fitmeals/menu'),
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
@@ -106,19 +122,25 @@ router.post('/menu', verifyAdmin, (req, res) => {
 
   upload.single('photo')(req, res, async (err) => {
     if (err) {
+      console.error("❌ Multer error:", err);
       return res.status(400).json({ message: err.message });
     }
     if (!req.file) {
+      console.error("❌ No file uploaded");
       return res.status(400).json({ message: 'Tidak ada file yang diupload' });
     }
 
     try {
+      console.log("✅ File uploaded successfully:", req.file);
       const photoUrl = req.file.path;
+      console.log("📸 Photo URL:", photoUrl);
+      
       res.json({
         message: 'Foto menu berhasil diupload',
         imageUrl: photoUrl
       });
     } catch (error) {
+      console.error("❌ Upload menu photo error:", error);
       res.status(500).json({ message: 'Terjadi kesalahan server: ' + error.message });
     }
   });

@@ -101,7 +101,7 @@ app.get("/api/admin/getOrders", require("./api/admin/getOrders"));
 app.put("/api/admin/orders/:orderId/status", updateOrderStatus);
 app.use("/api/admin/menu", menuHandler);
 app.use("/api/admin/uploadPhoto", require("./api/admin/uploadPhoto.js"));
-app.get("/api/admin/profile", require("./api/admin/middleware.js").getAdminProfile);
+app.get("/api/admin/profile", require("./api/admin/middleware.js").verifyAdmin, require("./api/admin/middleware.js").getAdminProfile);
 app.get("/api/menu", require("./api/menu.js"));
 app.post("/api/login", userLoginHandler);
 app.post("/api/register", require("./api/register.js"));

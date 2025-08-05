@@ -1659,6 +1659,23 @@
       async function loadAdminProfile() {
         try {
           const adminToken = localStorage.getItem("adminToken");
+          console.log("Loading admin profile with token:", adminToken ? "Found" : "Not found");
+          console.log("Token format check:", adminToken ? adminToken.startsWith("admin_") : "No token");
+          
+          if (!adminToken) {
+            console.error("Admin token not found in localStorage");
+            alert("Token admin tidak ditemukan. Silakan login ulang.");
+            window.location.href = "login.html";
+            return;
+          }
+
+          if (!adminToken.startsWith("admin_")) {
+            console.error("Invalid admin token format");
+            alert("Format token admin tidak valid. Silakan login ulang.");
+            window.location.href = "login.html";
+            return;
+          }
+
           const response = await fetch("/api/admin/profile", {
             method: "GET",
             headers: {
@@ -1667,8 +1684,11 @@
             },
           });
 
+          console.log("Profile response status:", response.status);
+
           if (response.ok) {
             const adminData = await response.json();
+            console.log("Admin profile data:", adminData);
             
             // Fill form fields
             document.getElementById("adminNamaLengkap").value = adminData.namaLengkap || "";
@@ -1679,15 +1699,31 @@
             // Set profile photo
             const fotoPreview = document.getElementById("adminFotoPreview");
             if (adminData.fotoProfil) {
+              console.log("Setting profile photo:", adminData.fotoProfil);
               fotoPreview.src = adminData.fotoProfil;
+              
+              // Update admin data in localStorage
+              const adminDataLocal = JSON.parse(localStorage.getItem("admin") || "{}");
+              adminDataLocal.fotoProfil = adminData.fotoProfil;
+              localStorage.setItem("admin", JSON.stringify(adminDataLocal));
             } else {
+              console.log("No profile photo found, using default");
               fotoPreview.src = "/img/default-avatar.png";
             }
           } else {
-            console.error("Failed to load admin profile");
+            const errorData = await response.json();
+            console.error("Failed to load admin profile:", errorData);
+            
+            if (response.status === 401) {
+              alert("Token admin expired. Silakan login ulang.");
+              window.location.href = "login.html";
+            } else {
+              alert("Gagal memuat profil admin: " + (errorData.message || "Unknown error"));
+            }
           }
         } catch (error) {
           console.error("Error loading admin profile:", error);
+          alert("Error memuat profil admin: " + error.message);
         }
       }
 
@@ -1695,10 +1731,18 @@
         const fileInput = document.getElementById("adminFotoFile");
         const adminToken = localStorage.getItem("adminToken");
 
+        if (!adminToken) {
+          alert("Token admin tidak ditemukan. Silakan login ulang.");
+          window.location.href = "login.html";
+          return;
+        }
+
         if (!fileInput.files || !fileInput.files[0]) {
           alert("Pilih file foto terlebih dahulu!");
           return;
         }
+
+        console.log("Uploading photo:", fileInput.files[0].name);
 
         const formData = new FormData();
         formData.append("photo", fileInput.files[0]);
@@ -1712,23 +1756,43 @@
             body: formData,
           });
 
+          console.log("Upload response status:", response.status);
+
           const result = await response.json();
+          console.log("Upload result:", result);
 
           if (response.ok) {
             alert("Foto profil berhasil diupload!");
             
-            // Update preview
+            // Update preview immediately
             const fotoPreview = document.getElementById("adminFotoPreview");
             if (result.user && result.user.fotoProfil) {
+              console.log("Updating preview with:", result.user.fotoProfil);
               fotoPreview.src = result.user.fotoProfil;
+              
+              // Update admin data in localStorage
+              const adminData = JSON.parse(localStorage.getItem("admin") || "{}");
+              adminData.fotoProfil = result.user.fotoProfil;
+              localStorage.setItem("admin", JSON.stringify(adminData));
             }
             
             // Clear file input
             fileInput.value = "";
+            
+            // Reload profile data after a short delay to ensure consistency
+            setTimeout(() => {
+              loadAdminProfile();
+            }, 500);
           } else {
-            alert("Gagal upload foto: " + (result.message || "Unknown error"));
+            if (response.status === 401) {
+              alert("Token admin expired. Silakan login ulang.");
+              window.location.href = "login.html";
+            } else {
+              alert("Gagal upload foto: " + (result.message || "Unknown error"));
+            }
           }
         } catch (error) {
+          console.error("Upload error:", error);
           alert("Error: " + error.message);
         }
       }
